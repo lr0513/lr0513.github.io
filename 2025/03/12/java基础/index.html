@@ -1699,12 +1699,12 @@ return “ing”;<br>
   })
 })()</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><!-- hexo injector body_end start --><script data-pjax>
     function butterfly_categories_card_injector_config(){
-      var parent_div_git = document.getElementById('recent-posts');
-      var item_html = '<style>li.categoryBar-list-item{width:32.3%;}.categoryBar-list{max-height: 190px;overflow:auto;}.categoryBar-list::-webkit-scrollbar{width:0!important}@media screen and (max-width: 650px){.categoryBar-list{max-height: 160px;}}</style><div class="recent-post-item" style="height:auto;width:100%;padding:0px;"><div id="categoryBar"><ul class="categoryBar-list"><li class="categoryBar-list-item" style="background:url(https://npm.elemecdn.com/akilar-candyassets/image/cover1.webp);"> <a class="categoryBar-list-link" onclick="pjax.loadUrl(&quot;categories/八股/&quot;);" href="javascript:void(0);">八股</a><span class="categoryBar-list-count">1</span><span class="categoryBar-list-descr">Ubuntu指南</span></li></ul></div></div>';
+      var parent_div_git = document.getElementsByClassName('recent-posts')[0];
+      var item_html = '<div class="recent-post-item" style="height:auto;width:100%;padding:0px;"><div id="categoryBar"><ul class="categoryBar-list"><li class="categoryBar-list-item" style="background:url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_155818.png);"> <a class="categoryBar-list-link" onclick="pjax.loadUrl(&quot;categories/八股/&quot;);" href="javascript:void(0);">八股</a><span class="categoryBar-list-count">1</span><span class="categoryBar-list-descr">java指南</span></li></ul></div></div>';
       console.log('已挂载butterfly_categories_card')
       parent_div_git.insertAdjacentHTML("afterbegin",item_html)
       }
-    if( document.getElementById('recent-posts') && (location.pathname ==='/'|| '/' ==='all')){
+    if( document.getElementsByClassName('recent-posts')[0] && (location.pathname ==='/'|| '/' ==='all')){
     butterfly_categories_card_injector_config()
     }
   </script><!-- hexo injector body_end end --></body></html>
