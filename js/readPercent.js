@@ -13,6 +13,7 @@ function percent() {
         result = Math.round(a / b * 100), // 计算百分比
         up = document.querySelector("#go-up"); // 获取按钮
 
+    if (result > 100) result = 100;  // 添加上限限制
     if (result <= 95) {
         up.childNodes[0].style.display = 'none';
         up.childNodes[1].style.display = 'block';
