@@ -1,0 +1,28 @@
+/* 基础鼠标样式 */
+body {
+    cursor: url(/cursor/cursor.png), auto;
+}
+
+/* 链接和按钮样式 */
+a,
+button,
+input,
+textarea,
+select {
+    cursor: url(/cursor/cursor.png), auto;
+}
+
+/* 特殊状态 */
+a:hover,
+button:hover,
+input:hover,
+textarea:hover,
+select:hover {
+    cursor: url(/cursor/cursor.png), pointer;
+}
+
+/* 代码区块特殊样式 */
+pre,
+code {
+    cursor: url(/cursor/cursor.png), text;
+}
