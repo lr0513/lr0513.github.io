@@ -71,3 +71,37 @@
         opacity: 1;
     }
 }
+
+/* 顶部滑动提示 */
+.copy-notification {
+    position: fixed;
+    top: -50px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(97, 129, 98, 0.9);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 25px;
+    font-size: 14px;
+    z-index: 9999;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: top 0.3s ease;
+    display: flex;
+    align-items: center;
+}
+
+.copy-notification.show {
+    top: 20px;
+}
+
+.copy-notification::before {
+    content: "✓";
+    margin-right: 8px;
+    font-size: 16px;
+}
+
+/* 翻页按钮居中 */
+#pagination {
+    width: 100%;
+    margin: auto;
+}
