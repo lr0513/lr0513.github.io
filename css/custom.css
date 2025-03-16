@@ -45,3 +45,29 @@
         border-radius: 12px;
     }
 }
+
+#subtitle {
+    font-size: 1.2rem !important;
+    color: #f4f8f2 !important;
+    margin-top: 0.5rem;
+}
+
+.typed-cursor {
+    font-weight: bold;
+    color: #e74c3c !important;
+    animation: blink 0.7s infinite;
+}
+
+@keyframes blink {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
