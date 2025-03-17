@@ -8,7 +8,21 @@ $.ajax({
     },
     dataType: 'jsonp',
     success: function (res) {
-        ipLoacation = res;
+        console.log('[定位API原始响应]', res);  // 第一个日志：输出完整响应对象
+        console.log('[定位状态码]', res.status, '[消息]', res.message);  // 第二个日志：关键字段
+
+        if (res.status === 0) {
+            ipLoacation = res;
+            console.log('[定位成功] 详细数据:', {
+                ip: res.result.ip,
+                location: res.result.location,
+                ad_info: res.result.ad_info
+            });
+            showWelcome();
+        } else {
+            console.warn('[定位失败] 原因:', res.message);
+            showErrorWelcome(res.message);
+        }
     }
 })
 function getDistance(e1, n1, e2, n2) {
