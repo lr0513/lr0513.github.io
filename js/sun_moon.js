@@ -1,15 +1,40 @@
+function activateDarkMode() {
+    document.documentElement.setAttribute('data-theme', 'dark')
+    localStorage.setItem('theme', 'dark')
+}
+
+function activateLightMode() {
+    document.documentElement.setAttribute('data-theme', 'light')
+    localStorage.setItem('theme', 'light')
+}
+
 function switchNightMode() {
-    document.querySelector('body').insertAdjacentHTML('beforeend', '<div class="Cuteen_DarkSky"><div class="Cuteen_DarkPlanet"><div id="sun"></div><div id="moon"></div></div></div>'),
+    const body = document.querySelector('body')
+    body.insertAdjacentHTML('beforeend', '<div class="Cuteen_DarkSky"><div class="Cuteen_DarkPlanet"><div id="sun"></div><div id="moon"></div></div></div>')
+
+    setTimeout(() => {
+        const isDark = body.classList.contains('DarkMode')
+        const themeNow = document.documentElement.getAttribute('data-theme')
+
+        if (themeNow === 'dark') {
+            activateLightMode()
+            localStorage.setItem('isDark', '0')
+            document.getElementById('modeicon').setAttribute('xlink:href', '#icon-moon')
+        } else {
+            activateDarkMode()
+            localStorage.setItem('isDark', '1')
+            document.getElementById('modeicon').setAttribute('xlink:href', '#icon-sun')
+        }
+
         setTimeout(function () {
-            document.querySelector('body').classList.contains('DarkMode') ? (document.querySelector('body').classList.remove('DarkMode'), localStorage.setItem('isDark', '0'), document.getElementById('modeicon').setAttribute('xlink:href', '#icon-moon')) : (document.querySelector('body').classList.add('DarkMode'), localStorage.setItem('isDark', '1'), document.getElementById('modeicon').setAttribute('xlink:href', '#icon-sun')),
-                setTimeout(function () {
-                    document.getElementsByClassName('Cuteen_DarkSky')[0].style.transition = 'opacity 3s';
-                    document.getElementsByClassName('Cuteen_DarkSky')[0].style.opacity = '0';
-                    setTimeout(function () {
-                        document.getElementsByClassName('Cuteen_DarkSky')[0].remove();
-                    }, 1e3);
-                }, 2e3)
-        })
+            document.getElementsByClassName('Cuteen_DarkSky')[0].style.transition = 'opacity 3s';
+            document.getElementsByClassName('Cuteen_DarkSky')[0].style.opacity = '0';
+            setTimeout(function () {
+                document.getElementsByClassName('Cuteen_DarkSky')[0].remove();
+            }, 1e3);
+        }, 2e3)
+    }, 100)
+
     const nowMode = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light'
     if (nowMode === 'light') {
         // 先设置太阳月亮透明度

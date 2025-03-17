@@ -14,3 +14,12 @@
     /* 这个是调置顶的优先级的，-1在文章页下面，背景上面，个人推荐这种 */
     z-index: -1;
 }
+
+.Cuteen_DarkSky {
+    z-index: 999;
+}
+
+#sun,
+#moon {
+    transition: opacity 1s ease-in-out;
+}
