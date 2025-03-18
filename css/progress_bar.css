@@ -43,29 +43,13 @@
     height: 100%;
     width: 100%;
     /* linear-gradient(to right, #3494e6, #ec6ead) */
-    background: linear-gradient(45deg, #44f3bb, #3973f1, #44f3bb);
-    background-size: 400% 400%;
-    animation: gradient 4s ease infinite;
-    width: auto;
-    min-width: 7rem;
+    background: linear-gradient(to right, #2f87df, #6f17d9);
+    animation: gradient 2s ease infinite;
+    background-size: 200%
 }
 
 .pace.pace-inactive {
     opacity: 0;
     transition: .3s;
     top: -8px
-}
-
-@keyframes gradient {
-    0% {
-        background-position: 0% 50%;
-    }
-
-    50% {
-        background-position: 100% 50%;
-    }
-
-    100% {
-        background-position: 0% 50%;
-    }
 }
