@@ -43,7 +43,7 @@
     height: 100%;
     width: 100%;
     /* linear-gradient(to right, #3494e6, #ec6ead) */
-    background: linear-gradient(to right, #2f87df, #6f17d9);
+    background: linear-gradient(to right, #3376cd, #33cd2b);
     animation: gradient 2s ease infinite;
     background-size: 200%
 }
