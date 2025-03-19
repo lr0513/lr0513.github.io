@@ -1,4 +1,4 @@
-//get请求
+// get请求
 $.ajax({
     type: 'get',
     url: 'https://apis.map.qq.com/ws/location/v1/ip',
@@ -12,7 +12,8 @@ $.ajax({
         console.log('[定位状态码]', res.status, '[消息]', res.message);  // 第二个日志：关键字段
 
         if (res.status === 0) {
-            ipLoacation = res;
+            // 修正变量名拼写错误
+            window.ipLocation = res;
             console.log('[定位成功] 详细数据:', {
                 ip: res.result.ip,
                 location: res.result.location,
@@ -21,34 +22,43 @@ $.ajax({
             showWelcome();
         } else {
             console.warn('[定位失败] 原因:', res.message);
-            showErrorWelcome(res.message);
+            // 确保 showErrorWelcome 函数存在
+            if (typeof showErrorWelcome === 'function') {
+                showErrorWelcome(res.message);
+            }
         }
     }
-})
-function getDistance(e1, n1, e2, n2) {
-    const R = 6371
-    const { sin, cos, asin, PI, hypot } = Math
-    let getPoint = (e, n) => {
-        e *= PI / 180
-        n *= PI / 180
-        return { x: cos(n) * cos(e), y: cos(n) * sin(e), z: sin(n) }
-    }
+});
 
-    let a = getPoint(e1, n1)
-    let b = getPoint(e2, n2)
-    let c = hypot(a.x - b.x, a.y - b.y, a.z - b.z)
-    let r = asin(c / 2) * 2 * R
+function getDistance(e1, n1, e2, n2) {
+    const R = 6371;
+    const { sin, cos, asin, PI, hypot } = Math;
+    let getPoint = (e, n) => {
+        e *= PI / 180;
+        n *= PI / 180;
+        return { x: cos(n) * cos(e), y: cos(n) * sin(e), z: sin(n) };
+    };
+
+    let a = getPoint(e1, n1);
+    let b = getPoint(e2, n2);
+    let c = hypot(a.x - b.x, a.y - b.y, a.z - b.z);
+    let r = asin(c / 2) * 2 * R;
     return Math.round(r);
 }
 
 function showWelcome() {
+    // 检查 ipLocation 是否存在
+    if (!window.ipLocation) {
+        console.warn('定位信息未获取到，无法显示欢迎信息');
+        return;
+    }
 
-    let dist = getDistance(113.34499552, 23.15537143, ipLoacation.result.location.lng, ipLoacation.result.location.lat); //这里换成自己的经纬度
-    let pos = ipLoacation.result.ad_info.nation;
+    let dist = getDistance(113.34499552, 23.15537143, window.ipLocation.result.location.lng, window.ipLocation.result.location.lat);
+    let pos = window.ipLocation.result.ad_info.nation;
     let ip;
     let posdesc;
-    //根据国家、省份、城市信息自定义欢迎语
-    switch (ipLoacation.result.ad_info.nation) {
+    // 根据国家、省份、城市信息自定义欢迎语
+    switch (window.ipLocation.result.ad_info.nation) {
         case "日本":
             posdesc = "よろしく，一起去看樱花吗";
             break;
@@ -74,9 +84,9 @@ function showWelcome() {
             posdesc = "拾起一片枫叶赠予你";
             break;
         case "中国":
-            pos = ipLoacation.result.ad_info.province + " " + ipLoacation.result.ad_info.city + " " + ipLoacation.result.ad_info.district;
-            ip = ipLoacation.result.ip;
-            switch (ipLoacation.result.ad_info.province) {
+            pos = window.ipLocation.result.ad_info.province + " " + window.ipLocation.result.ad_info.city + " " + window.ipLocation.result.ad_info.district;
+            ip = window.ipLocation.result.ip;
+            switch (window.ipLocation.result.ad_info.province) {
                 case "北京市":
                     posdesc = "北——京——欢迎你~~~";
                     break;
@@ -93,7 +103,53 @@ function showWelcome() {
                     posdesc = "天苍苍，野茫茫，风吹草低见牛羊。";
                     break;
                 case "辽宁省":
-                    posdesc = "我想吃烤鸡架！";
+                    switch (window.ipLocation.result.ad_info.city) {
+                        case "沈阳市":
+                            posdesc = "一朝发祥地，两代帝王都，来沈阳故宫感受历史韵味！";
+                            break;
+                        case "大连市":
+                            posdesc = "浪漫之都，滨海之城，一起去星海广场吹吹海风！";
+                            break;
+                        case "鞍山市":
+                            posdesc = "钢都风采，千山独秀，来鞍山领略钢铁与自然之美！";
+                            break;
+                        case "抚顺市":
+                            posdesc = "煤都古韵，雷锋精神，抚顺等你探寻！";
+                            break;
+                        case "本溪市":
+                            posdesc = "燕东胜境，溶洞奇观，本溪山水等你来赏！";
+                            break;
+                        case "丹东市":
+                            posdesc = "北国江南，边境明珠，丹东的鸭绿江超美！";
+                            break;
+                        case "锦州市":
+                            posdesc = "锦绣之州，辽西重镇，锦州的美食不容错过！";
+                            break;
+                        case "营口市":
+                            posdesc = "渤海明珠，温泉之城，营口欢迎你泡温泉！";
+                            break;
+                        case "阜新市":
+                            posdesc = "玉龙故乡，煤电之城，阜新的文化底蕴深厚！";
+                            break;
+                        case "辽阳市":
+                            posdesc = "东北古城，东京风华，辽阳历史等你品味！";
+                            break;
+                        case "盘锦市":
+                            posdesc = "湿地之都，石油之城，盘锦红海滩超惊艳！";
+                            break;
+                        case "铁岭市":
+                            posdesc = "小品之乡，辽北粮仓，铁岭欢乐多！";
+                            break;
+                        case "朝阳市":
+                            posdesc = "三燕古都，凤鸣朝阳，朝阳古迹值得一游！";
+                            break;
+                        case "葫芦岛市":
+                            posdesc = "关外第一市，魅力葫芦岛，海滨风光等你！";
+                            break;
+                        default:
+                            posdesc = "辽宁大地，热情欢迎你！";
+                            break;
+                    }
                     break;
                 case "吉林省":
                     posdesc = "状元阁就是东北烧烤之王。";
@@ -105,7 +161,7 @@ function showWelcome() {
                     posdesc = "众所周知，中国只有两个城市。";
                     break;
                 case "江苏省":
-                    switch (ipLoacation.result.ad_info.city) {
+                    switch (window.ipLocation.result.ad_info.city) {
                         case "南京市":
                             posdesc = "这是我挺想去的城市啦。";
                             break;
@@ -121,7 +177,7 @@ function showWelcome() {
                     posdesc = "东风渐绿西湖柳，雁已还人未南归。";
                     break;
                 case "河南省":
-                    switch (ipLoacation.result.ad_info.city) {
+                    switch (window.ipLocation.result.ad_info.city) {
                         case "郑州市":
                             posdesc = "豫州之域，天地之中。";
                             break;
@@ -215,7 +271,7 @@ function showWelcome() {
             break;
     }
 
-    //根据本地时间切换欢迎语
+    // 根据本地时间切换欢迎语
     let timeChange;
     let date = new Date();
     if (date.getHours() >= 5 && date.getHours() < 11) timeChange = "<span>上午好</span>，一日之计在于晨！";
@@ -227,13 +283,10 @@ function showWelcome() {
     else timeChange = "夜深了，早点休息，少熬夜。";
 
     try {
-        //自定义文本和需要放的位置
+        // 自定义文本和需要放的位置
         document.getElementById("welcome-info").innerHTML =
             `<b><center>🎉 欢迎信息 🎉</center>&emsp;&emsp;欢迎来自 <span style="color:var(--theme-color)">${pos}</span> 的小伙伴，${timeChange}您现在距离站长约 <span style="color:var(--theme-color)">${dist}</span> 公里，当前的IP地址为： <span style="color:var(--theme-color)">${ip}</span>， ${posdesc}</b>`;
     } catch (err) {
-        // console.log("Pjax无法获取#welcome-info元素🙄🙄🙄")
+        console.log("Pjax无法获取#welcome-info元素🙄🙄🙄");
     }
 }
-window.onload = showWelcome;
-// 如果使用了pjax在加上下面这行代码
-document.addEventListener('pjax:complete', showWelcome);
