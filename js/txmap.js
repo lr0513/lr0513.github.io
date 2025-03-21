@@ -53,7 +53,7 @@ function showWelcome() {
         return;
     }
 
-    let dist = getDistance(113.34499552, 23.15537143, window.ipLocation.result.location.lng, window.ipLocation.result.location.lat);
+    let dist = getDistance(120.76169384, 40.56950582, window.ipLocation.result.location.lng, window.ipLocation.result.location.lat);
     let pos = window.ipLocation.result.ad_info.nation;
     let ip;
     let posdesc;
