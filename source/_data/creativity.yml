@@ -1,0 +1,7 @@
+- creativity_list:
+    - name: "设计"
+      icon: "/images/design.png"
+      color: "#ff6b6b"
+    - name: "编程"
+      icon: "/images/code.png"
+      color: "#4dabf7"
