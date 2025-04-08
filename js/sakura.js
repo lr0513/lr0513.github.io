@@ -1,6 +1,6 @@
 var stop, staticx;
 var img = new Image();
-img.src = "https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/spongebob-84327.png";
+img.src = "https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/%E5%9B%BE%E7%89%872.png";
 
 function Sakura(x, y, s, r, fn) {
     this.x = x;
