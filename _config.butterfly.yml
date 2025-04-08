@@ -1,0 +1,1332 @@
+# --------------------------------------
+# Hexo Butterfly Theme Configuration
+# If you have any questions, please refer to the documentation
+# Chinese: https://butterfly.js.org/
+# English: https://butterfly.js.org/en/
+# --------------------------------------
+
+# --------------------------------------
+# Navigation Settings
+# --------------------------------------
+
+nav:
+  # Navigation bar logo image
+  logo: https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_155552.png
+  display_title: true
+  # Whether to fix navigation bar
+  fixed: false
+
+# menu:
+#   首页: / || fas fa-home
+#   留言板: /comments/ || fas fa-comment
+#   主页: https://lr0513.github.io/ || fas fa-id-card
+#   文章||fas fa-book:
+#       分类: /categories/ || fas fa-folder-open
+#       标签: /tags/ || fas fa-tags
+#       归档: /archives/ || fas fa-archive
+#   列表||fa fa-heartbeat || hide:
+#     音乐: /music/ || fas fa-music
+#     相册: /gallery/ ||  fas fa-solid fa-image
+#   友链: /link/ || fas fa-link
+#   关于: /about/ || fas fa-heart
+
+menu:
+  首页: / || icon-hexoa-homezhuyefangzijia || fas fa-home
+  留言板: /comments/ || icon-hexoshouhuiban
+  # 主页: https://lr0513.github.io/ || icon-hexozhuye
+  文章||icon-hexohuanjiaowenzhang:
+      分类: /categories/ || icon-hexofenlei
+      标签: /tags/ || icon-hexobiaoqian
+      归档: /archives/ || icon-hexoguidang
+  # 随机访问: javascript:randomPost(); || fa-solid fa-shuffle
+  娱乐||icon-hexoicon_liebiao:
+    音乐: /music/ || icon-hexoyinle
+    相册: /gallery/ || icon-hexotubiaozhizuomoban
+    # 人物关系: /characters/ || fas fa-users  # 添加这一行
+  友链: /link/ || icon-hexopengyou
+  关于: /about/ || icon-hexowode
+
+code_blocks:
+  # Code block theme: darker / pale night / light / ocean / false
+  theme: ocean
+  macStyle: false
+  # Code block height limit (unit: px)
+  height_limit: false
+  word_wrap: false
+
+  # Toolbar
+  copy: true
+  language: true
+  # true: shrink the code blocks | false: expand the code blocks | none: expand code blocks and hide the button
+  shrink: false
+  fullpage: false
+
+# Social media links
+# Formal:
+#   icon: link || the description || color
+social:
+  # fab fa-github: https://github.com/xxxxx || Github || '#24292e'
+  # fas fa-envelope: mailto:xxxxxx@gmail.com || Email || '#4a7dbe'
+
+# --------------------------------------
+# Image Settings
+# --------------------------------------
+
+favicon: https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_155552.png
+
+avatar:
+  img: https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_155535.png
+  effect: false
+
+# Disable all banner images
+disable_top_img: false
+
+# If the banner of page not setting, it will show the default_top_img
+default_top_img:
+
+# The banner image of index page
+# index_img: https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/%E6%AC%A2%E8%BF%8E%E5%A4%A7%E5%B0%8F%E5%A7%90.jpg
+index_img:
+
+# The banner image of archive page
+archive_img: false
+
+# Note: tag page, not tags page
+tag_img:
+
+# The banner image of tag page, you can set the banner image for each tag
+# Format:
+#  - tag name: xxxxx
+tag_per_img:
+
+# Note: category page, not categories page
+category_img:
+
+# The banner image of category page, you can set the banner image for each category
+# Format:
+#  - category name: xxxxx
+category_per_img:
+
+# The background image of footer
+footer_img: false
+
+# Website Background
+# Can set it to color or image url
+background: https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/af380cb8a5ed3f047e66dbfe731f488.jpg
+  # darkmode: url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_160224.png)
+  # mobileday:
+  # mobilenight:
+
+cover:
+  # Disable the cover or not
+  index_enable: true
+  aside_enable: true
+  archives_enable: true
+  # When cover is not set, the default cover is displayed
+  default_cover:
+    - https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_160146.png
+    - https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_155656.png
+    - https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_160146.png
+    - https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112618.png
+    - https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112650.png
+    - https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112626.png
+    - https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112758.png
+    - https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112813.png
+    - https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112855.png
+    - https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112914.png
+    - https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112938.png
+    - https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112844.png
+    # - xxx.jpg
+
+# Replace Broken Images
+error_img:
+  flink: /img/friend_404.gif
+  post_page: /img/404.jpg
+
+# A simple 404 page
+error_404:
+  enable: false
+  subtitle: 'Page Not Found'
+  background: 'https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/61f147735b28b738fc23063f40dcb87.jpg'
+
+post_meta:
+  # Home Page
+  page:
+    # Choose: created / updated / both
+    date_type: both
+    # Choose: date / relative
+    date_format: relative
+    categories: true
+    tags: true
+    label: true
+  cover: true
+  post:
+    # Choose: left / center
+    position: left
+    # Choose: created / updated / both
+    date_type: both
+    # Choose: date / relative
+    date_format: relative
+    categories: true
+    tags: true
+    label: true
+
+# --------------------------------------
+# Index page settings
+# --------------------------------------
+
+# The top_img settings of home page
+# default: top img - full screen, site info - middle
+# The position of site info, eg: 300px/300em/300rem/10%
+index_site_info_top:
+# The height of top_img, eg: 300px/300em/300rem
+index_top_img_height:
+
+# The subtitle on homepage
+subtitle:
+  enable: true
+  effect: true
+  typed_option:
+    typeSpeed: 100      # 打字速度(ms)
+    backSpeed: 10      # 回退速度(ms)
+    startDelay: 500    # 开始延迟(ms)
+    backDelay: 2000    # 回退延迟(ms)
+    loop: true         # 循环显示
+    showCursor: true   # 显示光标
+    shuffle: true      # 随机显示
+    smartBackspace: false   # 智能回退
+    fadeOut: false          # 渐变消失
+    cursorChar: "|"    # 光标字符
+    contentType: "html"
+  source: false        # 关闭第三方API
+  sub:
+    - "累了就休息下吧，没关系，你已经很棒了"
+    - "做错事的话一定要说对不起喔！<br>因为幼儿园的大家都这么做"
+    - "我的梦想就是当一个小孩子"
+    - "努力就是一种才能，<br>乌龟努力的话也可以赢过兔子啊！"
+    - "梦想不会逃走，逃走的一直都是自己"
+    - "总之，努力了才能遇到美好的事情"
+    - "哈喽~小姐，你喜欢吃青椒吗？"
+    - "真拿现在的小孩没办法"
+    - "漏屁屁外星人摇摇摇摇摇"
+    - "动感光波biubiubiu"
+    - "小姐，你吃纳豆喜欢放葱花吗？"
+    - "我会记得，直到我忘记为止"
+    - "失败一次就放弃，<br>永远当不了独当一面的大人哦！"
+    - "度过平平凡凡的一天，真是可喜可贺"
+    - "人生总是有苦有乐，别在意啦"
+    - "没有人比你更爱自己，好好爱自己哦"
+    - "我希望你开心一点，再开心一点"
+    - "你赖东东不错嘛！"
+
+
+# Article layout on the homepage
+# 1: Cover on the left, info on the right
+# 2: Cover on the right, info on the left
+# 3: Cover and info alternate between left and right
+# 4: Cover on top, info on the bottom
+# 5: Info displayed on the cover
+# 6: Masonry layout - Cover on top, info on the bottom
+# 7: Masonry layout - Info displayed on the cover
+index_layout: 3
+
+# Display the article introduction on homepage
+# 1: description
+# 2: both (if the description exists, it will show description, or show the auto_excerpt)
+# 3: auto_excerpt (default)
+# false: do not show the article introduction
+index_post_content:
+  method: 2
+  # If you set method to 2 or 3, the length need to config
+  length: 500
+
+# --------------------------------------
+# Post Settings
+# --------------------------------------
+
+toc:
+  post: true
+  page: true
+  number: true
+  expand: false
+  # Only for post
+  style_simple: false
+  scroll_percent: true
+
+post_copyright:
+  enable: true
+  decode: false
+  author_href:
+  license: CC BY-NC-SA 4.0
+  license_url: https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+# Sponsor/reward
+reward:
+  enable: false
+  text:
+  QR_code:
+    # - img: /img/wechat.jpg
+    #   link:
+    #   text: wechat
+    # - img: /img/alipay.jpg
+    #   link:
+    #   text: alipay
+
+# Post edit
+# Easily browse and edit blog source code online.
+post_edit:
+  enable: false
+  # url: https://github.com/user-name/repo-name/edit/branch-name/subdirectory-name/
+  # For example: https://github.com/jerryc127/butterfly.js.org/edit/main/source/
+  url:
+
+# Related Articles
+related_post:
+  enable: true
+  # Number of posts displayed
+  limit: 6
+  # Choose: created / updated
+  date_type: created
+
+# Choose: 1 / 2 / false
+# 1: The 'next post' will link to old post
+# 2: The 'next post' will link to new post
+# false: disable pagination
+post_pagination: 2
+
+# Displays outdated notice for a post
+noticeOutdate:
+  enable: false
+  # Style: simple / flat
+  style: flat
+  # When will it be shown
+  limit_day: 365
+  # Position: top / bottom
+  position: top
+  message_prev: It has been
+  message_next: days since the last update, the content of the article may be outdated.
+
+# --------------------------------------
+# Footer Settings
+# --------------------------------------
+footer:
+  owner:
+    enable: true
+    since: 2024
+  custom_text: I wish you to become your own sun, no need to rely on who's light.<p><a target="_blank" href="https://hexo.io/"><img src="https://img.shields.io/badge/Frame-Hexo-blue?style=flat&logo=hexo" title="博客框架为Hexo"></a>&nbsp;<a target="_blank" href="https://butterfly.js.org/"><img src="https://img.shields.io/badge/Theme-Butterfly-6513df?style=flat&logo=bitdefender" title="主题采用butterfly"></a>&nbsp;<a target="_blank" href="https://www.jsdelivr.com/"><img src="https://img.shields.io/badge/CDN-jsDelivr-orange?style=flat&logo=jsDelivr" title="本站使用JsDelivr为静态资源提供CDN加速"></a> &nbsp;<a target="_blank" href="https://vercel.com/ "><img src="https://img.shields.io/badge/Hosted-Vervel-brightgreen?style=flat&logo=Vercel" title="本站采用双线部署，默认线路托管于Vercel"></a>&nbsp;<a target="_blank" href="https://vercel.com/ "><img src="https://img.shields.io/badge/Hosted-Coding-0cedbe?style=flat&logo=Codio" title="本站采用双线部署，联通线路托管于Coding"></a>&nbsp;<a target="_blank" href="https://github.com/"><img src="https://img.shields.io/badge/Source-Github-d021d6?style=flat&logo=GitHub" title="本站项目由Gtihub托管"></a>&nbsp;<a target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img src="https://img.shields.io/badge/Copyright-BY--NC--SA%204.0-d42328?style=flat&logo=Claris" title="本站采用知识共享署名-非商业性使用-相同方式共享4.0国际许可协议进行许可"></a></p>
+  # Copyright of theme and framework
+  copyright: true
+
+# --------------------------------------
+# Aside Settings
+# --------------------------------------
+
+aside:
+  enable: true
+  hide: false
+  # Show the button to hide the aside in bottom right button
+  button: true
+  mobile: true
+  # Position: left / right
+  position: right
+  display:
+    archive: true
+    tag: true
+    category: true
+  card_author:
+    enable: true
+    description:
+    button:
+      enable: true
+      icon: fab fa-github
+      text: 你回来了~
+      link: https://lr0513.github.io/
+  card_announcement:
+    enable: true
+    content:
+  card_history:
+    enable: true
+  card_recent_post:
+    enable: true
+    # If set 0 will show all
+    limit: 5
+    # Sort: date / updated
+    sort: date
+    sort_order:
+  card_newest_comments:
+    enable: false
+    sort_order:
+    limit: 6
+    # Unit: mins, save data to localStorage
+    storage: 10
+    avatar: true
+  card_categories:
+    enable: true
+    # If set 0 will show all
+    limit: 8
+    # Choose: none / true / false
+    expand: none
+    sort_order:
+  card_tags:
+    enable: true
+    # If set 0 will show all
+    limit: 40
+    color: false
+    # Order of tags, random/name/length
+    orderby: random
+    # Sort of order. 1, asc for ascending; -1, desc for descending
+    order: 1
+    sort_order:
+  card_archives:
+    enable: true
+    # Type: monthly / yearly
+    type: monthly
+    # Eg: YYYY年MM月
+    format: MMMM YYYY
+    # Sort of order. 1, asc for ascending; -1, desc for descending
+    order: -1
+    # If set 0 will show all
+    limit: 8
+    sort_order:
+  card_post_series:
+    enable: true
+    # The title shows the series name
+    series_title: false
+    # Order by title or date
+    orderBy: 'date'
+    # Sort of order. 1, asc for ascending; -1, desc for descending
+    order: -1
+  card_webinfo:
+    enable: true
+    card_map: true
+    post_count: true
+    last_push_date: true
+    sort_order:
+    # Time difference between publish date and now
+    # Formal: Month/Day/Year Time or Year/Month/Day Time
+    # Leave it empty if you don't enable this feature
+    runtime_date:
+
+# --------------------------------------
+# Bottom right button
+# --------------------------------------
+
+# The distance between the bottom right button and the bottom (default unit: px)
+rightside_bottom:
+
+# Conversion between Traditional and Simplified Chinese
+translate:
+  enable: false
+  # The text of a button
+  default: 繁
+  # the language of website (1 - Traditional Chinese/ 2 - Simplified Chinese）
+  defaultEncoding: 2
+  # Time delay
+  translateDelay: 0
+  # The text of the button when the language is Simplified Chinese
+  msgToTraditionalChinese: '繁'
+  # The text of the button when the language is Traditional Chinese
+  msgToSimplifiedChinese: '簡'
+
+# Read Mode
+readmode: true
+
+# Dark Mode
+darkmode:
+  enable: true
+  # Toggle Button to switch dark/light mode
+  button: true
+  # Switch dark/light mode automatically
+  # autoChangeMode: 1  Following System Settings, if the system doesn't support dark mode, it will switch dark mode between 6 pm to 6 am
+  # autoChangeMode: 2  Switch dark mode between 6 pm to 6 am
+  # autoChangeMode: false
+  autoChangeMode: false
+  # Set the light mode time. The value is between 0 and 24. If not set, the default value is 6 and 18
+  start:
+  end:
+
+# Show scroll percent in scroll-to-top button
+rightside_scroll_percent: true
+
+# Don't modify the following settings unless you know how they work
+# Choose: readmode,translate,darkmode,hideAside,toc,chat,comment
+# Don't repeat the same value
+rightside_item_order:
+  enable: true
+  hide: "readmode,translate,darkmode,hideAside"
+  show: "toc,comment,scrollPercent"
+
+# --------------------------------------
+# Global Settings
+# --------------------------------------
+
+anchor:
+  # When you scroll, the URL will update according to header id.
+  auto_update: true
+  # Click the headline to scroll and update the anchor
+  click_to_scroll: false
+
+photofigcaption: false
+
+copy:
+  enable: true
+  copyright:
+    enable: false
+
+# Need to install the hexo-wordcount plugin
+wordcount:
+  enable: true
+  # Display the word count of the article in post meta
+  post_wordcount: true
+  # Display the time to read the article in post meta
+  min2read: true
+  # Display the total word count of the website in aside's webinfo
+  total_wordcount: true
+
+# Busuanzi count for PV / UV in site
+busuanzi:
+  site_uv: true
+  site_pv: true
+  page_pv: true
+
+# --------------------------------------
+# Math
+# --------------------------------------
+
+# About the per_page
+# if you set it to true, it will load mathjax/katex script in each page
+# if you set it to false, it will load mathjax/katex script according to your setting (add the 'mathjax: true' or 'katex: true' in page's front-matter)
+math:
+  # Choose: mathjax, katex
+  # Leave it empty if you don't need math
+  use:
+  per_page: true
+  hide_scrollbar: false
+
+  mathjax:
+    # Enable the contextual menu
+    enableMenu: true
+    # Choose: all / ams / none, This controls whether equations are numbered and how
+    tags: none
+
+  katex:
+    # Enable the copy KaTeX formula
+    copy_tex: false
+
+# --------------------------------------
+# Search
+# --------------------------------------
+
+search:
+  # Choose: algolia_search / local_search / docsearch
+  # leave it empty if you don't need search
+  use: local_search
+  placeholder: 搜索文章
+
+  # Algolia Search
+  algolia_search:
+    # Number of search results per page
+    hitsPerPage: 6
+
+  # Local Search
+  local_search:
+    enable: true
+    # Preload the search data when the page loads.
+    preload:
+      enable: true
+    # Show top n results per article, show all results by setting to -1
+    top_n_per_article: 1
+    # Unescape html strings to the readable one.
+    unescape: false
+    CDN:
+      # js: https://cdn.jsdelivr.net/npm/hexo-theme-butterfly@4.3.1/source/js/search/local-search.js
+
+  # Docsearch
+  # https://docsearch.algolia.com/
+  docsearch:
+    appId:
+    apiKey:
+    indexName:
+    option:
+
+# --------------------------------------
+# Share System
+# --------------------------------------
+
+share:
+  # Choose: sharejs / addtoany
+  # Leave it empty if you don't need share
+  use: sharejs
+
+  # Share.js
+  # https://github.com/overtrue/share.js
+  sharejs:
+    sites: facebook,twitter,wechat,weibo,qq
+
+  # AddToAny
+  # https://www.addtoany.com/
+  addtoany:
+    item: facebook,twitter,wechat,sina_weibo,facebook_messenger,email,copy_link
+
+# --------------------------------------
+# Comments System
+# --------------------------------------
+
+comments:
+  # Up to two comments system, the first will be shown as default
+  # Leave it empty if you don't need comments
+  # Choose: Disqus/Disqusjs/Livere/Gitalk/Valine/Waline/Utterances/Facebook Comments/Twikoo/Giscus/Remark42/Artalk
+  # Format of two comments system : Disqus,Waline
+  use:
+  - Twikoo
+  # Display the comment name next to the button
+  text: true
+  # Lazyload: The comment system will be load when comment element enters the browser's viewport.
+  # If you set it to true, the comment count will be invalid
+  lazyload: false
+  # Display comment count in post's top_img
+  count: false
+  # Display comment count in Home Page
+  card_post_count: false
+
+# Disqus
+# https://disqus.com/
+disqus:
+  shortname:
+  # For newest comments widget
+  apikey:
+
+# Alternative Disqus - Render comments with Disqus API
+# https://github.com/SukkaW/DisqusJS
+disqusjs:
+  shortname:
+  apikey:
+  option:
+
+# Livere
+# https://www.livere.com/
+livere:
+  uid:
+
+# Gitalk
+# https://github.com/gitalk/gitalk
+gitalk:
+  client_id:
+  client_secret:
+  repo:
+  owner:
+  admin:
+  option:
+
+# Valine
+# https://valine.js.org
+valine:
+  appId:
+  appKey:
+  avatar: monsterid
+  # This configuration is suitable for domestic custom domain name users, overseas version will be automatically detected (no need to manually fill in)
+  serverURLs:
+  bg:
+  # Use Valine visitor count as the page view count
+  visitor: false
+  option:
+
+# Waline - A simple comment system with backend support fork from Valine
+# https://waline.js.org/
+waline:
+  serverURL:
+  bg:
+  # Use Waline pageview count as the page view count
+  pageview: false
+  option:
+
+# Utterances
+# https://utteranc.es/
+utterances:
+  repo:
+  # Issue Mapping: pathname/url/title/og:title
+  issue_term: pathname
+  # Theme: github-light/github-dark/github-dark-orange/icy-dark/dark-blue/photon-dark
+  light_theme: github-light
+  dark_theme: photon-dark
+  js:
+  option:
+
+# Facebook Comments Plugin
+# https://developers.facebook.com/docs/plugins/comments/
+facebook_comments:
+  app_id:
+  # optional
+  user_id:
+  pageSize: 10
+  # Choose: social / time / reverse_time
+  order_by: social
+  lang: en_US
+
+# Twikoo
+# https://github.com/imaegoo/twikoo
+twikoo:
+  envId: https://twikoo-api-three-beta.vercel.app/
+  region: ap-beijing
+  # Use Twikoo visitor count as the page view count
+  visitor: true
+  option:
+
+# Giscus
+# https://giscus.app/
+giscus:
+  repo:
+  repo_id:
+  category_id:
+  light_theme: light
+  dark_theme: dark
+  js:
+  option:
+
+# Remark42
+# https://remark42.com/docs/configuration/frontend/
+remark42:
+  host:
+  siteId:
+  option:
+
+# Artalk
+# https://artalk.js.org/guide/frontend/config.html
+artalk:
+  server:
+  site:
+  # Use Artalk visitor count as the page view count
+  visitor: false
+  option:
+
+# --------------------------------------
+# Chat Services
+# --------------------------------------
+
+chat:
+  # Choose: chatra/tidio/crisp
+  # Leave it empty if you don't need chat
+  use: chatra
+  # Chat Button [recommend]
+  # It will create a button in the bottom right corner of website, and hide the origin button
+  rightside_button: true
+  # The origin chat button is displayed when scrolling up, and the button is hidden when scrolling down
+  button_hide_show: true
+
+# https://chatra.io/
+chatra:
+  enable: true
+  id: E3NZpK6rk4cR7jmwK
+
+# https://www.tidio.com/
+tidio:
+  public_key:
+
+# https://crisp.chat/en/
+crisp:
+  website_id:
+
+# --------------------------------------
+# Analysis
+# --------------------------------------
+
+# https://tongji.baidu.com/web/welcome/login
+baidu_analytics: bf06f078fafddfd82b474ce179303666
+
+# https://analytics.google.com/analytics/web/
+google_analytics:
+
+# https://www.cloudflare.com/zh-tw/web-analytics/
+cloudflare_analytics:
+
+# https://clarity.microsoft.com/
+microsoft_clarity:
+
+# https://umami.is/
+umami_analytics:
+  enable: false
+  # For self-hosted setups, configure the hostname of the Umami instance
+  serverURL:
+  website_id:
+  option:
+  UV_PV:
+    site_uv: false
+    site_pv: false
+    page_pv: false
+    # Umami Cloud (API key) / self-hosted Umami (token)
+    token:
+
+# --------------------------------------
+# Advertisement
+# --------------------------------------
+
+# Google Adsense
+google_adsense:
+  enable: false
+  auto_ads: true
+  js: https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js
+  client:
+  enable_page_level_ads: true
+
+# Insert ads manually
+# Leave it empty if you don't need ads
+ad:
+  # Insert ads in the index (every three posts)
+  index:
+  # Insert ads in aside
+  aside:
+  # Insert ads in the post (before pagination)
+  post:
+
+# --------------------------------------
+# Verification
+# --------------------------------------
+
+site_verification:
+  # - name: google-site-verification
+  #   content: xxxxxx
+  # - name: baidu-site-verification
+  #   content: xxxxxxx
+
+# --------------------------------------
+# Beautify / Effect
+# --------------------------------------
+
+# Theme color for customize
+# Notice: color value must in double quotes like "#000" or may cause error!
+
+theme_color:
+  enable: true
+  main: '#49B1F5'
+  paginator: '#00c4b6'
+  button_hover: '#FF7242'
+  text_selection: '#00c4b6'
+  link_color: '#99a9bf'
+  meta_color: '#858585'
+  hr_color: '#A4D8FA'
+  code_foreground: '#F47466'
+  code_background: 'rgba(27, 31, 35, .05)'
+  toc_color: '#00c4b6'
+  blockquote_padding_color: '#49b1f5'
+  blockquote_background_color: '#49b1f5'
+  scrollbar_color: '#49b1f5'
+  meta_theme_color_light: 'ffffff'
+  meta_theme_color_dark: '#0d0d0d'
+
+# The user interface setting of category and tag page
+# Choose: index - same as Homepage UI / default - same as archives UI
+# leave it empty or index
+category_ui:
+tag_ui:
+
+# Rounded corners for UI elements
+rounded_corners_ui: true
+
+# Stretches the lines so that each line has equal width
+text_align_justify: false
+
+# Add a mask to the header and footer
+mask:
+  header: true
+  footer: true
+
+# Loading Animation
+preloader:
+  enable: true
+  # source
+  # 1. fullpage-loading
+  # 2. pace (progress bar)
+  source: 3
+  # pace theme (see https://codebyzach.github.io/pace/)
+  pace_css_url: https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_160015.png
+
+# Page Transition
+enter_transitions: true
+
+# Default display mode - light (default) / dark
+display_mode: dark
+
+# Configuration for beautifying the content of the article
+beautify:
+  enable: true
+  # Specify the field to beautify (site or post)
+  field: post
+  # Specify the icon to be used as a prefix for the title, such as '\f0c1'
+  title_prefix_icon: '\f863'
+  # Specify the color of the title prefix icon, such as '#F47466'
+  title_prefix_icon_color: '#F47466'
+
+# Global font settings
+# Don't modify the following settings unless you know how they work
+font:
+  global_font_size: 15px
+  code_font_size: 15px
+  font_family: TTf,-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif
+  code_font_family: TTf,-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif
+
+# Font settings for the site title and site subtitle
+blog_title_font:
+  font_link:
+  font_family: TTf,-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif
+
+# The setting of divider icon
+hr_icon:
+  enable: true
+  # The unicode value of Font Awesome icon, such as '\3423'
+  icon: '\f2dc'
+  icon_top: -10px
+
+# Typewriter Effect
+# https://github.com/disjukr/activate-power-mode
+activate_power_mode:
+  enable: true
+  colorful: true
+  shake: false
+  mobile: true
+
+# Background effects
+# --------------------------------------
+
+# canvas_ribbon
+# See: https://github.com/hustcc/ribbon.js
+canvas_ribbon:
+  enable: false
+  # The size of ribbon
+  size: 150
+  # The opacity of ribbon (0 ~ 1)
+  alpha: 0.6
+  zIndex: -1
+  click_to_change: false
+  mobile: false
+
+# Fluttering Ribbon
+canvas_fluttering_ribbon:
+  enable: false
+  mobile: false
+
+# canvas_nest
+# https://github.com/hustcc/canvas-nest.js
+canvas_nest:
+  enable: true
+  color: '0,0,255' #color of lines, default: '0,0,0'; RGB values: (R,G,B).(note: use ',' to separate.)
+  opacity: 0.7 # the opacity of line (0~1), default: 0.5.
+  zIndex: -1 # z-index property of the background, default: -1.
+  count: 30 # the number of lines, default: 99.
+  mobile: false # false 手機端不顯示 true 手機端顯示
+
+# Mouse click effects: fireworks
+fireworks:
+  enable: false
+  zIndex: 9999
+  mobile: false
+
+# Mouse click effects: Heart symbol
+click_heart:
+  enable: false
+  mobile: false
+
+# Mouse click effects: words
+clickShowText:
+  enable: true
+  text:
+    - Ha
+    - Ha
+    - Ha
+  fontSize: 15px
+  random: false
+  mobile: false
+
+# --------------------------------------
+# Lightbox Settings
+# --------------------------------------
+
+# Choose: fancybox / medium_zoom
+# https://github.com/francoischalifour/medium-zoom
+# https://fancyapps.com/fancybox/
+# Leave it empty if you don't need lightbox
+lightbox: fancybox
+
+# --------------------------------------
+# Tag Plugins settings
+# --------------------------------------
+
+# Series
+series:
+  enable: false
+  # Order by title or date
+  orderBy: 'title'
+  # Sort of order. 1, asc for ascending; -1, desc for descending
+  order: 1
+  number: true
+
+# ABCJS - The ABC Music Notation Plugin
+# https://github.com/paulrosen/abcjs
+abcjs:
+  enable: false
+  per_page: true
+
+# Mermaid
+# https://github.com/mermaid-js/mermaid
+mermaid:
+  enable: true
+  # Write Mermaid diagrams using code blocks
+  code_write: true
+  # built-in themes: default / forest / dark / neutral
+  theme:
+    light: default
+    dark: dark
+
+# chartjs
+# see https://www.chartjs.org/docs/latest/
+chartjs:
+  enable: false
+  # Do not modify unless you understand how they work.
+  # The default settings are only used when the MD syntax is not specified.
+  # General font color for the chart
+  fontColor:
+    light: 'rgba(0, 0, 0, 0.8)'
+    dark: 'rgba(255, 255, 255, 0.8)'
+  # General border color for the chart
+  borderColor:
+    light: 'rgba(0, 0, 0, 0.1)'
+    dark: 'rgba(255, 255, 255, 0.2)'
+  # Background color for scale labels on radar and polar area charts
+  scale_ticks_backdropColor:
+    light: 'transparent'
+    dark: 'transparent'
+
+# Note - Bootstrap Callout
+note:
+  # Note tag style values:
+  #  - simple    bs-callout old alert style. Default.
+  #  - modern    bs-callout new (v2-v3) alert style.
+  #  - flat      flat callout style with background, like on Mozilla or StackOverflow.
+  #  - disabled  disable all CSS styles import of note tag.
+  style: flat
+  icons: true
+  border_radius: 3
+  # Offset lighter of background in % for modern and flat styles (modern: -12 | 12; flat: -18 | 6).
+  # Offset also applied to label tag variables. This option can work with disabled note tag.
+  light_bg_offset: 0
+
+# --------------------------------------
+# Other Settings
+# --------------------------------------
+
+# https://github.com/MoOx/pjax
+pjax:
+  enable: true
+  # Exclude the specified pages from pjax, such as '/music/'
+  exclude:
+    - /music/
+    - /no-pjax/
+
+# Inject the css and script (aplayer/meting)
+aplayerInject:
+  enable: true
+  per_page: true
+
+# Snackbar - Toast Notification
+# https://github.com/polonel/SnackBar
+# position: top-left / top-center / top-right / bottom-left / bottom-center / bottom-right
+snackbar:
+  enable: true
+  position: bottom-left
+  # The background color of Toast Notification in light mode and dark mode
+  bg_light: '#49b1f5'
+  bg_dark: '#1f1f1f'
+
+# Instant.page
+# https://instant.page/
+# 预加载
+instantpage: true
+
+# Pangu - Insert a space between Chinese character and English character
+# https://github.com/vinta/pangu.js
+pangu:
+  enable: true
+  # Specify the field to use pangu (site or post)
+  field: site
+
+# Lazyload
+# https://github.com/verlok/vanilla-lazyload
+lazyload:
+  enable: true
+  # Specify the field to use lazyload (site or post)
+  field: site
+  placeholder:
+  blur: false
+
+# PWA
+# See https://github.com/JLHwung/hexo-offline
+# ---------------
+pwa:
+  enable: false
+  manifest:
+  apple_touch_icon:
+  favicon_32_32:
+  favicon_16_16:
+  mask_icon:
+
+# Open graph meta tags
+# https://hexo.io/docs/helpers#open-graph
+Open_Graph_meta:
+  enable: true
+  option:
+    # twitter_card:
+    # twitter_image:
+    # twitter_id:
+    # twitter_site:
+    # google_plus:
+    # fb_admins:
+    # fb_app_id:
+
+# Add the vendor prefixes to ensure compatibility
+css_prefix: true
+
+# Inject
+# Insert the code to head (before '</head>' tag) and the bottom (before '</body>' tag)
+inject:
+  head:
+    - <link rel="stylesheet" href="/css/wave.css">
+    - <link rel="stylesheet" href="/css/readPercent.css">
+    -  <link rel="stylesheet" href="//at.alicdn.com/t/font_2264842_b004iy0kk2b.css" media="defer" onload="this.media='all'">
+    - <link rel="stylesheet" href="/css/loading.css">
+    - <link rel="stylesheet" href="/css/about.css">
+    - <link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'">
+    - <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    # - <link rel="stylesheet" href="/css/custom/fixed_comment.css"  media="defer" onload="this.media='all'">
+    - <link rel="stylesheet" href="https://fastly.jsdelivr.net/gh/HCLonely/images@master/others/heartbeat.min.css">
+    # - <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-double-row-display@1.00/cardlistpost.css"/>
+    - <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/l-lin/font-awesome-animation/dist/font-awesome-animation.min.css"  media="defer" onload="this.media='all'">
+    - <link rel="stylesheet" href="https://npm.elemecdn.com/ethan4116-blog/lib/css/plane_v2.css">
+    - <link rel="stylesheet" href="/css/universe.css">
+    - <link rel="stylesheet" href="/css/progress_bar.css" media="defer" onload="this.media='all'">
+    - <link rel="stylesheet" href="https://cdn1.tianli0.top/npm/element-ui@2.15.6/packages/theme-chalk/lib/index.css"> # 引入组件库(f12)
+    - <span id="fps"></span> # 帧率检测
+  bottom:
+    - <script async src="//at.alicdn.com/t/c/font_4860073_9duzoqyl2cn.js"></script>
+    - <script defer data-pjax src="/js/readPercent.js"></script>
+    - <script async src="/js/fps.js"></script> # 帧率检测
+    - <script data-pjax defer src="/js/custom/fixed_comment.js"></script>
+    - <script async data-pjax src="/js/txmap.js"></script> # 腾讯位置API
+    - <script defer type="text/javascript" src="https://cdn1.tianli0.top/npm/sweetalert2@8.19.0/dist/sweetalert2.all.js"></script>
+    - <script async data-pjax src="/js/music.js"></script>
+    - <script defer src="/js/lunar.js"></script>
+    - <script async src="https://cdn1.tianli0.top/npm/vue@2.6.14/dist/vue.min.js"></script> # 引入VUE(f12)
+    - <script async src="https://cdn1.tianli0.top/npm/element-ui@2.15.6/lib/index.js"></script> # 引入ElementUI(f12)
+    - <script type="text/javascript" src="https://cdn1.tianli0.top/npm/jquery@latest/dist/jquery.min.js"></script>
+    - <script> let backimg =["url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/d42bcc24810cda2c22eaed769b79a93.jpg)","url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/2f5e89ae13329dd89bdcdbfc68c5fde.jpg)","url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/48b137c38cc79ad960ecf2a9a12fc20.jpg)","url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/4474312751631fedb37381e37cdb9c0.jpg)","url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/be978bd80f41d2781455513ba1676a2.jpg)","url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/a01223e0819746191dd135670a2d7da.jpg)","url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/af380cb8a5ed3f047e66dbfe731f488.jpg)"];let index = Math.floor(Math.random() * backimg.length);;document.getElementById("web_bg").style.backgroundImage = backimg[index]</script>
+    - <script type="text/javascript" src="/js/rightmenu.js"></script>
+    - <script src="/js/history.js"></script>
+    - <script src="/js/historyroll.js"></script>
+    - <script async src="//at.alicdn.com/t/font_2264842_3izu8i5eoc2.js"></script>
+    - <script defer src="/js/day.js"></script>
+    # - <script defer src="/js/sakura.js"></script>
+    - <script async src="/js/title.js"></script>
+    - <script defer src="/js/random.js"></script>
+    - <canvas id="universe"></canvas>
+    - <script defer src="/js/universe.js"></script>
+    - <script async src="//npm.elemecdn.com/pace-js@1.2.4/pace.min.js"></script>
+    - <script src="/js/sun_moon.js" async></script>
+    - |
+      <script>
+        document.addEventListener('copy', function(e) {
+          const selection = window.getSelection().toString()
+          if (selection.length > 30) {
+            const notice = document.createElement('div')
+            notice.className = 'copy-notification'
+            notice.textContent = '内容已复制到剪贴板'
+
+            document.body.appendChild(notice)
+            setTimeout(() => notice.classList.add('show'), 10)
+
+            setTimeout(() => {
+              notice.classList.remove('show')
+              setTimeout(() => notice.remove(), 300)
+            }, 2000)
+          }
+        })
+      </script>
+    - <div class="aplayer no-destroy" data-id="7338633309" data-server="netease" data-type="playlist" data-fixed="true" data-mini="true" data-listFolded="false" data-order="random" data-lrctype="1" data-preload="none" data-autoplay="true" muted></div>
+    - <script src="https://cdn.staticfile.org/jquery/3.6.3/jquery.min.js"></script> # jQuery
+    - <script async data-pjax src="https://cdn.wpon.cn/2022-sucai/Gold-ingot.js"></script>  # 新年元宝
+    - <script async data-pjax src="/js/newYear.js"></script>  # 新年倒计时
+
+
+
+# CDN
+# Don't modify the following settings unless you know how they work
+# 非必要請不要修改
+CDN:
+  # The CDN provider of internal scripts (主題內部 js 的 cdn 配置)
+  # option: local/jsdelivr/unpkg/cdnjs/custom
+  # Dev version can only choose. ( dev版的主題只能設置為 local )
+  internal_provider: local
+
+  # The CDN provider of third party scripts (第三方 js 的 cdn 配置)
+  # option: local/jsdelivr/unpkg/cdnjs/custom
+  # when set it to local, you need to install hexo-butterfly-extjs
+  third_party_provider: cdnjs
+
+  # Add version number to CDN, true or false
+  version: false
+
+  # Custom format
+  # For example: https://cdn.staticfile.org/${cdnjs_name}/${version}/${min_cdnjs_file}
+  custom_format:
+
+  option:
+    # main_css:
+    # main:
+    # utils:
+    # translate: https://cdn1.tianli0.top/npm/js-heo@1.0.6/translate/tw_cn.js
+    # local_search:
+    # algolia_js:
+    algolia_search_v4: https://cdn.staticfile.org/algoliasearch/4.14.3/algoliasearch-lite.umd.min.js
+    instantsearch_v4: https://cdn.staticfile.org/instantsearch.js/4.49.2/instantsearch.production.min.js
+    pjax: https://lib.baomitu.com/pjax/0.2.8/pjax.min.js
+    # gitalk: https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/gitalk/1.7.2/gitalk.min.js
+    # gitalk_css: https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/gitalk/1.7.2/gitalk.min.css
+    # blueimp_md5:
+    # valine: https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/valine/1.4.16/Valine.min.js
+    # disqusjs: https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/disqusjs/1.3.0/disqus.js
+    # disqusjs_css: https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/disqusjs/1.3.0/disqusjs.css
+    twikoo: https://cdn.staticfile.org/twikoo/1.6.8/twikoo.all.min.js
+    # waline_js: https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/waline/1.5.4/Waline.min.js
+    # waline_css:
+    sharejs: https://lib.baomitu.com/social-share.js/1.0.16/js/social-share.min.js
+    sharejs_css: https://lib.baomitu.com/social-share.js/1.0.16/css/share.min.css
+    # mathjax: https://cdn.staticfile.org/mathjax/3.2.2/es5/mml-chtml.min.js
+    # katex: https://lib.baomitu.com/KaTeX/latest/katex.min.css
+    # katex_copytex:
+    # mermaid:
+    # canvas_ribbon:
+    # canvas_fluttering_ribbon:
+    # canvas_nest:
+    lazyload: https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/vanilla-lazyload/17.3.1/lazyload.iife.min.js
+    instantpage: https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/instant.page/5.1.0/instantpage.min.js
+    typed: https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/typed.js/2.0.12/typed.min.js
+    # pangu:
+    fancybox_css_v4: https://cdn.staticfile.org/fancyapps-ui/4.0.31/fancybox.min.css
+    fancybox_v4: https://cdn.staticfile.org/fancyapps-ui/4.0.31/fancybox.umd.min.js
+    # medium_zoom: https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/medium-zoom/1.0.6/medium-zoom.min.js
+    # snackbar_css: https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/node-snackbar/0.1.16/snackbar.min.css
+    # snackbar: https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/node-snackbar/0.1.16/snackbar.min.js
+    # activate_power_mode:
+    # fireworks:
+    # click_heart:
+    # ClickShowText:
+    fontawesomeV6: https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/font-awesome/6.0.0/css/all.min.css
+    # flickr_justified_gallery_js: https://cdn.staticfile.org/flickr-justified-gallery/2.1.2/fjGallery.min.js
+    # flickr_justified_gallery_css: https://cdn.staticfile.org/flickr-justified-gallery/2.1.2/fjGallery.min.css
+    aplayer_css: https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/aplayer/1.10.1/APlayer.min.css
+    aplayer_js: https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/aplayer/1.10.1/APlayer.min.js
+    # meting_js: https://cdn1.tianli0.top/npm/js-heo@1.0.12/metingjs/Meting.min.js
+    meting_js: https://npm.elemecdn.com/hexo-anzhiyu-music@1.0.1/assets/js/Meting2.min.js
+    # prismjs_js: https://cdn1.tianli0.top/npm/prismjs@1.1.0/prism.js
+    # prismjs_lineNumber_js: https://cdn1.tianli0.top/npm/prismjs/plugins/line-numbers/prism-line-numbers.min.js
+    # prismjs_autoloader: https://cdn1.tianli0.top/npm/prismjs/plugins/autoloader/prism-autoloader.min.js
+
+markdown:
+  plugins:
+    - markdown-it-mark
+  # 可选：自定义高亮符号
+  anchors:
+    level: 2
+  breaks: true
+  linkify: true
+  typographer: true
+
+# hexo-butterfly-categories-card
+# see https://akilar.top/posts/a9131002/
+categoryBar:
+  enable: true # 开关
+  priority: 5 #过滤器优先权
+  enable_page: / # 应用页面
+  layout: # 挂载容器类型
+    type: class
+    name: recent-posts
+    index: 0
+  column: auto
+  row: auto  # 自动计算行数（根据分类项数量）
+  max_display: 6  # 最多显示6个分类项，超出隐藏
+  scrollable: true  # 启用横向滚动
+  message:
+    - descr: java指南
+      cover: https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_155818.png
+      color: "#2d5cb3"  # 添加色值用于遮罩层
+    - descr: java技术栈
+      cover: https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112813.png
+      color: "#2d5cb3"  # 添加色值用于遮罩层
+    - descr: 计算机基础指南
+      cover: https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112758.png
+      color: "#2d5cb3"  # 添加色值用于遮罩层
+    - descr: 专业课
+      cover: https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/4e357962b00044466380f6850a120ec.jpg
+      color: "#2d5cb3"  # 添加色值用于遮罩层
+
+  custom_css: https://npm.elemecdn.com/hexo-butterfly-categories-card@1.0.0/lib/categorybar.css
+
+# envelope_comment
+# see https://akilar.top/posts/e2d3c450/
+envelope_comment:
+  enable: true #控制开关
+  custom_pic:
+    cover: https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112618.png #信笺头部图片
+    line: https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250316104727221.png #信笺底部图片
+    beforeimg: https://npm.elemecdn.com/hexo-butterfly-envelope/lib/before.png # 信封前半部分
+    afterimg: https://npm.elemecdn.com/hexo-butterfly-envelope/lib/after.png # 信封后半部分
+  message: #信笺正文，多行文本，写法如下
+    - 有什么想问的？
+    - 有什么想说的？
+    - 有什么想吐槽的？
+    - 哪怕是有什么想吃的，都可以告诉我哦~
+  bottom: 欢迎留言~ #仅支持单行文本
+  height: #1050px，信封划出的高度
+  path: #【可选】comments 的路径名称。默认为 comments，生成的页面为 comments/index.html
+  front_matter: #【可选】comments页面的 front_matter 配置
+    title: 留言板
+    comments: true
+
+wowjs:
+  enable: true #控制动画开关。true是打开，false是关闭
+  priority: 10 #过滤器优先级
+  mobile: true #移动端是否启用，默认移动端禁用
+  animateitem:
+    - class: recent-post-item #必填项，需要添加动画的元素的class
+      style: animate__zoomIn #必填项，需要添加的动画
+      duration: 2s #选填项，动画持续时间，单位可以是ms也可以是s。例如3s，700ms。
+      delay: 1s #选填项，动画开始的延迟时间，单位可以是ms也可以是s。例如3s，700ms。
+      offset: 100 #选填项，开始动画的距离（相对浏览器底部）
+      iteration: 1 #选填项，动画重复的次数
+    - class: card-widget
+      style: animate__zoomIn
+  animate_css: https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/animate.min.css
+  wow_js: https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/wow.min.js
+  wow_init_js: https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/wow_init.js
+
+
+# electric_clock (安知鱼电子钟)
+# see https://anzhiy.cn/posts/fc18.html
+electric_clock:
+  enable: true # 开关
+  priority: 5 #过滤器优先权
+  enable_page: / # 应用页面
+  exclude:
+    # - /posts/
+    # - /about/
+  layout: # 挂载容器类型
+    type: class
+    name: sticky_layout
+    index: 0
+  loading: https://cdn.cbd.int/hexo-butterfly-clock-anzhiyu/lib/loading.gif #加载动画自定义
+  clock_css: https://cdn.cbd.int/hexo-butterfly-clock-anzhiyu/lib/clock.min.css
+  clock_js: https://cdn.cbd.int/hexo-butterfly-clock-anzhiyu/lib/clock.min.js
+  ip_api: https://widget.qweather.net/simple/static/js/he-simple-common.js?v=2.0
+  qweather_key: 9aac1b5db191491a8993c445d664de8f # 和风天气key
+  gaud_map_key: 3cc01a5a19f500daa0e9e680ef0f6db2 # 高得地图web服务key
+  default_rectangle: false # 开启后将一直显示rectangle位置的天气，否则将获取访问者的地理位置与天气
+  rectangle: 120.780172,40.624088 # 获取访问者位置失败时会显示该位置的天气，同时该位置为开启default_rectangle后的位置
+
+

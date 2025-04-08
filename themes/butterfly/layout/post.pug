@@ -1,0 +1,43 @@
+extends includes/layout.pug
+
+block content
+  #post
+    if top_img === false
+      include includes/header/post-info.pug
+
+    article#article-container.container.post-content
+      if theme.noticeOutdate.enable && page.noticeOutdate !== false
+        include includes/post/outdate-notice.pug
+      else
+        !=page.content
+        .main-hero-waves-area
+          .waves-area
+            svg.waves-svg(version='1.1' xmlns='http://www.w3.org/2000/svg' width='100%' height='100%' viewBox='0 0 1440 140' preserveAspectRatio='none')
+              path.parallax(d='M 0 44 C 355 167 415 0 725 44 L 725 44 L 0 44 Z')
+              use.parallax(xlink:href='#wave1' x='48' y='3')
+              use.parallax(xlink:href='#wave1' x='48' y='5')
+              use.parallax(xlink:href='#wave1' x='48' y='7')
+              use.parallax(xlink:href='#wave1' x='48' y='9')
+    include includes/post/post-copyright.pug
+    .tag_share
+      if (page.tags.length > 0 && theme.post_meta.post.tags)
+        .post-meta__tag-list
+          each item, index in page.tags.data
+            a(href=url_for(item.path)).post-meta__tags #[=item.name]
+      include includes/third-party/share/index.pug
+
+    if theme.reward.enable && theme.reward.QR_code
+      !=partial('includes/post/reward', {}, {cache: true})
+
+    //- ad
+    if theme.ad && theme.ad.post
+      .ads-wrap!=theme.ad.post
+
+    if theme.post_pagination
+      include includes/pagination.pug
+    if theme.related_post && theme.related_post.enable
+      != related_posts(page,site.posts)
+
+    if page.comments !== false && theme.comments.use
+      - var commentsJsLoad = true
+      !=partial('includes/third-party/comments/index', {}, {cache: true})

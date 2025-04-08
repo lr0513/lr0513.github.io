@@ -1,0 +1,69 @@
+console.log('Loading about page template')
+
+#about-page.layout
+  .aside-list
+    .aside-list-group
+      //- 个人信息卡片
+      .card-widget.card-info
+        .card-info-avatar
+          img.avatar-img(src='https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_155606.png' alt='Lorinda')
+          .author-info__name Lorinda
+          .author-info__description
+            i.fas.fa-quote-left
+            span  谁都可以不喜欢你，但是你自己不可以哦
+            i.fas.fa-quote-right
+          .author-info__badges
+            span.author-info__badge ♀
+
+        //- 社交媒体链接
+        .card-info-social-icons
+          a.social-icon(href='https://github.com/你的GitHub' target='_blank')
+            i.fab.fa-github
+          a.social-icon(href='https://weibo.com/你的微博' target='_blank')
+            i.fab.fa-weibo
+          a.social-icon(href='tencent://message/?uin=你的QQ' target='_blank')
+            i.fab.fa-qq
+
+      //- 技术栈卡片
+      .card-widget
+        .card-widget-title
+          i.fas.fa-laptop-code
+          span  技术栈
+        .card-widget-body
+          .tech-stack-wrapper
+            each tech in ['Java', 'JavaWeb', 'Spring Boot', 'SSM', 'MyBatis', 'MyBatisPlus', 'Redis', 'Python', 'C']
+              .tech-badge= tech
+
+      //- 统计卡片
+      .card-widget
+        .card-widget-title
+          i.fas.fa-chart-bar
+          span  统计数据
+        .card-widget-body
+          .statistics-wrapper
+            .statistics-item
+              .statistics-number 100+
+              .statistics-text 文章数
+            .statistics-item
+              .statistics-number 1000+
+              .statistics-text 总访问量
+            .statistics-item
+              .statistics-number 50+
+              .statistics-text 项目经验
+
+      //- 个人信息卡片
+      .card-widget
+        .card-widget-title
+          i.fas.fa-heart
+          span  个人信息
+        .card-widget-body
+          .personal-info-wrapper
+            .info-item
+              i.fas.fa-map-marker-alt
+              span  辽宁大连
+            .info-item
+              i.fas.fa-book
+              span  小说·动画片
+            .info-item
+              i.fas.fa-music
+              span  歌手：沈以诚
