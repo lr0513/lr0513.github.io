@@ -1,0 +1,3369 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>计算机组成原理（二） | 蜡笔梦工厂</title><meta name="author" content="Lorinda"><meta name="copyright" content="Lorinda"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#0d0d0d"><meta name="description" content="计算机组成原理">
+<meta property="og:type" content="article">
+<meta property="og:title" content="计算机组成原理（二）">
+<meta property="og:url" content="http://labi.com/post/undefined.html">
+<meta property="og:site_name" content="蜡笔梦工厂">
+<meta property="og:description" content="计算机组成原理">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_160146.png">
+<meta property="article:published_time" content="2025-04-07T13:11:00.000Z">
+<meta property="article:modified_time" content="2025-04-07T13:24:50.552Z">
+<meta property="article:author" content="Lorinda">
+<meta property="article:tag" content="c">
+<meta property="article:tag" content="计算机组成原理">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_160146.png"><link rel="shortcut icon" href="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_155552.png"><link rel="canonical" href="http://labi.com/post/undefined.html"><link rel="preconnect" href="//cdnjs.cloudflare.com"/><link rel="preconnect" href="//hm.baidu.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/node-snackbar/0.1.16/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!true && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?bf06f078fafddfd82b474ce179303666";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+btf.addGlobalFn('pjaxComplete', () => {
+  _hmt.push(['_trackPageview',window.location.pathname])
+}, 'baidu_analytics')
+</script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":{"enable":true},"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: true,
+    post: true
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"已切换为繁体中文","cht_to_chs":"已切换为简体中文","day_to_night":"已切换为深色模式","night_to_day":"已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"bottom-left"},
+  infinitegrid: {
+    js: 'https://cdnjs.cloudflare.com/ajax/libs/egjs-infinitegrid/4.12.0/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isAnchor: true,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '计算机组成原理（二）',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  isShuoshuo: false
+}</script><link rel="stylesheet" href="/css/wave.css"><link rel="stylesheet" href="/css/readPercent.css"><link rel="stylesheet" href="//at.alicdn.com/t/font_2264842_b004iy0kk2b.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/loading.css"><link rel="stylesheet" href="/css/about.css"><link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script><link rel="stylesheet" href="https://fastly.jsdelivr.net/gh/HCLonely/images@master/others/heartbeat.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/l-lin/font-awesome-animation/dist/font-awesome-animation.min.css"  media="defer" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/ethan4116-blog/lib/css/plane_v2.css"><link rel="stylesheet" href="/css/universe.css"><link rel="stylesheet" href="/css/progress_bar.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="https://cdn1.tianli0.top/npm/element-ui@2.15.6/packages/theme-chalk/lib/index.css"><span id="fps"></span><svg aria-hidden="true" style="position:absolute; overflow:hidden; width:0; height:0"><symbol id="icon-sun" viewBox="0 0 1024 1024"><path d="M960 512l-128 128v192h-192l-128 128-128-128H192v-192l-128-128 128-128V192h192l128-128 128 128h192v192z" fill="#FFD878" p-id="8420"></path><path d="M736 512a224 224 0 1 0-448 0 224 224 0 1 0 448 0z" fill="#FFE4A9" p-id="8421"></path><path d="M512 109.248L626.752 224H800v173.248L914.752 512 800 626.752V800h-173.248L512 914.752 397.248 800H224v-173.248L109.248 512 224 397.248V224h173.248L512 109.248M512 64l-128 128H192v192l-128 128 128 128v192h192l128 128 128-128h192v-192l128-128-128-128V192h-192l-128-128z" fill="#4D5152" p-id="8422"></path><path d="M512 320c105.888 0 192 86.112 192 192s-86.112 192-192 192-192-86.112-192-192 86.112-192 192-192m0-32a224 224 0 1 0 0 448 224 224 0 0 0 0-448z" fill="#4D5152" p-id="8423"></path></symbol><symbol id="icon-moon" viewBox="0 0 1024 1024"><path d="M611.370667 167.082667a445.013333 445.013333 0 0 1-38.4 161.834666 477.824 477.824 0 0 1-244.736 244.394667 445.141333 445.141333 0 0 1-161.109334 38.058667 85.077333 85.077333 0 0 0-65.066666 135.722666A462.08 462.08 0 1 0 747.093333 102.058667a85.077333 85.077333 0 0 0-135.722666 65.024z" fill="#FFB531" p-id="11345"></path><path d="M329.728 274.133333l35.157333-35.157333a21.333333 21.333333 0 1 0-30.165333-30.165333l-35.157333 35.157333-35.114667-35.157333a21.333333 21.333333 0 0 0-30.165333 30.165333l35.114666 35.157333-35.114666 35.157334a21.333333 21.333333 0 1 0 30.165333 30.165333l35.114667-35.157333 35.157333 35.157333a21.333333 21.333333 0 1 0 30.165333-30.165333z" fill="#030835" p-id="11346"></path></symbol></svg><!-- hexo injector head_end start --><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-double-row-display@1.00/cardlistpost.min.css"/>
+<style>#recent-posts > .recent-post-item >.recent-post-info > .article-meta-wrap > .tags:before {content:"\A";
+  white-space: pre;}#recent-posts > .recent-post-item >.recent-post-info > .article-meta-wrap > .tags > .article-meta__separator{display:none}</style>
+<link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-categories-card@1.0.0/lib/categorybar.css"><link rel="stylesheet" href="https://cdn.cbd.int/hexo-butterfly-clock-anzhiyu/lib/clock.min.css" /><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiper.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiperstyle.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/animate.min.css" media="print" onload="this.media='all'"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body><div id="loading-box" onclick="document.getElementById(&quot;loading-box&quot;).classList.add(&quot;loaded&quot;)"><div class="loading-bg"><div class="loading-img"></div><div class="loading-image-dot"></div></div></div><script>const preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',()=> { preloader.endLoading() })
+
+if (true) {
+  document.addEventListener('pjax:send', () => { preloader.initLoading() })
+  document.addEventListener('pjax:complete', () => { preloader.endLoading() })
+}</script><script>window.paceOptions = {
+  restartOnPushState: false
+}
+
+btf.addGlobalFn('pjaxSend', () => {
+  Pace.restart()
+}, 'pace_restart')
+
+</script><link rel="stylesheet" href="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_160015.png"/><script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js"></script><div id="web_bg" style="background-image: url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/af380cb8a5ed3f047e66dbfe731f488.jpg);"></div><div id="an_music_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_155535.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">5</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">4</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/"><i class="fa-fw icon-hexoa-homezhuyefangzijia"></i><svg class="icon fas fa-home" aria-hidden="true"><use xlink:href="#icon-hexoa-homezhuyefangzijia"></use></svg><span> 首页</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/comments/"><i class="fa-fw icon-hexoshouhuiban"></i><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexoshouhuiban"></use></svg><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group faa-parent animated-hover" href="javascript:void(0);"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexohuanjiaowenzhang"></use></svg><span> 文章</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/categories/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexofenlei"></use></svg><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexobiaoqian"></use></svg><span> 标签</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/archives/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexoguidang"></use></svg><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page group faa-parent animated-hover" href="javascript:void(0);"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexoicon_liebiao"></use></svg><span> 娱乐</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/music/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexoyinle"></use></svg><span> 音乐</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/gallery/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexotubiaozhizuomoban"></use></svg><span> 相册</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/characters/"><i class="fa-fw fas fa-users faa-tada"></i><span> 人物关系</span></a></li></ul></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/link/"><i class="fa-fw icon-hexopengyou"></i><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexopengyou"></use></svg><span> 友链</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/about/"><i class="fa-fw icon-hexowode"></i><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexowode"></use></svg><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_160146.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><img class="site-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_155552.png" alt="Logo"><span class="site-name">蜡笔梦工厂</span></a><a class="nav-page-title" href="/"><span class="site-name">计算机组成原理（二）</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i></span></div><div class="menus_items"><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/"><i class="fa-fw icon-hexoa-homezhuyefangzijia"></i><svg class="icon fas fa-home" aria-hidden="true"><use xlink:href="#icon-hexoa-homezhuyefangzijia"></use></svg><span> 首页</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/comments/"><i class="fa-fw icon-hexoshouhuiban"></i><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexoshouhuiban"></use></svg><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group faa-parent animated-hover" href="javascript:void(0);"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexohuanjiaowenzhang"></use></svg><span> 文章</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/categories/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexofenlei"></use></svg><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexobiaoqian"></use></svg><span> 标签</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/archives/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexoguidang"></use></svg><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page group faa-parent animated-hover" href="javascript:void(0);"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexoicon_liebiao"></use></svg><span> 娱乐</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/music/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexoyinle"></use></svg><span> 音乐</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/gallery/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexotubiaozhizuomoban"></use></svg><span> 相册</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/characters/"><i class="fa-fw fas fa-users faa-tada"></i><span> 人物关系</span></a></li></ul></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/link/"><i class="fa-fw icon-hexopengyou"></i><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexopengyou"></use></svg><span> 友链</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/about/"><i class="fa-fw icon-hexowode"></i><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexowode"></use></svg><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div><div id="randomPost"><a class="site-page social-icon search" href="javascript:;" onclick="randomPost()" title="随机访问一篇文章"><i class="fas fa-circle-notch fa-fw"></i></a></div></nav><div id="post-info"><h1 class="post-title">计算机组成原理（二）</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-04-07T13:11:00.000Z" title="发表于 2025-04-07 21:11:00">2025-04-07</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-04-07T13:24:50.552Z" title="更新于 2025-04-07 21:24:50">2025-04-07</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/">计算机基础</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E4%B8%93%E4%B8%9A%E8%AF%BE/">专业课</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">22.5k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>79分钟</span></span><span class="post-meta-separator">|</span><span id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="twikoo_visitors"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><section class="main-hero-waves-area waves-area"><svg class="waves-svg" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto"><defs><path id="gentle-wave" d="M -160 44 c 30 0 58 -18 88 -18 s 58 18 88 18 s 58 -18 88 -18 s 58 18 88 18 v 44 h -352 Z"></path></defs><g class="parallax"><use href="#gentle-wave" x="48" y="0"></use><use href="#gentle-wave" x="48" y="3"></use><use href="#gentle-wave" x="48" y="5"></use><use href="#gentle-wave" x="48" y="7"></use></g></svg></section></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1>1 计算机内部的数据表示</h1>
+<h2 id="1-1-数值转换与编码">1.1 数值转换与编码</h2>
+<p>基数r：进位计数制中，每个数位所用到的不同数码个数<br>
+真值（前面带+/-）：现实中用于计算的数据，在计算机中不存在；<br>
+正数或负数的真值为其绝对值对应的二进制数前面加上正号或负号。<br>
+例如+1 表示为 +00000001，-1 表示为 -00000001；<br>
+移码大真值就大<br>
+补码若符号位相同，数值位越大（即二进制中1的位数越多），码值越大。若 <code>1</code> 的个数相同，<strong>最高位的 <code>1</code> 位置越靠左（权重越大），码值越大</strong>。</p>
+<table>
+<thead>
+<tr>
+<th><strong>进制名称</strong></th>
+<th><strong>基数</strong></th>
+<th><strong>数码范围</strong></th>
+<th><strong>进位规则</strong></th>
+<th><strong>权值</strong></th>
+<th><strong>示例</strong></th>
+<th><strong>二进制转换规则</strong></th>
+<th><strong>表示方法（后缀/前缀）</strong></th>
+<th><strong>C语言表示</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>二进制</strong></td>
+<td>2</td>
+<td>0, 1</td>
+<td>逢二进一</td>
+<td>2^i</td>
+<td>101011<sub>2</sub></td>
+<td>3位二进制 → 1位八进制</td>
+<td>后缀<code>B</code>（如<code>101011B</code>）</td>
+<td><code>0b101011</code></td>
+</tr>
+<tr>
+<td><strong>八进制</strong></td>
+<td>8</td>
+<td>0, 1, 2, 3, 4, 5, 6, 7</td>
+<td>逢八进一</td>
+<td>8^i</td>
+<td>101011<sub>8</sub></td>
+<td>1位八进制 → 3位二进制</td>
+<td>后缀<code>O</code>（如<code>101011O</code>）</td>
+<td><code>0101011</code>（前导0）</td>
+</tr>
+<tr>
+<td><strong>十进制</strong></td>
+<td>10</td>
+<td>0, 1, 2, …, 9</td>
+<td>逢十进一</td>
+<td>10^i</td>
+<td>101011<sub>10</sub></td>
+<td>无直接转换</td>
+<td>无后缀（如<code>101011</code>）</td>
+<td><code>101011</code></td>
+</tr>
+<tr>
+<td><strong>十六进制</strong></td>
+<td>16</td>
+<td>0-9, A-F（10-15）</td>
+<td>逢十六进一</td>
+<td>16^i</td>
+<td>101011<sub>16</sub></td>
+<td>4位二进制 → 1位十六进制</td>
+<td>后缀<code>H</code>（如<code>101011H</code>）</td>
+<td><code>0x101011</code></td>
+</tr>
+<tr>
+<td>2^-1=0.5，2^-2=0.25，2^-3=0.125</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li>
+<p><strong>二进制↔八进制数</strong><br>
+二进制→八进制：从小数点向左右划分，每三个一组，不够的补零<br>
+八进制→二进制：每个八进制数转换为三位二进制数，前后去0</p>
+</li>
+<li>
+<p><strong>二进制↔十六进制数</strong><br>
+二进制→十六进制：从小数点向左右划分，每四个一组，不够的补零<br>
+十六进制→二进制：每个十六进制数转换为四位二进制数，前后去0</p>
+</li>
+<li>
+<p><strong>八进制→十六进制</strong><br>
+先转二进制，在转十六进制</p>
+</li>
+<li>
+<p><strong>十进制小数→任意进制（除基取余，乘基取整）</strong><br>
+除基取余针对整数部分，乘基取整针对小数部分<br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250328084356810.png" alt="image.png"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250328084506522.png" alt="image.png"></p>
+<ul>
+<li><strong>注</strong>：<br>
+若转换后无限循环（精度缺失），需根据精度要求截断。<br>
+十进制小数转八进制和十六进制小数也可能出现精度缺失</li>
+</ul>
+</li>
+<li>
+<p><strong>BCD码（Binary-Co ded Decimal）</strong></p>
+<ul>
+<li><strong>压缩BCD码</strong>：用<font color="#ff0000">4位</font>二进制表示1位十进制数（如 <code>9 → 1001</code>）。</li>
+<li><strong>非压缩BCD码</strong>：用<font color="#ff0000">8位</font>二进制表示1位十进制数（如 <code>9 → 00001001</code>）。  <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250328090505451.png" alt="image.png"></li>
+<li><strong>常见编码类型</strong>：
+<ul>
+<li><strong>8421码（自然BCD码）</strong>：
+<ul>
+<li>加法后若结果超过9（如 <code>1001 + 1001 = 1 0010</code>），需加 <code>0110</code>（6）校正。  <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250328090725385.png" alt="image.png"></li>
+</ul>
+</li>
+<li><strong>余3码</strong>：无权码，每个数比原值大3（如 <code>0 → 0011</code>）。</li>
+<li><strong>2421码</strong>：有权码，5~9的最高位为1（如 <code>5 → 1011</code>）。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>ASCII码</strong></p>
+<ul>
+<li><strong>范围</strong>：
+<ul>
+<li><code>0-9</code>：<code>30H-39H</code>（48-57）。</li>
+<li><code>A-Z</code>：<code>41H-5AH</code>（65-90）。</li>
+<li><code>a-z</code>：<code>61H-7AH</code>（97-122）。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<h2 id="1-2-定点数的编码">1.2 定点数的编码</h2>
+<h3 id="1-2-1-定点数">1.2.1 定点数</h3>
+<ul>
+<li><strong>定义</strong>：小数点位置固定，分为<strong>定点整数</strong>和<strong>定点小数</strong>。</li>
+<li><strong>表示范围</strong>：</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>范围（n位）</th>
+<th>8位二进制范围</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>定点整数</strong></td>
+<td>$-2^{n-1} \leq x \leq 2^{n-1} - 1$</td>
+<td>-128~127</td>
+</tr>
+<tr>
+<td><strong>定点小数</strong></td>
+<td>$-1 \leq x \leq 1 - 2^{-(n-1)}$</td>
+<td>-1~0.992</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>
+<p>数据范围影响因素</p>
+<ul>
+<li>机器字长：越长，越大</li>
+<li>所采用的机器码：补码和移码所能表示的数据范围，比原码和反码所能表示的数据范围要多一个最小负数。</li>
+</ul>
+</li>
+<li>
+<p><strong>定点整数</strong>：</p>
+<ul>
+<li>小数点固定在数值位最右侧。<br>
+一般用<mark>补码</mark>表示<br>
+总位数为 n+1 位，给定真值  x ，其补码 [x]补 定义为：$[x]_{\text{补}} = \begin{cases} x &amp; \text{若 } 0 \leq x &lt; 2^{n}, \2^{n+1} + x &amp; \text{若 } -2^{n} \leq x &lt; 0 \ (\text{mod } 2^{n+1}).\end{cases}$
+<ul>
+<li><strong>模数</strong>： $2^{n+1}$ ，即补码表示的数值范围在模  $2^{n+1}$  下。<br>
+以  n = 3 （总位数  n+1 = 4 ）为例：</li>
+<li>x = -5 ：补码为  $2^{4} + (-5) = 16 - 5 = 11$ ，即 <code>1011</code>。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>定点小数</strong>：</p>
+<ul>
+<li>小数点固定在符号位右侧。</li>
+<li><strong>示例</strong>：<code>1.011</code>表示<code>-0.625</code>（补码）。</li>
+</ul>
+</li>
+</ul>
+<p>注：拓展位不一样<br>
+定点小数：<br>
+[x]原=1.110<br>
+[x]原= 1.1100000<br>
+定点整数：<br>
+[x]原=1,110<br>
+[x]原= 1,0000110</p>
+<h3 id="1-2-2-原码">1.2.2 原码</h3>
+<ol>
+<li>
+<p><strong>定义</strong>：</p>
+<ul>
+<li>原码是最基础的二进制表示方法，<strong>符号位 + 数值位</strong>。</li>
+<li><strong>符号位</strong>：最高位，<code>0</code>表示正数，<code>1</code>表示负数。</li>
+<li><strong>数值位</strong>：绝对值的二进制形式。</li>
+</ul>
+</li>
+<li>
+<p><strong>示例</strong>：</p>
+<ul>
+<li><code>+5</code>（4位）：<code>0 101</code></li>
+<li><code>-5</code>（4位）：<code>1 101</code></li>
+</ul>
+</li>
+<li>
+<p><strong>特点</strong>：</p>
+<ul>
+<li><strong>优点</strong>
+<ul>
+<li>与真值的对应关系简单、直观，与真值的转换简单</li>
+<li>用原码实现乘除运算比较简便。</li>
+</ul>
+</li>
+<li><strong>缺点</strong>：
+<ul>
+<li><strong>符号位不能直接参与运算</strong>，用原码实现加减运算比较复杂</li>
+<li><strong>0的表示不唯一，有±0两个编码</strong>：<code>+0</code>（<code>0 000</code>）和 <code>-0</code>（<code>1 000</code>）。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<p>原码在计算机中仅用于表示浮点数的尾码<br>
+计算：<br>
+加法:正+正或负+负 结果可能溢出<br>
+减法：负数取反</p>
+<h3 id="1-2-3-反码">1.2.3 反码</h3>
+<ol>
+<li>
+<p><strong>定义</strong>：</p>
+<ul>
+<li><strong>正数</strong>：与原码相同。</li>
+<li><strong>负数</strong>：符号位不变，数值位按位取反。</li>
+</ul>
+</li>
+<li>
+<p><strong>示例</strong>：</p>
+<ul>
+<li><code>+5</code>（4位）：<code>0 101</code></li>
+<li><code>-5</code>（4位）：<code>1 010</code></li>
+</ul>
+</li>
+<li>
+<p><strong>优点</strong>：</p>
+<ul>
+<li>符号位可以参与运算</li>
+</ul>
+</li>
+<li>
+<p><strong>缺点</strong>：</p>
+<ul>
+<li>最高位(符号位)产生的进位要加到运算结果的低位(循环进位)</li>
+<li>真值0在反码中有两种不同的表示</li>
+</ul>
+</li>
+</ol>
+<h3 id="1-2-4-补码">1.2.4 补码</h3>
+<ol>
+<li>
+<p><strong>定义</strong>：</p>
+<ul>
+<li><strong>正数</strong>：与原码相同。</li>
+<li><strong>负数</strong>：反码加1（符号位不变）。</li>
+</ul>
+</li>
+<li>
+<p><strong>示例</strong>：</p>
+<ul>
+<li><code>+5</code>（4位）：<code>0 101</code></li>
+<li><code>-5</code>（4位）：<code>1 011</code>（反码<code>1 010</code> + 1）</li>
+</ul>
+</li>
+<li>
+<p><strong>优点</strong>：</p>
+<ul>
+<li><strong>统一加减法</strong>：减法可转换为加法（<code>A - B = A + (-B)</code>）。</li>
+<li><strong>唯一0表示</strong>：<code>0 000</code>，无<code>-0</code>。使得补码比原码多表示一个最小负数</li>
+<li><strong>硬件友好</strong>：无需额外处理符号位，简化电路设计。</li>
+</ul>
+</li>
+<li>
+<p><strong>缺点</strong>：<br>
+补码的表示相对原码更加复杂。<br>
+原码的数值位与真值的绝对值相同。因此，通过原码可以很容易地得出真值。但是，补码就没有这么简单了。</p>
+</li>
+<li>
+<p><strong>补码快速转换</strong>：</p>
+<ul>
+<li>从右往左找到第一个<code>1</code>，该位左侧数值位取反。</li>
+<li><strong>示例</strong>：<code>-5</code>（原码<code>1 101</code> → 补码<code>1 011</code>）。</li>
+</ul>
+</li>
+</ol>
+<p>补码1111 1111是-1<br>
+补码1000 0000是-128<br>
+8位补码所表示的真值x的范围：-128 ≤ x ≤ 127<br>
+16位补码所表示的真值x的范围：-32768 ≤ x ≤ 32767<br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250328123122040.png" alt="image.png"><br>
+3. <strong>补码运算示例</strong>：<br>
+$[A + B]<em>{\text{补}} = [A]</em>{\text{补}} + [B]<em>{\text{补}}, \quad [A - B]</em>{\text{补}} = [A]<em>{\text{补}} + [-B]</em>{\text{补}}$<br>
+可以验证结果$[A + B]<em>{\text{补}} = [A+B]</em>{\text{补}}$<br>
+$(-5) + 3 = 11111011_2 + 00000011_2 = 11111110_2 = -2_{10}$<br>
+[-0.0101]原=[1.1011]补<br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250328123942413.png" alt="image.png|350">补码的补码是原码<br>
+[x]补=1,011 0100 [x]原=1,100 1100<br>
+4. 补码的真值计算公式为：<br>
+$真值=−符号位×2^{n−1}+剩余位的无符号值$<br>
+对于 <code>11100000</code>：$真值=−1×2^7+1100000_2=−128+96=−32$<br>
+技巧：对于n位补码，其真值为最高位的-2^(n-1)加上其余各位的正权重之和。<br>
+eg.<code>1 1011</code>=-2^4+8+2+1=-5<br>
+5. $[-x]<em>{\text{补}} = \text{全部位取反}([x]</em>{\text{补}}) + 1$<br>
+<mark>对-40求补运算，就是求40的补码。就是求相反数的补码</mark><br>
+1. <strong>正数转负数</strong>：<br>
+- 设[x]补 = <code>00000101</code>（+5）<br>
+- <strong>取反</strong>：<code>11111010</code><br>
+- <strong>加1</strong>：<code>11111010 + 1 = 11111011</code><br>
+- <strong>结果</strong>：[-x]补 = <code>11111011</code>（-5）</p>
+<pre><code>2. **负数转正数**：
+   - 设\[x\]补 = `11111011`（-5）
+     - **取反**：`00000100`
+     - **加1**：`00000100 + 1 = 00000101`
+     - **结果**：\[-x\]补 = `00000101`（+5）
+</code></pre>
+<ol start="6">
+<li>定点小数的补码<br>
+正数补码和原码相同，负数补码定义为$[X]<em>{\text{补}} = 2 + X$（模2）。<br>
+负数的补码是其绝对值的“模2补数”。<br>
+eg.X = -0.101，则：$[X]</em>{\text{补}} = 2 + (-0.101) = 10.000 + 1.011 = 11.011(\text{舍去超过整数位的最高位}) = 1.011 \quad (\text{二进制})$<br>
+对于整数部分占1位、小数部分占n位的数，补码的一般形式为：$[X]<em>{\text{补}} = 2^{n+1} + X \quad (\text{模 } 2)$<br>
+eg.n=3，X = -0.101$[X]</em>{\text{补}} = 2^{4} + (-0.101) = 16 - 0.625 = 15.375 \mod 16 = 1.011 \quad (\text{二进制})$  对应补码 <code>1.011</code>（十进制 -0.101）。</li>
+<li>补码加减法的硬件实现<br>
+补码加减法可通过<strong>同一个加法器</strong>实现，核心设计如下：
+<ul>
+<li><strong>控制信号 <code>Sub</code></strong>：决定执行加法或减法。</li>
+<li><strong><code>Sub = 0</code></strong>：加法运算，输入为 <code>X</code> 和 <code>Y</code>。</li>
+<li><strong><code>Sub = 1</code></strong>：减法运算，输入为 <code>X</code> 和 <code>Y</code> 的反码，并<strong>末位加1</strong>（通过低位进位实现）。</li>
+<li><strong>电路设计</strong>：</li>
+<li><strong>多路选择器（MUX）</strong>：选择 <code>Y</code> 或 <code>~Y</code>（取反）。</li>
+<li><strong>加法器</strong>：接收 <code>X</code> 和 MUX 输出，同时将 <code>Sub</code> 作为初始<strong>低位进位输入</strong>（减法时 <code>C_in = 1</code>）。<br>
+<strong>示例</strong>：</li>
+<li>减法运算：<code>X - Y</code> 转换为 <code>X + (~Y) + 1</code>，即 <code>[X]补 + [-Y]补</code>。</li>
+<li>电路公式：<code>Result = X + (Y ^ &#123;n&#123;Sub&#125;&#125;) + Sub</code>（异或门实现按位取反）。</li>
+</ul>
+</li>
+</ol>
+<h3 id="1-2-5-移码">1.2.5 移码</h3>
+<ol>
+<li>移码就是在真值上加一个常数 2^n（补码最前一位取反）</li>
+<li>在数轴上，移码所表示的范围对应于真值在数轴上的范围向轴的正方向移动2^n个单元</li>
+<li>移码只用于<strong>定点整数</strong>的表示。</li>
+<li>优点：
+<ul>
+<li>真值0在移码中只有一种表示。</li>
+<li>移码保持了真值原有的大小顺序，可以<strong>直接比较大小</strong>。最小真值的移码为全0，最大真值的移码为全1，符合人们的习惯</li>
+<li>当浮点数的阶码用移码来表示时，就能很方便地比较阶码的大小。</li>
+</ul>
+</li>
+</ol>
+<p>注：<br>
+<strong>1. 移码与补码的转换适用场景</strong></p>
+<ul>
+<li><strong>移码</strong> 主要用于 <strong>浮点数的阶码（指数部分）</strong>，目的是将指数值转换为无符号整数，便于直接比较大小。</li>
+<li><strong>补码</strong> 用于 <strong>普通有符号整数</strong>，简化加减法运算。</li>
+<li><strong>关键区别</strong>：
+<ul>
+<li>移码的真值计算依赖 <strong>偏置值</strong>，公式为：$\text{真值} = \text{移码值} - \text{偏置值}$</li>
+<li>补码的真值计算依赖 <strong>符号位和数值位</strong>，无需偏置值。</li>
+<li><font color="#ff0000">移码和补码的转换 仅在浮点数阶码处理时结合使用，普通整数无需混合操作。</font></li>
+</ul>
+</li>
+</ul>
+<p>在IEEE 754中，移码用于表示浮点数的指数（阶码），其核心公式为：</p>
+<ul>
+<li><strong>偏置值</strong>：对于8位阶码，IEEE 754单精度浮点数使用 <strong>Bias = 127</strong>。其他情况是128</li>
+<li><strong>真值范围</strong>：移码值是无符号整数，8位范围为 $0 \leq \text{移码值} \leq 255$，对应真值范围为 $-127 \leq \text{真值} \leq 128$。<br>
+eg.<strong>真值</strong>：-128  $\text{移码值} = -128 + 127 = -1$
+<ul>
+<li>由于移码值需为无符号数，负数结果需进行模运算：<br>
+$-1 \mod 256 = 255 \quad \Rightarrow \quad 255_{(10)} = 11111111_{(2)}$<br>
+eg.- <strong>真值</strong>：-127  $\text{移码值} = -127 + 127 = 0$</li>
+<li>直接转换为无符号数：$0_{(10)} = 00000000_{(2)}$</li>
+</ul>
+</li>
+</ul>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250328131557327.png" alt="image.png|450"><br>
+n位能表示$2^{n-1}$个原码，$2^n$个补/移码</p>
+<table>
+<thead>
+<tr>
+<th><strong>编码类型</strong></th>
+<th><strong>合法表示范围</strong></th>
+<th><strong>最大的数（二进制）假设8位</strong></th>
+<th><strong>最小的数（二进制）</strong></th>
+<th><strong>真值0的表示</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>原码（n+1位）</strong></td>
+<td>$-(2^n - 1) \leq x \leq 2^n - 1$<br>[-127,127] 255个<br>最小正数1<br>最大负数-1</td>
+<td><code>0,1111111</code>$2^n - 1$</td>
+<td><code>1,1111111</code>$-(2^n - 1)$</td>
+<td><code>0,0000000</code>（+0）<br><code>1,0000000</code>（-0）</td>
+</tr>
+<tr>
+<td><strong>反码（n+1位）</strong></td>
+<td>$-(2^n - 1) \leq x \leq 2^n - 1$<br>[-127,127] 255个<br>最小正数1<br>最大负数-1</td>
+<td><code>0,1111111</code>$2^n - 1$</td>
+<td><code>1,0000000</code>$-(2^n - 1)$</td>
+<td><code>0,0000000</code>（+0）<br><code>1,1111111</code>（-0）</td>
+</tr>
+<tr>
+<td><strong>补码（n+1位）</strong></td>
+<td>$-2^n \leq x \leq 2^n - 1$<br>[-128,127] 256个<br>最小正数1<br>最大负数-1</td>
+<td><code>0,1111111</code>$2^n - 1$</td>
+<td><code>1,0000000</code>$-2^n$</td>
+<td><code>0,0000000</code>（唯一表示）</td>
+</tr>
+<tr>
+<td><strong>移码（8位，偏移量128）</strong></td>
+<td>$-2^n \leq x \leq 2^n - 1$<br>[-128,127] 256个<br>最小正数1<br>最大负数-1</td>
+<td><code>11111111</code>$2^n - 1$</td>
+<td><code>00000000</code>$-2^n$</td>
+<td><code>10000000</code>（偏移后0）</td>
+</tr>
+<tr>
+<td><strong>无符号整数（n+1位）</strong></td>
+<td>$0 \leq x \leq 2^{n+1} - 1$<br>[0,255] 256个</td>
+<td><code>1111111</code>$2^{n+1} - 1$</td>
+<td><code>00000000</code>（0）</td>
+<td><code>00000000</code></td>
+</tr>
+<tr>
+<td><strong>定点小数：原码</strong></td>
+<td>$−(1−2^{−n})≤x≤1−2^{−n}$<br>最小正数$2^{-n}$<br>最大负数$-2^{-n}$</td>
+<td><code>01111111</code>$1-2^{-n}$</td>
+<td><code>1111111</code>$-(1-2^{-n})$</td>
+<td><code>0,0000000</code>（+0）<br><code>1,0000000</code>（-0）</td>
+</tr>
+<tr>
+<td><strong>定点小数：反码</strong></td>
+<td>$−(1−2^{−n})≤x≤1−2^{−n}$<br>最小正数$2^{-n}$<br>最大负数$-2^{-n}$</td>
+<td><code>01111111</code>$1-2^{-n}$</td>
+<td><code>10000000</code>$-(1-2^{-n})$</td>
+<td><code>0,0000000</code>（+0）<br><code>1,1111111</code>（-0）</td>
+</tr>
+<tr>
+<td><strong>定点小数：补码</strong></td>
+<td>$-1≤x≤1−2^{−n}$<br>最小正数$2^{-n}$<br>最大负数$-2^{-n}$</td>
+<td><code>01111111</code>$1-2^{-n}$</td>
+<td><code>10000000</code>（-1）</td>
+<td><code>0,0000000</code>（唯一表示）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="1-2-6-负数大小判断">1.2.6 负数大小判断</h3>
+<p>原码：数值位越大，值越小<br>
+补码和反码：数值位越小，值越小<br>
+原码很容易判断大小，而负数的补码、反码很难直接判断大小</p>
+<h3 id="1-2-7-定点数的位数扩展">1.2.7 定点数的位数扩展</h3>
+<h4 id="1-2-7-1-定点整数与定点小数的扩展规则">1.2.7.1 定点整数与定点小数的扩展规则</h4>
+<table>
+<thead>
+<tr>
+<th><strong>类型</strong></th>
+<th><strong>扩展方向</strong></th>
+<th><strong>规则</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>定点整数</strong></td>
+<td>高位扩展</td>
+<td>根据编码方式（原码、补码、反码）决定填充 <code>0</code> 或 <code>1</code>（见下文）。</td>
+</tr>
+<tr>
+<td><strong>定点小数</strong></td>
+<td>低位扩展</td>
+<td>小数部分低位补 <code>0</code>（保持精度），高位扩展规则与编码方式一致。</td>
+</tr>
+</tbody>
+</table>
+<h4 id="1-2-7-2-原码、补码、反码的扩展规则">1.2.7.2 原码、补码、反码的扩展规则</h4>
+<table>
+<thead>
+<tr>
+<th><strong>编码类型</strong></th>
+<th><strong>正数扩展规则</strong></th>
+<th><strong>负数扩展规则</strong></th>
+<th><strong>示例（8位 → 16位）</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>原码</strong></td>
+<td>符号位 <code>0</code>，数值位高位补 <code>0</code></td>
+<td>符号位 <code>1</code>，数值位高位补 <code>0</code></td>
+<td><code>+5</code>（原码 <code>00000101</code> → <code>00000000 00000101</code>）<br><code>-5</code>（原码 <code>10000101</code> → <code>10000000 00000101</code>）</td>
+</tr>
+<tr>
+<td><strong>补码</strong></td>
+<td>符号位 <code>0</code>，数值位高位补 <code>0</code></td>
+<td>符号位 <code>1</code>，数值位高位补 <code>1</code>（符号扩展）</td>
+<td><code>+5</code>（补码 <code>00000101</code> → <code>00000000 00000101</code>）<br><code>-5</code>（补码 <code>11111011</code> → <code>11111111 11111011</code>）</td>
+</tr>
+<tr>
+<td><strong>反码</strong></td>
+<td>符号位 <code>0</code>，数值位高位补 <code>0</code></td>
+<td>符号位 <code>1</code>，数值位高位补 <code>1</code></td>
+<td><code>+5</code>（反码 <code>00000101</code> → <code>00000000 00000101</code>）<br><code>-5</code>（反码 <code>11111010</code> → <code>11111111 11111010</code>）</td>
+</tr>
+</tbody>
+</table>
+<h2 id="1-3-整数表示与运算">1.3 整数表示与运算</h2>
+<ol>
+<li><strong>无符号整数（unsigned）</strong> 没有符号位
+<ul>
+<li><strong>范围</strong>：$0 \sim 2^{n-1}$<code>（n为机器字长）。 8位2进制范围：</code>[0,255]`</li>
+<li><strong>硬件实现</strong>：直接存储二进制原码，无符号位。<br>
+无符号数用来存地址</li>
+<li>无符号整数溢出时，结果自动对 $2^n$ 取模（n 为位数）。
+<ul>
+<li><strong>示例</strong>：
+<ul>
+<li>8位无符号数：256 \mod 256 = 0，-1 \mod 256 = 255。</li>
+<li>移码计算中，负数真值转换为无符号移码值：$\text{移码值} = (\text{真值} + \text{Bias}) \mod 2^n$<br>
+如8位移码（Bias=127）：$-128 + 127 = -1 \quad \Rightarrow \quad -1 \mod 256 = 255 = 11111111_{(2)}$</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>有符号整数（补码表示）</strong>
+<ul>
+<li><strong>范围</strong>：$- 2^{n-1} \sim 2^{n-1} - 1$。<br>
+8位2进制范围：<code>[-128,128]</code><br>
+−128<sub>10</sub>​=1000 0000<sub>2</sub> 补码仍为1000 0000<sub>2</sub></li>
+<li><strong>补码转换规则</strong>：
+<ul>
+<li><strong>正数</strong>：原码、反码、补码相同。</li>
+<li><strong>负数</strong>：原码符号位不变，数值位取反加1。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>溢出判断</strong>
+<ul>
+<li>
+<p>加减法溢出判断</p>
+<ul>
+<li><mark>**有符号</mark>数溢出（OF）**：只有符号位相同才有可能溢出
+<ul>
+<li>看符号位与次高位进位是否异或$OF = C_{符号位} \oplus C_{次高位}$       $0111_2 (+7) + 0001_2 (+1) = 1000_2 (-8) \quad (\text{OF}=1)$</li>
+<li>最高数值的进位C<sub>n-1</sub>与符号位C<sub>n</sub>的进位是否一致$OF = C_{n-1} \oplus C_{n}$<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250330101044131.png" alt="image.png"></li>
+<li>变形补码（模4补码）01正溢出，10负溢出<br>
+模4 补码具有模2补码的全部优点且更易检查加减运算中的溢出问题<br>
+存储模4补码仅需一个符号位，因为任何一个正确的数值，模4补码的两个符号位总是相同的<br>
+只在把两个模 4 补码的数送往 ALU 完成加减运算时，才把个数的符号位的值同时送到ALU的双符号位中，即只在 ALU 中采用双符号位<br>
+采用双符号位时，第一符号位表示最终结果的符号，第二符号位表示运算结果是否溢出。
+<ul>
+<li><strong>正溢出</strong>：两个正数（符号位为 <code>0</code>）相加，结果符号位为 <code>1</code>（负数）。</li>
+<li><strong>负溢出</strong>：两个负数（符号位为 <code>1</code>）相加，结果符号位为 <code>0</code>（正数）。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><mark>**无符号</mark>数进位（CF）**：最高位进位（加法）或借位（减法）。</li>
+</ul>
+</li>
+<li>
+<p>2个n位无符号与有符号乘法的溢出条件</p>
+</li>
+<li>
+<p>无符号乘法溢出条件：高n位 ≠0<br>
+两个n位无符号数的乘积最多需要 <strong>2n位</strong> 表示，范围是 $0 \leq \text{乘积} \leq (2^n - 1)^2$。</p>
+<ul>
+<li>若乘积的 <strong>高n位全为0</strong>，说明结果可用n位无符号数表示（范围 $0 \leq \text{结果} \leq 2^n - 1$），<strong>不溢出</strong>。</li>
+<li>若高n位不全为0，说明结果超出n位范围（&gt; $2^n - 1$），<strong>溢出</strong>。</li>
+</ul>
+</li>
+<li>
+<p>有符号乘法溢出条件：高n+1位≠全0或全1<br>
+两个n位补码数的乘积最多需要 <strong>2n位</strong> 表示，范围是 $-2^{2n-2} \leq \text{乘积} \leq (2^{n-1}-1)^2$。</p>
+<ul>
+<li>若乘积的 <strong>高n+1位全为0或全为1</strong>，说明结果可用n位补码表示（符号位扩展一致），<strong>不溢出</strong>。</li>
+<li>若高n+1位不全为0或不全为1，说明结果超出n位补码范围，<strong>溢出</strong>。
+<ul>
+<li>补码乘法需要符号位扩展。若乘积的高n+1位全为0，表示正数且数值在n位范围内。</li>
+<li>若高n+1位全为1，表示负数且数值在n位范围内。</li>
+<li>若高n+1位不一致（如部分0和部分1），说明结果无法正确用n位补码表示。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th><strong>类型</strong></th>
+<th><strong>溢出条件</strong></th>
+<th><strong>示例（n=4）</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>无符号乘法</strong></td>
+<td>乘积高n位不全为0 → 溢出</td>
+<td>$15 \times 15 = 225$（溢出）</td>
+</tr>
+<tr>
+<td><strong>有符号乘法</strong></td>
+<td>乘积高n+1位不全为0或不全为1 → 溢出</td>
+<td>$-8 \times -8 = 64$（溢出）</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>零标志ZF=1 结果为零【都】</li>
+<li>符号标志SF=1 结果为负【有符号数】</li>
+<li><strong>运算器不区分数据类型</strong>：同一电路处理两种数（有符号、无符号），但需通过<strong>标志位</strong>解释结果。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th><strong>标志位</strong></th>
+<th><strong>名称</strong></th>
+<th><strong>作用</strong></th>
+<th><strong>逻辑表达式</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ZF</strong></td>
+<td>零标志</td>
+<td>结果为0时置1，否则置0。对所有运算有效。</td>
+<td><code>ZF = 1</code> ⇨ <code>Result == 0</code></td>
+</tr>
+<tr>
+<td><strong>OF</strong></td>
+<td>溢出标志</td>
+<td><strong>仅对有符号数有效</strong>，表示结果超出范围。</td>
+<td><code>OF = C_n ⊕ C_&#123;n-1&#125;</code></td>
+</tr>
+<tr>
+<td><strong>SF</strong></td>
+<td>符号标志</td>
+<td><strong>仅对有符号数有效</strong>，表示结果的符号（最高位）。</td>
+<td><code>SF = Result[n-1]</code></td>
+</tr>
+<tr>
+<td><strong>CF</strong></td>
+<td>进位/借位标志</td>
+<td><strong>仅对无符号数有效</strong>，加法表示进位，减法表示借位。</td>
+<td><code>CF = Sub ⊕ C_out</code></td>
+</tr>
+</tbody>
+</table>
+<ol start="4">
+<li>数值比较的逻辑<br>
+<strong>(1) 无符号数比较（执行 <code>A - B</code>）</strong></li>
+</ol>
+<table>
+<thead>
+<tr>
+<th><strong>条件</strong></th>
+<th><strong>标志位状态</strong></th>
+<th><strong>结论</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>A = B</code></td>
+<td><code>ZF = 1</code></td>
+<td>相等</td>
+</tr>
+<tr>
+<td><code>A &gt; B</code></td>
+<td><code>ZF = 0, CF = 0</code></td>
+<td>A大于B</td>
+</tr>
+<tr>
+<td><code>A &lt; B</code></td>
+<td><code>ZF = 0, CF = 1</code></td>
+<td>A小于B</td>
+</tr>
+<tr>
+<td><strong>(2) 有符号数比较（执行 <code>A - B</code>）</strong></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th><strong>条件</strong></th>
+<th><strong>标志位状态</strong></th>
+<th><strong>结论</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>A = B</code></td>
+<td><code>ZF = 1</code></td>
+<td>相等</td>
+</tr>
+<tr>
+<td><code>A &gt; B</code></td>
+<td><code>ZF = 0, OF = SF</code></td>
+<td>A大于B</td>
+</tr>
+<tr>
+<td><code>A &lt; B</code></td>
+<td><code>ZF = 0, OF ≠ SF</code></td>
+<td>A小于B</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>未溢出（<code>OF = 0</code>）</strong>：直接根据 <code>SF</code> 判断（<code>SF=0</code> 结果非负，<code>SF=1</code> 结果为负）。</li>
+<li><strong>溢出（<code>OF = 1</code>）</strong>：符号位 <code>SF</code> 与实际大小相反，需结合 <code>OF</code> 修正判断。</li>
+</ul>
+<ol start="5">
+<li>示例分析<br>
+<strong>(1) 无符号数比较</strong></li>
+</ol>
+<ul>
+<li><strong><code>A = 0000 0011 (3), B = 0000 0010 (2)</code></strong>：
+<ul>
+<li><code>A - B = 0000 0001</code> → <code>ZF = 0, CF = 0</code> → <code>A &gt; B</code>。</li>
+</ul>
+</li>
+<li><strong><code>A = 0000 0000 (0), B = 0000 0001 (1)</code></strong>：
+<ul>
+<li><code>A - B = 1111 1111</code> → <code>ZF = 0, CF = 1</code> → <code>A &lt; B</code>。</li>
+</ul>
+</li>
+</ul>
+<p><strong>(2) 有符号数比较</strong></p>
+<ul>
+<li><strong><code>A = 0111 (7), B = 1011 (-5)</code></strong>（补码）：
+<ul>
+<li><code>A - B = 0111 + 0101 = 1100</code> → <code>SF = 1, OF = 1 → </code>A &gt; B`</li>
+</ul>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th><strong>位</strong></th>
+<th>操作</th>
+<th>进位</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第1位</td>
+<td>1 + 1 = 0，进位1</td>
+<td>C0=1</td>
+</tr>
+<tr>
+<td>第2位</td>
+<td>1 + 0 + 1 = 0，进位1</td>
+<td>C1=1</td>
+</tr>
+<tr>
+<td>第3位</td>
+<td>1 + 1 + 1 = 1，进位1</td>
+<td>C2=1</td>
+</tr>
+<tr>
+<td>第4位</td>
+<td>0 + 0 + 1 = 1，进位0</td>
+<td>C3=0</td>
+</tr>
+</tbody>
+</table>
+<pre><code>OF=C3⊕C2=0⊕1=1（溢出发生）
+</code></pre>
+<h2 id="1-4-定点数运算">1.4 定点数运算</h2>
+<h3 id="1-4-1-移位运算">1.4.1 移位运算</h3>
+<ul>
+<li><strong>算术移位（有符号数）</strong>：
+<ul>
+<li><strong>原码</strong>：符号位不变，数值位补0（左移）或舍弃（右移）。</li>
+<li><strong>补码</strong>：正数同原码；负数左移补0，右移补1。</li>
+<li><strong>反码</strong>：负数空位补1</li>
+</ul>
+</li>
+<li><strong>逻辑移位（无符号数）</strong>：统一补0。<br>
+应用：RGB</li>
+<li><strong>循环移位</strong>：带进位时用于数据高低位交换（如大端转小端）。<br>
+适合将数据的第字节数据和高字节数据呼唤</li>
+</ul>
+<h4 id="1-4-1-1-逻辑移位（无符号数）">1.4.1.1 逻辑移位（无符号数）</h4>
+<h5 id="1-4-1-1-1-按位或（-）：将某位置1">1.4.1.1.1 按位或（<code>|</code>）：将某位置1</h5>
+<p><strong>用途</strong>：将特定位设为1，其他位保持不变。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> BIT3_MASK (1U &lt;&lt; 3)  <span class="comment">// 掩码: 0x00000008</span></span></span><br><span class="line">regData |= BIT3_MASK;         <span class="comment">// 第3位置1</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>若 <code>regData = 0x00000000</code> → 结果 <code>0x00000008</code>。</li>
+<li>若 <code>regData = 0x00000004</code> → 结果 <code>0x0000000C</code>（第2位和第3位均为1）。</li>
+</ul>
+<h5 id="1-4-1-1-2-按位与（-）：将某位清0">1.4.1.1.2 按位与（<code>&amp;</code>）：将某位清0</h5>
+<p><strong>用途</strong>：将特定位设为0，其他位保持不变。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> BIT5_MASK ~(1U &lt;&lt; 5)  <span class="comment">// 掩码: 0xFFFFFFDF</span></span></span><br><span class="line">regData &amp;= BIT5_MASK;          <span class="comment">// 第5位清0</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>若 <code>regData = 0x00000020</code> → 结果 <code>0x00000000</code>。</li>
+<li>若 <code>regData = 0xFFFFFFFF</code> → 结果 <code>0xFFFFFFDF</code>（仅第5位为0）。</li>
+</ul>
+<h5 id="1-4-1-1-3-按位异或（-）：切换某位状态">1.4.1.1.3 按位异或（<code>^</code>）：切换某位状态</h5>
+<p><strong>用途</strong>：若目标位为1则置0，若为0则置1（翻转位状态）。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> BIT2_MASK (1U &lt;&lt; 2)  <span class="comment">// 掩码: 0x00000004</span></span></span><br><span class="line">regData ^= BIT2_MASK;         <span class="comment">// 切换第2位状态</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>若 <code>regData = 0x00000000</code> → 结果 <code>0x00000004</code>（第2位置1）。</li>
+<li>若 <code>regData = 0x00000004</code> → 结果 <code>0x00000000</code>（第2位清0）。</li>
+</ul>
+<h5 id="1-4-1-1-4-按位非（-）：取反所有位">1.4.1.1.4 按位非（<code>~</code>）：取反所有位</h5>
+<p><strong>用途</strong>：将所有位取反（1变0，0变1）。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">regData = ~regData;  <span class="comment">// 所有位翻转</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>若 <code>regData = 0x0000000F</code> → 结果 <code>0xFFFFFFF0</code>。</li>
+<li>若 <code>regData = 0x12345678</code> → 结果 <code>0xEDCBA987</code>。</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 设置第1位和第4位，同时清除第3位</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SET_MASK   ((1U &lt;&lt; 1) | (1U &lt;&lt; 4))  <span class="comment">// 0x00000012</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> CLEAR_MASK ~((1U &lt;&lt; 3))             <span class="comment">// 0xFFFFFFF7</span></span></span><br><span class="line"></span><br><span class="line">regData |= SET_MASK;    <span class="comment">// 第1、4位置1</span></span><br><span class="line">regData &amp;= CLEAR_MASK;  <span class="comment">// 第3位清0</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>若 <code>regData = 0x00000000</code> → 结果 <code>0x00000012</code>。</li>
+<li>若 <code>regData = 0x00000008</code> → 结果 <code>0x00000010</code>（第3位清0，第4位置1）。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th><strong>操作符</strong></th>
+<th><strong>作用</strong></th>
+<th><strong>示例代码</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>|</td>
+<td>置1特定位</td>
+<td>regData |= (1U &lt;&lt; n)</td>
+</tr>
+<tr>
+<td>&amp;</td>
+<td>清0特定位</td>
+<td>regData &amp;= ~(1U &lt;&lt; n)</td>
+</tr>
+<tr>
+<td>^</td>
+<td>翻转特定位</td>
+<td>regData ^= (1U &lt;&lt; n)</td>
+</tr>
+<tr>
+<td>~</td>
+<td>取反所有位</td>
+<td>regData = ~regData</td>
+</tr>
+</tbody>
+</table>
+<p>eg1.<br>
+要将变量 <code>regData</code> 中的第6位（从0开始计数）置1而不影响其他位，假设寄存器的内容保存在变量regData中，可以使用以下C语言代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> b6_mask (1 &lt;&lt; 6)  <span class="comment">// 定义掩码，确保无符号移位</span></span></span><br><span class="line">regData |= b6_mask;        <span class="comment">// 按位或操作置位</span></span><br></pre></td></tr></table></figure>
+<ol>
+<li><strong>掩码定义</strong>：<br>
+<code>#define b6_mask (1 &lt;&lt; 6)</code><br>
+无符号整型常量1，左移6位后得到二进制掩码 <code>01000000</code>（即十六进制 <code>0x40</code>）。</li>
+<li><strong>置位操作</strong>：<br>
+<code>regData |= b6_mask;</code>
+<ul>
+<li>按位或操作 (<code>|=</code>) 将 <code>regData</code> 的第6位设置为1，其他位保持不变。</li>
+</ul>
+</li>
+</ol>
+<p><strong>假设 <code>regData</code> 初始值为 <code>0x28</code>（二进制 <code>00101000</code>）：</strong><br>
+<code>regData |= b6_mask;  // regData = 0x68 (二进制 01101000)</code><br>
+eg2.<br>
+要将变量 <code>regData</code> 中的第6位（从0开始计数）清0而不影响其他位，假设寄存器的内容保存在变量regData中，可以使用以下C语言代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> b6_mask ~(1 &lt;&lt; 6)</span></span><br><span class="line">regData &amp;= b6_mask</span><br></pre></td></tr></table></figure>
+<p>eg3.<br>
+要将某个8位寄存器的b0和b5的内容清0、b2和b3的内容置1，并且不影响寄该寄存器中的其他各位，请使用C语言编程实现(假设该寄存器的内容保存在变量regData中)。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> CLEAR_MASK ((1U &lt;&lt; 0) | (1U &lt;&lt; 5))</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SET_MASK   ((1U &lt;&lt; 2) | (1U &lt;&lt; 3))</span></span><br><span class="line">regData &amp;= ~CLEAR_MASK;  <span class="comment">// 清0 b0和b5</span></span><br><span class="line">regData |= SET_MASK;     <span class="comment">// 置1 b2和b3</span></span><br></pre></td></tr></table></figure>
+<h4 id="1-4-1-2-算数移位（有符号数）">1.4.1.2 算数移位（有符号数）</h4>
+<p>针对定点数（定点整数、顶点小数）<br>
+不论正数还是负数，符号位保持不变，仅对数值位进行移位<br>
+左移×2^n 【&lt;&lt; 对应逻辑左移（高位移除，低位补0）】<br>
+右移÷2^n 【&gt;&gt; 无符号对应逻辑右移（低位移除，高位补0），有符号对应算术右移（低位移除，低位补符号位）】<br>
+注意：补码的算数移位：</p>
+<ul>
+<li><strong>右移</strong>：符号位保留（填充符号位）。</li>
+<li><strong>左移</strong>：
+<ul>
+<li>若左移未溢出，符号位保留。</li>
+<li>若左移导致符号位改变（如正数变负数或负数变正数），则符号位不保留，<strong>溢出发生</strong>。</li>
+</ul>
+</li>
+<li>补码 <code>00001101</code>（+13）左移1位 → <code>00011010</code>（+26），符号位保留。</li>
+<li>补码 <code>11110011</code>（-13）左移2位 → <code>11001100</code>（-52），符号位保留。</li>
+<li>补码 <code>01111111</code>（+127）左移1位 → <code>11111110</code>（-2），符号位改变，<strong>溢出</strong>。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th><strong>真值</strong></th>
+<th><strong>机器码</strong></th>
+<th><strong>空位添补</strong></th>
+<th><strong>丢位情况</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>正数</strong>（符号位不保留）</td>
+<td>原码=补码=反码</td>
+<td>补0</td>
+<td>- <strong>最高位丢1</strong>：结果溢出（出错）  <br>- <strong>最低位丢1</strong>：精度缺失（值变小）</td>
+</tr>
+<tr>
+<td><strong>负数</strong>（符号位保留1）</td>
+<td><strong>原码</strong></td>
+<td>补0</td>
+<td>- <strong>最高位丢0</strong>：结果溢出（出错）  <br>- <strong>最低位丢0</strong>：精度缺失（绝对值变大）</td>
+</tr>
+<tr>
+<td></td>
+<td><strong>反码</strong></td>
+<td>补1</td>
+<td>- <strong>最高位丢0</strong>：结果溢出（出错）  <br>- <strong>最低位丢1</strong>：精度缺失（绝对值变大）</td>
+</tr>
+<tr>
+<td></td>
+<td><strong>补码</strong></td>
+<td>左移补0右移补1</td>
+<td>- <strong>最高位丢0</strong>：结果溢出（出错）  <br>- <strong>最低位丢1</strong>：精度缺失（值变小）</td>
+</tr>
+<tr>
+<td><strong>有符号定点数</strong>的<strong>补码</strong>的另一种算术移位方法，即“符号位也参与移位”，具体规则如下</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>左移：高位移除，低位添补0；移动前后若符号位发生变化，则发生<strong>溢出</strong>。</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>右移：低位移除，高位添补符号。</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>注：题目中有机器数、寄存器等用机器移动，左移符号位和数值位一起移。算数右移保留符号位</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>补码算术左移时，高位移出，低位补0，若左移前后的符号位不同，则发生溢出</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>无符号数逻辑左移时，若最高位移出的是1，则发生溢出</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>逻辑左移和补码算术左移的结果都一样，都是移出最高位，并在低位补0</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="1-4-1-3-循环移位（无符号数）">1.4.1.3 循环移位（无符号数）</h4>
+<p>将无符号数二进制形式中的各个位向左或向右移动，被移出的位会重新出现在另一端，形成循环。<br>
+在很多处理器架构中，循环移位指令会影响状态寄存器中的<strong>进位标志CF(CarnyFlag)位</strong>，CF标志位用于标识在执行算术或逻辑操作时是否发生了<strong>进位</strong>。<br>
+根据CF标志位是否加入循环移位过程，循环移位可分为以下四种:<br>
+小循环：CF不参与循环，但是保留当前循环的移位<br>
+不带CF标志位的循环右移<br>
+不带CF标志位的循环左移<br>
+大循环：CF参与循环<br>
+带CF标志位的循环右移<br>
+带CF标志位的循环左移<br>
+循环移位的应用主要有：<strong>加密算法、哈希函数、优化算法</strong><br>
+加密算法：通过循环移位可以实现数据的混淆和置换，增强加密算法的安全性。<br>
+哈希函数：通过循环移位可以用来改变输入数据的排列顺序，以产生不同的哈希值，有利于增强哈希函数的混淆性和扩散性。<br>
+优化算法:<br>
+在某些算法中，循环移位可以用于优化性能和节省资源。例如，在图形处理和数字信号处理中，循环移位可以用于加速算法的执行。</p>
+<p>可以使用移位运算操作符(左移“&lt;&lt;”或右移“&gt;&gt;”)和位运算操作符(例如:或运算)来实现。</p>
+<table>
+<thead>
+<tr>
+<th><strong>移位类型</strong></th>
+<th><strong>数值类型</strong></th>
+<th><strong>溢出判断条件</strong></th>
+<th><strong>示例（4位）</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>逻辑左移</strong></td>
+<td>无符号数</td>
+<td>移出有效位（<code>CF = 1</code>）</td>
+<td><code>1100 &lt;&lt; 1 → 1000</code>（未溢出）</td>
+</tr>
+<tr>
+<td><strong>算术左移</strong></td>
+<td>有符号数</td>
+<td>符号位改变（<code>OF = 1</code>）</td>
+<td><code>0100 &lt;&lt; 1 → 1000</code>（溢出）</td>
+</tr>
+<tr>
+<td><strong>逻辑右移</strong></td>
+<td>无符号数</td>
+<td>不会溢出</td>
+<td><code>1100 &gt;&gt; 1 → 0110</code>（无溢出）</td>
+</tr>
+<tr>
+<td><strong>算术右移</strong></td>
+<td>有符号数</td>
+<td>不会溢出</td>
+<td><code>1100 &gt;&gt; 1 → 1110</code>（无溢出）</td>
+</tr>
+</tbody>
+</table>
+<h2 id="1-5-逻辑门">1.5 逻辑门</h2>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250330110026671.png" alt="image.png"></p>
+<h3 id="1-5-1-半加器">1.5.1 半加器</h3>
+<p>和数S，进位数C<br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250330122433587.png" alt="image.png|300"></p>
+<h3 id="1-5-2-一位全加器FA">1.5.2 一位全加器FA</h3>
+<p>一位全加器 = 两个半加器<br>
+FA是最基本的加法单元</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250330121705189.png" alt="image.png"></p>
+<h3 id="1-5-3-串行进位加法器">1.5.3 串行进位加法器</h3>
+<p>将n个全加器相连可得到n位加法器，称为串行进位加法器，如图2.4所示。串行进位也称行波进位，每级进位直接依赖于前一级的进位，即进位信号是<strong>逐级</strong>形成的。<br>
+在串行进位加法器中，低位运算产生进位所需的时间将影响高位运算的时间。因此，串行进位加法器的最长运算时间主要是由进位信号的<strong>传递时间</strong>决定的，位数越多，延迟时间就越长，所以加快进位产生和提高传递的速度是关键。<br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250330121720156.png" alt="image.png"><br>
+在n位串行进位加法器中，每个高位的一位全加器FA的运算依赖于相邻低位的一位FA的进位Ci+1因此所有一位FA不能并行运行，其时间关键延迟为(2n+4)T，与串行进位加法器的位数n呈线性关系，<strong>当n较大时性能较差</strong>。<br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250330124049316.png" alt="image.png|400"></p>
+<h3 id="1-5-4-先行进位加法器">1.5.4 先行进位加法器</h3>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250330130038330.png" alt="image.png"><br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250330130239644.png" alt="image.png"><br>
+针对C4，S4：<br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250330125514620.png" alt="image.png|400"></p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250330120614661.png" alt="image.png"><br>
+带符号整数和无符号整数的加减法<strong>可以共用同一加法器</strong>，因为：</p>
+<ol>
+<li>补码设计使得加减法操作与无符号数一致。<strong>硬件无需区分有符号和无符号数</strong>，加法器直接执行二进制位相加。</li>
+<li>减法统一转换为加法，仅需额外取反加1逻辑。</li>
+<li>溢出判断通过独立电路（CF和OF）区分处理，不依赖加法器本身。
+<ul>
+<li><strong>无符号数溢出</strong>：<br>
+通过<strong>最高位进位</strong>判断。例如，8位无符号数相加结果超过255时，最高位产生进位（Carry Flag, CF=1）。</li>
+<li><strong>有符号数溢出</strong>：<br>
+通过<strong>符号位变化</strong>判断。若两个正数相加结果为负，或两个负数相加结果为正，则溢出（Overflow Flag, OF=1）。</li>
+<li><strong>共用加法器，独立标志位</strong>：</li>
+<li>加法器生成结果后，<strong>CF</strong> 和 <strong>OF</strong> 由不同电路独立计算。</li>
+<li>例如，8位运算中：
+<ul>
+<li><code>CF = 第8位进位</code>。</li>
+<li><code>OF = 第7位进位异或第8位进位</code>。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<h2 id="1-6-乘法与除法">1.6 乘法与除法</h2>
+<h3 id="1-6-1-无符号数乘法的硬件逻辑">1.6.1 无符号数乘法的硬件逻辑</h3>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250401183330629.png" alt="image.png|400"><br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250330132332682.png" alt="image.png"><br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250330133038038.png" alt="image.png"></p>
+<h3 id="1-6-2-定点数的乘法运算">1.6.2 定点数的乘法运算</h3>
+<ul>
+<li><strong>原码乘法</strong>：符号位异或，数值位累加并右移。</li>
+<li><strong>补码乘法（Booth算法）</strong>：根据乘数位决定加减被乘数，算数右移。</li>
+<li><strong>原码除法（加减交替法）</strong>：通过余数符号调整商和下一步操作。</li>
+</ul>
+<h4 id="1-6-2-1-原码乘法运算的硬件逻辑实现">1.6.2.1 原码乘法运算的硬件逻辑实现</h4>
+<p>对于定点整数原码乘法，其过程与定点小数原码乘法完全相同，仅将符号位与数值位之间的小数点改为逗号即可。<br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250401185018200.png" alt="image.png"><br>
+先加法再移位，重复n次<br>
+符号位不参与运算，符号位单独处理：符号位=x⊕y<br>
+取绝对值进行乘法计算<br>
+当前位=1，ACC加上被乘数。=0，不加<br>
+补位是逻辑右移<br>
+进行n轮加法、移位<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250401200316949.png" alt="image.png|350"></p>
+<h4 id="1-6-2-2-补码乘法运算的硬件逻辑实现">1.6.2.2 补码乘法运算的硬件逻辑实现</h4>
+<p>补码一位乘法运算（Booth算法）：<br>
+是一种加速乘法计算的方法（比如计算 <code>5 × 3</code>），特别适合用硬件电路实现，比传统的乘法更高效。<br>
+<strong>核心思想：用“加减”代替“乘”</strong><br>
+硬件不喜欢直接做乘法（电路复杂），但擅长加减和移位。Booth算法把乘法拆解成：</p>
+<ol>
+<li><strong>观察乘数的相邻两位</strong>（比如当前位是<code>1</code>，前一位是<code>0</code>，就表示“需要加被乘数”）。</li>
+<li><strong>被乘数左移</strong>（相当于十进制乘法中的“后面补零”）。</li>
+<li><strong>重复步骤1和2，最后把所有结果加起来</strong>。</li>
+</ol>
+<p><strong>硬件</strong>：<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250402181608205.png" alt="image.png"></p>
+<ol>
+<li>
+<p><strong>控制逻辑</strong>：</p>
+<ul>
+<li><strong>核心大脑</strong>，协调所有操作：根据乘数位（MQ的当前位和附加位）判断加减、移位操作，控制循环次数（计数器），确保算法按步骤执行。</li>
+</ul>
+</li>
+<li>
+<p><strong>时钟</strong>：</p>
+<ul>
+<li><strong>同步时序</strong>，确保每一步操作（如加减、移位）在固定时钟周期内完成，保持硬件同步。</li>
+</ul>
+</li>
+<li>
+<p><strong>计数器（Cn）</strong>：</p>
+<ul>
+<li><strong>记录迭代次数</strong>，例如n位乘法需计数n次，控制循环终止。</li>
+</ul>
+</li>
+<li>
+<p><strong>ACC（累加器）</strong>：</p>
+<ul>
+<li><strong>存储部分积</strong>，保存当前累加结果，每次操作后与ALU结果同步，参与算术右移。</li>
+</ul>
+</li>
+<li>
+<p><strong>MQ（乘商寄存器）</strong>：</p>
+<ul>
+<li><strong>存储乘数及附加位</strong>，初始存放乘数Y，末尾附加一位Y₋₁（初始为0）；每次右移时，ACC和MQ联合移位。</li>
+</ul>
+</li>
+<li>
+<p><strong>ALU（算术逻辑单元）</strong>：</p>
+<ul>
+<li><strong>执行加减操作</strong>，根据控制信号对ACC和[X]补（或被乘数补码）进行加减，结果写回ACC。</li>
+</ul>
+</li>
+<li>
+<p><strong>选择器（多路复用器）</strong>：</p>
+<ul>
+<li><strong>选择操作数</strong>，例如选择被乘数[X]补或其补码（−[X]补）输入ALU，实现加减操作切换。</li>
+</ul>
+</li>
+<li>
+<p><strong>译码器</strong>：</p>
+<ul>
+<li><strong>解析操作码</strong>，将MQ的当前位（Y₀）和附加位（Y₋₁）转换为控制信号（如“加”“减”或“不移位”）。</li>
+</ul>
+</li>
+<li>
+<p><strong>反相器</strong>：</p>
+<ul>
+<li><strong>生成补码</strong>，将被乘数取反后加1，用于实现减法操作（−[X]补）。</li>
+</ul>
+</li>
+</ol>
+<p>辅助位-MQ中最低位=1，ACC+[x]补<br>
+=0，不加<br>
+=-1，ACC+[-x]补（会有辅助电路实现[-x]的转换）<br>
+补位是算数右移<br>
+进行n轮加法、移位，最后再多来一次加法<br>
+被乘数A，B采用双符号位补码，符号位参与运算；乘数C采用单符号位补码，符号参与移位，且在尾部增加一位附加位0<br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250401200540813.png" alt="image.png|400"><br>
+补码一位乘法中，最多需要 n 次移位，n+1次加法运算，共2n+1位。<br>
+原码乘法移位和加法运算最多均为n次。<br>
+凡是原码运算，不论加减乘除，符号位都单独处理，其中乘除运算的结果符号由参加运算的两个操作数符号相“异或”得到。</p>
+<p>【2020年 题43】有实现x×y的两个C语言函数如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">unsigned</span> <span class="title function_">umul</span> <span class="params">(<span class="type">unsigned</span> x, <span class="type">unsigned</span> y)</span> &#123; <span class="keyword">return</span> x*y; &#125;</span><br><span class="line"><span class="type">int</span> <span class="title function_">imul</span> <span class="params">(<span class="type">int</span> x, <span class="type">int</span> y)</span> &#123; <span class="keyword">return</span> x * y; &#125;</span><br></pre></td></tr></table></figure>
+<p>假定某计算机M中ALU只能进行加减运算和逻辑运算。请回答下列问题。<br>
+(1) 若M的指令系统中<strong>没有</strong>乘法指令，但有加法、减法和移位等指令，则在M上也能实现上述两个函数中的乘法运算，为什么？<br>
+(2) 若M的指令系统中有乘法指令，则基于ALU、移位器、寄存器以及相应控制逻辑实现乘法指令时，<strong>控制逻辑</strong>的作用是什么？<br>
+(3) 针对以下三种情况：①<strong>没有乘法指令</strong>；②有使用<strong>ALU</strong>和<strong>移位器</strong>实现的乘法指令；③有使用<strong>阵列乘法器</strong>实现的乘法指令，函数umul()在哪种情况下<strong>执行时间</strong>最长？哪种情况下执行的时间最短？说明理由。<br>
+(4) n位整数乘法指令可保存2n位乘积，当仅取低n位作为乘积时，其结果可能会发生溢出。当n=32、x= 231−1 、y=2时，带符号整数乘法指令和无符号整数乘法指令得到的x×y的2n位乘积分别是什么（用十六进制表示）？此时函数umul()和imul()的返回结果是否溢出？对于无符号整数乘法运算，当仅取乘积的低位作为乘法结果时，如何用2n位乘积进行溢出判断？<br>
+解答：<br>
+(1) 乘法本质上是<strong>重复累加</strong>和<strong>位移操作</strong>的组合。以二进制乘法为例，假设计算 <code>x * y</code>，可以将 <code>y</code> 的每一位分解为权重（如第 <code>i</code> 位对应 <code>2^i</code>），通过将 <code>x</code> 左移 <code>i</code> 位后累加到结果中。例如：  <code>5 * 3 = 5 * (0011B) = (5 &lt;&lt; 1) + (5 &lt;&lt; 0) = 10 + 5 = 15</code>。</p>
+<ul>
+<li><strong>软件实现流程</strong>：
+<ol>
+<li>初始化结果为0。</li>
+<li>逐位检查乘数 <code>y</code> 的每一位：
+<ul>
+<li>若当前位为1，将 <code>x</code> 左移对应位数后加到结果中。</li>
+<li>若当前位为0，跳过加法。</li>
+</ul>
+</li>
+<li>重复上述步骤直到处理完所有位。</li>
+</ol>
+</li>
+<li><strong>符号处理</strong>（针对有符号乘法 <code>imul</code>）：
+<ul>
+<li>取 <code>x</code> 和 <code>y</code> 的绝对值进行无符号乘法。</li>
+<li>根据符号位异或（<code>x ^ y</code>）确定结果的符号，最终修正结果。</li>
+</ul>
+</li>
+</ul>
+<p>(2) 控制逻辑的作用是<strong>控制循环次数，控制加法和移位操作</strong>。</p>
+<ol>
+<li>
+<p><strong>操作选择</strong>：</p>
+<ul>
+<li>根据乘数的当前位（或附加位）决定加减操作。</li>
+<li>例如，在 Booth 算法中，通过检查 <code>CnCn-1</code>（当前位和前一位）的组合选择：
+<ul>
+<li><code>01</code>：加被乘数</li>
+<li><code>10</code>：减被乘数</li>
+<li><code>00/11</code>：不操作</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>移位控制</strong>：</p>
+<ul>
+<li>管理算术右移（补码运算）或逻辑右移（无符号运算）的时机和位数。</li>
+<li>例如，每次加减操作后执行右移，保持符号位不变。</li>
+</ul>
+</li>
+<li>
+<p><strong>迭代计数</strong>：</p>
+<ul>
+<li>控制乘法步骤的循环次数。对于 <code>n</code> 位数，通常需要 <code>n</code> 次迭代。</li>
+<li>在 Booth 算法中，需额外处理附加位，总次数为 <code>n+1</code> 次加减和 <code>n</code> 次移位。</li>
+</ul>
+</li>
+<li>
+<p><strong>符号处理</strong>（针对补码乘法）：</p>
+<ul>
+<li>自动扩展符号位，确保运算过程中符号正确参与。</li>
+</ul>
+</li>
+</ol>
+<p><strong>(3) 三种情况下的执行时间对比</strong></p>
+<table>
+<thead>
+<tr>
+<th><strong>情况</strong></th>
+<th><strong>执行时间</strong></th>
+<th><strong>理由</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>① 无乘法指令（软件实现）</td>
+<td><strong>最长</strong></td>
+<td>需要循环逐位处理，每次循环包含条件判断、加法和移位操作，时间复杂度为 <code>O(n)</code>。</td>
+</tr>
+<tr>
+<td>② ALU+移位器(通用硬件实现)</td>
+<td><strong>中等</strong></td>
+<td>硬件加速，但仍需多周期完成（如 <code>n</code> 次迭代），时间复杂度为 <code>O(n)</code>。</td>
+</tr>
+<tr>
+<td>③ 阵列乘法器(专用硬件实现)</td>
+<td><strong>最短</strong></td>
+<td>全并行电路，通过门电路直接计算每一位乘积，单周期完成，时间复杂度为 <code>O(1)</code>。</td>
+</tr>
+<tr>
+<td>①的执行时间最长，③的执行时间最短。</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>对于①，需要使用其他指令和算法来模拟乘法操作。常见的方法是通过编写（软件）程序使用加法、位移和逻辑操作来实现乘法功能，需要反复执行很多条指令，而对于每条指令，都需要经历“取指、译码、取数、执行、保存结果”这一过程，②和③都是硬件乘法指令，所以①的执行时间最长。</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>对于②和③，都只需用一条乘法指令实现乘法操作。</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>对于③，阵列乘法器是专门用于执行乘法操作的硬件电路，可以在一个时钟周期内完成乘法运算。由于其硬件实现的特性，阵列乘法器通常是执行乘法操作最高效的方式。所以③的执行时间最短。</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>对于②，ALU和位移器实现的乘法指令通常需要多个时钟周期来完成乘法运算。它通过将乘法操作划分为一系列的加法、位移和逻辑操作来实现。尽管比情况①中的方法更高效，但仍然需要多个时钟周期来执行，因此相对于情况③中的阵列乘法器，执行时间较长。</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>阵列乘法器</strong>：<br>
+通过门电路并行生成所有部分积，并一次性相加，无需循环。例如，32位乘法器包含32×32个与门和加法器，直接输出64位结果。</li>
+<li><strong>ALU+移位器实现</strong>：<br>
+需要逐位迭代（如Booth算法），每个周期完成一次加减和移位，共需 <code>n</code> 个周期。</li>
+</ul>
+<p><strong>(4) 32位乘法的溢出分析与乘积表示</strong><br>
+<strong>给定条件</strong>：</p>
+<ul>
+<li><code>n = 32</code></li>
+<li><code>x = 2^31 - 1 = 0x7FFFFFFF</code>（32位补码最大正数）</li>
+<li><code>y = 2</code></li>
+</ul>
+<p><strong>64位乘积计算</strong>：</p>
+<ul>
+<li><strong>无符号乘法</strong>（<code>umul</code>）：
+<ul>
+<li><code>x = 0x7FFFFFFF</code>（无符号值为 <code>2^31 - 1</code>）</li>
+<li><code>x * y = (2^31 - 1) * 2 = 2^32 - 2 = 0xFFFFFFFE</code><br>
+32位无符号整数的表示范围是$[0,2^{32}-1]$</li>
+<li><strong>64位乘积</strong>：<code>0x00000000FFFFFFFE</code>（高32位全0，无溢出）。</li>
+</ul>
+</li>
+<li><strong>有符号乘法</strong>（<code>imul</code>）：
+<ul>
+<li><code>x = 0x7FFFFFFF</code>（补码最大正数 <code>+2^31 - 1</code>）</li>
+<li><code>x * y = (2^31 - 1) * 2 = 2^32 - 2</code>，但32位补码范围为 32位无符号整数的表示范围是$[-2^{31},2^{31}-1]$，结果 <code>2^32 - 2</code> 超出范围。</li>
+<li><strong>64位乘积</strong>：<code>0xFFFFFFFE</code>（低32位） + 高32位符号扩展为 <code>0xFFFFFFFF</code> → 完整乘积为 <code>0xFFFFFFFFFFFFFFFE</code>（即 <code>-2</code> 的补码）。</li>
+</ul>
+</li>
+</ul>
+<p>对于无符号整数乘法运算，当仅取乘积的低 n 位作为结果时，<strong>若 2n  位乘积的高 n 位不全为0，则说明结果发生了溢出</strong>。以下是详细的解释：</p>
+<ul>
+<li><strong>输入范围</strong>：两个 n 位无符号整数的取值范围为 $0 \leq x, y \leq 2^n - 1$</li>
+<li><strong>乘积范围</strong>：它们的乘积最大为 $(2^n - 1) \times (2^n - 1) = 2^{2n} - 2^{n+1} + 1$，需要 2n  位才能完整表示。</li>
+<li><strong>截断后的结果</strong>：若仅取乘积的低 n 位（即忽略高 n 位），则低 n 位的表示范围为 $0 \leq \text{结果} \leq 2^n - 1$。</li>
+<li><strong>溢出条件</strong>：当实际乘积 $x \times y &gt; 2^n - 1$  时，低 n 位无法正确表示真实值，此时发生溢出。</li>
+</ul>
+<p>高n位的意义：</p>
+<ul>
+<li><strong>二进制表示</strong>：乘积的 2n  位可拆分为高 n 位和低 n 位，即：$x \times y = (\text{高 } n \text{ 位}) \times 2^n + (\text{低 } n \text{ 位})$</li>
+<li><strong>高 n 位的作用</strong>：
+<ul>
+<li>若高 n 位全为0，说明乘积 $x \times y \leq 2^n - 1$ ，未溢出。</li>
+<li>若高 n 位不全为0，说明乘积 $x \times y \geq 2^n$ ，低 n 位无法容纳真实值，发生溢出。</li>
+</ul>
+</li>
+</ul>
+<p><strong>例1：未溢出（高 n 位全0）</strong></p>
+<ul>
+<li>设 n = 4 ，x = 15(1111_2) ，y = 1(0001_2) 。</li>
+<li>乘积：$15 \times 1 = 15(0000\ 1111_2)$ 。</li>
+<li>高4位为 <code>0000</code>，低4位为 <code>1111</code>，结果未溢出。</li>
+</ul>
+<p><strong>例2：溢出（高 n 位不全0）</strong></p>
+<ul>
+<li>设 n = 4 ，x = 15(1111_2) ，y = 15(1111_2) 。</li>
+<li>乘积：$15 \times 15 = 225(1110\ 0001_2)$ 。</li>
+<li>高4位为 <code>1110</code>，低4位为 <code>0001</code>，实际值远超 2^4 - 1 = 15 ，溢出发生。</li>
+</ul>
+<p><strong>溢出判断</strong>：</p>
+<ul>
+<li>
+<p><strong>无符号乘法</strong>（<code>umul</code>）：</p>
+<ul>
+<li><strong>判断方法</strong>：检查高32位是否全为0。</li>
+<li><strong>结果</strong>：高32位为 <code>0x00000000</code>，未溢出，返回 <code>0xFFFFFFFE</code>。</li>
+</ul>
+</li>
+<li>
+<p><strong>有符号乘法</strong>（<code>imul</code>）：</p>
+<ul>
+<li><strong>判断方法</strong>：结果是否超出 <code>[-2^31, 2^31 - 1]</code>。</li>
+<li><strong>结果</strong>：<code>0xFFFFFFFE</code> 对应 <code>-2</code>，但实际数学结果为 <code>+2^32 - 2</code>，溢出发生，返回值为截断后的错误结果。</li>
+</ul>
+</li>
+</ul>
+<h4 id="1-6-2-3-无符号阵列乘法器">1.6.2.3 无符号阵列乘法器</h4>
+<p>原码、补码一位乘法的硬件逻辑实现，需要在时钟节拍下、通过控制逻辑的控制，执行相应轮次的“加法、右移”操作来实现，速度较慢。<br>
+为了提高运算速度，可以仅采用<strong>组合逻辑电路</strong>以<strong>专用硬件</strong>方式构建阵列乘法器<br>
+<strong>硬件结构</strong><br>
+阵列乘法器的核心由<strong>与门阵列</strong>和<strong>加法器阵列</strong>组成，典型结构如下：</p>
+<ul>
+<li><strong>输入</strong>： n 位无符号被乘数  $X = x_{n-1}x_{n-2}…x_0$ ， n 位无符号乘数  $Y = y_{n-1}y_{n-2}…y_0$ 。</li>
+<li><strong>输出</strong>： 2n 位无符号乘积  $P = p_{2n-1}p_{2n-2}…p_0$ 。</li>
+</ul>
+<p>由  n × n  个与门 和 n × ( n - 1 )个全加器构成</p>
+<table>
+<thead>
+<tr>
+<th><strong>特性</strong></th>
+<th><strong>阵列乘法器</strong></th>
+<th><strong>串行乘法器（原码/补码一位乘法）</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>硬件复杂度</strong></td>
+<td>高（需要  O(n^2)  门电路）</td>
+<td>低（仅需加法器、移位器和控制逻辑）</td>
+</tr>
+<tr>
+<td><strong>运算速度</strong></td>
+<td>快（组合逻辑延迟）</td>
+<td>慢（需  n  个时钟周期）</td>
+</tr>
+<tr>
+<td><strong>适用场景</strong></td>
+<td>高性能计算、专用硬件</td>
+<td>通用处理器、资源受限场景</td>
+</tr>
+<tr>
+<td><strong>控制逻辑</strong></td>
+<td>无（纯组合逻辑）</td>
+<td>需状态机控制加减和移位操作</td>
+</tr>
+<tr>
+<td>![image.png</td>
+<td>200](<a target="_blank" rel="noopener" href="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250402194158184.png">https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250402194158184.png</a>)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="1-6-2-4-补码阵列乘法器">1.6.2.4 补码阵列乘法器</h4>
+<ul>
+<li><strong>核心思想</strong>：将补码乘法转换为无符号乘法，并通过符号修正处理负数。</li>
+</ul>
+<h3 id="1-6-3-定点数的除法运算">1.6.3 定点数的除法运算</h3>
+<h4 id="1-6-3-1-原码除法">1.6.3.1 原码除法</h4>
+<p>恢复余数法，不恢复余数法（加减交替法）<br>
+前提条件：<br>
+除数≠0<br>
+定点小数：|被除数| ＜ |除数|<br>
+定点整数：|被除数| ≥ |除数|</p>
+<ul>
+<li><strong>恢复余数法</strong>
+<ul>
+<li><code>|x|补+[-|Y|]补</code>
+<ul>
+<li>结果为正，商1，左 移+<code>[-|Y|]补</code> 【正1左负】</li>
+<li>结果为负，商0，+<code>[|Y|]补</code>（恢复）【负0恢左负】
+<ul>
+<li>恢复后左移+<code>[-|Y|]补</code>
+<ul>
+<li>结果为正/负，重复上述步骤，直到商位为n<br>
+商位的符号位是异或的结果</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>不恢复余数法</strong>
+<ul>
+<li><code>|x|补+[-|Y|]补</code>
+<ul>
+<li>结果为正，商1，左移+<code>[-|Y|]补</code> 【正1左负】</li>
+<li>结果为负，商0，左移+<code>|Y|补</code>【负0左正】<br>
+商位的符号位是异或的结果</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="1-6-3-2-补码除法">1.6.3.2 补码除法</h4>
+<p>加减交替法<br>
+符号位参与运算<br>
+被除数/余数，除数采用<mark>双符号位</mark></p>
+<ul>
+<li><code>[X]补</code>+<code>[Y]补</code>
+<ul>
+<li>和除数<code>[Y]补</code> 同号，商1，左移+<code>[-Y]补</code> 【同1左负】</li>
+<li>和除数<code>[Y]补</code> 异号，商0，左移+<code>[Y]补</code> 【异0左正】</li>
+</ul>
+</li>
+<li>左移n次，余数×2^-n</li>
+<li>商位满足后，将<strong>商位的最后一位改成1</strong>（精度差≤2^n）</li>
+</ul>
+<p>商位的符号位是异或的结果<br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250402210721111.png" alt="520578617831cd6b53059193def8c15.jpg|400"></p>
+<table>
+<thead>
+<tr>
+<th><strong>特性</strong></th>
+<th><strong>原码一位乘法</strong></th>
+<th><strong>补码一位乘法（Booth算法）</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>符号处理</strong></td>
+<td>符号位单独处理：<code>符号 = x⊕y</code></td>
+<td>符号位参与运算，无需单独处理</td>
+</tr>
+<tr>
+<td><strong>操作数形式</strong></td>
+<td>取绝对值进行乘法计算</td>
+<td>直接使用补码参与运算</td>
+</tr>
+<tr>
+<td><strong>核心步骤</strong></td>
+<td>1. 加法后移位<br>2. 重复<code>n</code>次</td>
+<td>1. 根据乘数末位和附加位判断加减<br>2. 算术右移<br>3. 重复<code>n</code>次</td>
+</tr>
+<tr>
+<td><strong>加减条件</strong></td>
+<td>当前位为<code>1</code>：ACC加被乘数<br>当前位为<code>0</code>：不操作</td>
+<td>根据<code>CnCn-1</code>组合：<br><code>01</code>加被乘数，<code>10</code>减被乘数，<code>00/11</code>不操作</td>
+</tr>
+<tr>
+<td><strong>移位方式</strong></td>
+<td><strong>逻辑右移</strong>（高位补<code>0</code>）</td>
+<td><strong>算术右移</strong>（符号位保持不变）</td>
+</tr>
+<tr>
+<td><strong>加法次数</strong></td>
+<td>最多<code>n</code>次</td>
+<td>最多<code>n+1</code>次（可能多一次修正）</td>
+</tr>
+<tr>
+<td><strong>移位次数</strong></td>
+<td><code>n</code>次</td>
+<td><code>n</code>次</td>
+</tr>
+<tr>
+<td><strong>结果形式</strong></td>
+<td>符号位与数值位分离</td>
+<td>直接得到补码结果</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th><strong>特性</strong></th>
+<th><strong>原码不恢复余数法（加减交替法）</strong></th>
+<th><strong>补码不恢复余数法</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>符号处理</strong></td>
+<td>符号位单独处理：<code>符号 = x⊕y</code></td>
+<td>符号位参与运算</td>
+</tr>
+<tr>
+<td><strong>余数调整</strong></td>
+<td>最终余数为负时需恢复余数</td>
+<td>余数无需恢复，直接修正商</td>
+</tr>
+<tr>
+<td><strong>商的确定</strong></td>
+<td>根据余数符号：<br>余数正商<code>1</code>，余数负商<code>0</code></td>
+<td>异号相除时：<br>余数与除数同号商<code>1</code>，否则商<code>0</code></td>
+</tr>
+<tr>
+<td><strong>核心操作</strong></td>
+<td>1. 余数正：减除数<br>2. 余数负：加除数<br>3. 重复<code>n</code>次</td>
+<td>1. 余数与除数同号：减除数<br>2. 余数与除数异号：加除数<br>3. 重复<code>n</code>次</td>
+</tr>
+<tr>
+<td><strong>移位方向</strong></td>
+<td>左移</td>
+<td>左移</td>
+</tr>
+<tr>
+<td><strong>余数修正</strong></td>
+<td>若最终余数为负，需加除数恢复</td>
+<td>无需恢复余数</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>原码除法（加减交替法）仅在最终余数为负时恢复余数。</li>
+<li>补码除法通过余数与除数的符号关系直接确定商。</li>
+</ul>
+<p><strong>操作次数</strong>：</p>
+<ul>
+<li>原码乘法：<code>n</code>次加法 + <code>n</code>次移位。</li>
+<li>补码乘法：最多<code>n+1</code>次加法 + <code>n</code>次移位。</li>
+<li>除法：均需<code>n</code>次迭代。</li>
+</ul>
+<p><strong>区别总结</strong></p>
+<ol>
+<li>
+<p><strong>移位方式</strong>：</p>
+<ul>
+<li>原码乘法：逻辑右移（高位补<code>0</code>）。</li>
+<li>补码乘法：算术右移（符号位不变）。</li>
+</ul>
+</li>
+<li>
+<p><strong>修正操作</strong>：</p>
+<ul>
+<li>原码除法需要恢复余数，补码除法直接修正商。</li>
+</ul>
+</li>
+<li>
+<p><strong>符号参与</strong>：</p>
+<ul>
+<li>原码运算符号独立，补码运算符号融入数值。</li>
+</ul>
+</li>
+</ol>
+<h2 id="1-7-浮点数表示与运算">1.7 浮点数表示与运算</h2>
+<h3 id="1-7-1-浮点运算步骤">1.7.1 <strong>浮点运算步骤</strong></h3>
+<ul>
+<li><strong>对阶</strong>：小阶向大阶对齐，尾数右移两个阶的绝对插值（精度损失）。</li>
+<li><strong>尾数运算</strong>：加减后规格化，处理溢出。</li>
+<li><strong>舍入</strong>：就近舍入、向零舍入等。</li>
+</ul>
+<h3 id="1-7-2-浮点数的溢出">1.7.2 <strong>浮点数的溢出</strong></h3>
+<ul>
+<li>上溢：阶码超过最大允许值（OF=1）<br>
+单精度浮点数阶码最大为 127，若计算结果阶码超过 127，则上溢</li>
+<li>下溢：运算结果的绝对值小于机器所能表示的最小绝对值<br>
+运算结果在0至规格化最小正数之间时称为正下溢，运算结果在0至规格化最大负数之间时称为负下溢，正下溢和负下溢统称下溢。<br>
+单精度浮点数阶码最小为 -126，若计算结果阶码低于 -126，则下溢</li>
+</ul>
+<h3 id="1-7-3-浮点数表示范围">1.7.3 <strong>浮点数表示范围</strong></h3>
+<p>阶码和尾数都是<strong>原码</strong>表示时：</p>
+<ul>
+<li><strong>阶码 E</strong>（假设 k+1 位，1 位阶符 + k 位数值）：
+<ul>
+<li><strong>最大值</strong>：$E_{\text{max}} = +(2^k - 1)$</li>
+<li><strong>最小值</strong>：$E_{\text{min}} = -(2^k - 1)$</li>
+</ul>
+</li>
+<li><strong>尾数 M</strong>（假设 n+1 位，1 位数符 + n 位数值）：
+<ul>
+<li><strong>正数范围</strong>：$+2^{-n} \leq M \leq (1 - 2^{-n})$</li>
+<li><strong>负数范围</strong>：$-(1 - 2^{-n}) \leq M \leq -2^{-n}$<br>
+如果都用<strong>补码</strong>表示：</li>
+</ul>
+</li>
+<li><strong>阶码 E（k+1 位补码）</strong>：
+<ul>
+<li><strong>最大值</strong>：$E_{\text{max}} = 2^{k} - 1$</li>
+<li><strong>最小值</strong>：$E_{\text{min}} = -2^{k}$</li>
+</ul>
+</li>
+<li><strong>尾数 M（n+1 位补码，定点小数）</strong>：
+<ul>
+<li><strong>正数范围</strong>：$2^{-n} \leq M \leq 1 - 2^{-n}$</li>
+<li><strong>负数范围</strong>：$-1 \leq M \leq -2^{-n}$</li>
+</ul>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th><strong>类型</strong>（基数=2）</th>
+<th><strong>公式</strong></th>
+<th><strong>说明</strong></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>正数最大值</strong></td>
+<td>$2^{E_{\text{max}}} \times M_{\text{max}}$</td>
+<td>阶码最大，尾数最大正数。</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>正数最小值</strong></td>
+<td>$2^{E_{\text{min}}} \times M_{\text{min}}$</td>
+<td>阶码最小，尾数最小正数（即精度）。</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>负数最小值</strong></td>
+<td>$2^{E_{\text{max}}} \times M_{\text{min}}$</td>
+<td>阶码最大，尾数最小负数。</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>负数最大值</strong></td>
+<td>$2^{E_{\text{min}}} \times M_{\text{max}}$</td>
+<td>阶码最小，尾数最大负数。</td>
+<td></td>
+</tr>
+<tr>
+<td>3位阶码 + 3位尾数，原码表示：</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li>
+<p><strong>阶码</strong>（1位阶符 + 2位数值）：</p>
+<ul>
+<li>最大值：$E_{\text{max}} = +3$（二进制 <code>0,11</code>）</li>
+<li>最小值：$E_{\text{min}} = -3$（二进制 <code>1,11</code>）</li>
+</ul>
+</li>
+<li>
+<p><strong>尾数</strong>（1位数符 + 2位数值）：</p>
+<ul>
+<li>正数范围：
+<ul>
+<li>最大值：$M_{\text{max}} = +0.75$（二进制 <code>0.11</code>）</li>
+<li>最小值：$M_{\text{min}} = +0.25$（二进制 <code>0.01</code>）</li>
+</ul>
+</li>
+<li>负数范围：
+<ul>
+<li>最小值：$M_{\text{min}} = -0.75$（二进制 <code>1.11</code>）</li>
+<li>最大值：$M_{\text{max}} = -0.25$（二进制 <code>1.01</code>）</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>浮点数范围</strong>：</p>
+<ul>
+<li><strong>正数最大值</strong>：$2^{+3} \times 0.75 = 8 \times 0.75 = 6$</li>
+<li><strong>正数最小值</strong>：$2^{-3} \times 0.25 = 0.125 \times 0.25 = 0.03125$</li>
+<li><strong>负数最小值</strong>：$2^{+3} \times (-0.75) = 8 \times (-0.75) = -6$</li>
+<li><strong>负数最大值</strong>：$2^{-3} \times (-0.25) = 0.125 \times (-0.25) = -0.03125$</li>
+</ul>
+</li>
+</ol>
+<p>eg.<br>
+(1) 设浮点数字长为8位，其中阶码3位（含1位阶符），尾数5位（含1位数符），阶码和尾数均以原码表示，基数r为8，则浮点数的最大最小值分别是多少？<br>
+(2) 设定点数原码为8位，则定点数的最大最小值分别是多少？<br>
+(3) 比较 (1) 和 (2) 能得出什么结论？</p>
+<ul>
+<li>浮点数最大值：$8^{+3}×(+0.9375)= +480$</li>
+<li>浮点数最小值：$8^{+3}×(-0.9375)= -480$</li>
+<li>定点数最大值：$+(2^{7}-1)= +127$</li>
+<li>定点数最小值：$-(2^{7}-1)= -127$</li>
+<li>结论：浮点数有效扩大了数据表示范围</li>
+</ul>
+<h3 id="1-7-4-浮点数的规格化">1.7.4 <strong>浮点数的规格化</strong></h3>
+<p>规格化是调整浮点数的尾数和阶码，使得尾数的有效数字集中在高位，以最大化精度。不同基数（ r ）的浮点数规格化条件不同<br>
+浮点数规格化的好处是：增加数据的表示精度（精度最高）；使浮点数的表示形式唯一<br>
+当尾数为<mark>补码</mark>表示，且为 1.0xxxx形式时为规格化数。<strong>符号位与小数点后第一位相反</strong><br>
+<mark>原码</mark>表示时，正数的规格化形式为0.1x···，负数的规格化形式为 1.1x···。<strong>尾数第一位固定为 1</strong><br>
+2^110ⅹ0.0111规格化右移1位，110B=6，6-1=5=101B。∴2^101ⅹ0.1110</p>
+<table>
+<thead>
+<tr>
+<th>**基数  r **</th>
+<th><strong>规格化条件</strong></th>
+<th><strong>左规操作</strong></th>
+<th><strong>右规操作</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>2</strong></td>
+<td>尾数数值部分最高位为1</td>
+<td>尾数左移1位，阶码减1</td>
+<td>尾数右移1位，阶码加1</td>
+</tr>
+<tr>
+<td><strong>4</strong></td>
+<td>尾数数值部分最高2位不全为0</td>
+<td>尾数左移2位，阶码减1</td>
+<td>尾数右移2位，阶码加1</td>
+</tr>
+<tr>
+<td><strong>8</strong></td>
+<td>尾数数值部分最高3位不全为0</td>
+<td>尾数左移3位，阶码减1</td>
+<td>尾数右移3位，阶码加1</td>
+</tr>
+<tr>
+<td><strong>16</strong></td>
+<td>尾数数值部分最高4位不全为0</td>
+<td>尾数左移4位，阶码减1</td>
+<td>尾数右移4位，阶码加1</td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li>
+<p><strong>规格化条件</strong>：</p>
+<ul>
+<li>基数  r = 2^k  时，尾数数值部分的 <strong>最高  k  位不全为0</strong>。</li>
+<li>例如：
+<ul>
+<li>r = 4 = 2^2  → 最高2位不全为0。</li>
+<li>r = 8 = 2^3  → 最高3位不全为0。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>左规与右规操作</strong>：</p>
+<ul>
+<li><strong>左规</strong>：尾数左移  k  位，阶码减1（确保有效数字前移）。<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250329122019961.png" alt="image.png|400"></li>
+<li><strong>右规</strong>：尾数右移  k  位，阶码加1（防止溢出或调整精度）。 <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250329122140256.png" alt="image.png|400"></li>
+</ul>
+</li>
+</ol>
+<p>eg.<br>
+r=4，二进制浮点数 110.0101</p>
+<ul>
+<li>非规格化表示
+<ul>
+<li>$4^{11}\times0.0001100101$，操作：$4^{11}$ 减1， 0.0001100101 左移2位</li>
+<li>$4^{100}\times0.000001100101$ ，操作：$4^{100}$ 减2， 0.000001100101 左移4位</li>
+</ul>
+</li>
+<li>规格化表示
+<ul>
+<li>$4^{10}\times0.0110010100$</li>
+<li>$4^{10}\times0.01100101000$</li>
+</ul>
+</li>
+</ul>
+<p>浮点数规格化后的表示范围：<br>
+阶码和尾数都是<strong>原码</strong>表示时：</p>
+<ul>
+<li><strong>阶码 E</strong>（假设 k+1 位，1 位阶符 + k 位数值）：
+<ul>
+<li><strong>最大值</strong>：$E_{\text{max}} = +(2^k - 1)$</li>
+<li><strong>最小值</strong>：$E_{\text{min}} = -(2^k - 1)$</li>
+</ul>
+</li>
+<li><strong>尾数 M</strong>（假设 n+1 位，1 位数符 + n 位数值）：
+<ul>
+<li><strong>正数范围</strong>：$+2^{-1} \leq M \leq (1 - 2^{-n})$</li>
+<li><strong>负数范围</strong>：$-(1 - 2^{-n}) \leq M \leq -2^{-1}$<br>
+只有尾数的最小正数和最大负数从$2^{-n}$变成$2^{-1}$</li>
+</ul>
+</li>
+</ul>
+<p>阶码和尾数都是<strong>补码</strong>表示时：</p>
+<ul>
+<li><strong>阶码 E（k+1 位补码）</strong>：
+<ul>
+<li><strong>最大值</strong>：$E_{\text{max}} = 2^{k} - 1$</li>
+<li><strong>最小值</strong>：$E_{\text{min}} = -2^{k}$</li>
+</ul>
+</li>
+<li><strong>尾数 M（n+1 位补码，定点小数）</strong>：
+<ul>
+<li><strong>正数范围</strong>：$2^{-1} \leq M \leq 1 - 2^{-n}$</li>
+<li><strong>负数范围</strong>：$-1 \leq M \leq -(2^{-1}+2^{-n})$</li>
+</ul>
+</li>
+</ul>
+<p>eg1.设浮点数字长为16位，其中阶码5位(含1位阶符)，尾数11位(含1位数符)，将十进制数-56写成二进制定点数和浮点数(要求规格化表示)，并分别写出它们各自的机器数(原码、反码、补码)形式。<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250329115350757.png" alt="image.png">eg2.设浮点数字长为16位，其中阶码5位(含1位阶符)，尾数11位(含1位数符)将十进制数 +13/128 写成二进制定点数和浮点数(要求规格化表示)，并写出它们各自的机器数(原码、反码、补码)形式。<br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250329115731894.png" alt="image.png">注：$2^{-11}$是$2^{-3}$<br>
+eg3.设浮点数字长为16位，其中阶码5位(含1位阶符)，尾数11位(含1位数符)，写出十进制数- 53/512对应的浮点规格化数的原码、反码和补码以及阶码用移码、尾数用补码的形式。<br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250329120730451.png" alt="image.png"><br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250329121728139.png" alt="image.png"></p>
+<h3 id="1-7-5-浮点数的加减法">1.7.5 <strong>浮点数的加减法</strong></h3>
+<p><strong>1. 对阶（对齐阶码）</strong></p>
+<ul>
+<li><strong>原则</strong>：小阶向大阶对齐，尾数右移（差值为阶码差的绝对值）。</li>
+<li><strong>操作</strong>：
+<ul>
+<li>较小阶码的尾数<strong>算术右移</strong>（补符号位），右移位数 = 阶码差值。</li>
+<li>阶码更新为较大的阶码。</li>
+</ul>
+</li>
+<li><strong>关键</strong>：右移可能导致尾数低位丢失（需隐藏保留，后续舍入处理）。<br>
+<strong>2. 尾数求和/差</strong></li>
+<li><strong>操作</strong>：对阶后的尾数按<strong>补码规则直接加减</strong>。</li>
+<li><strong>溢出判断</strong>：
+<ul>
+<li>双符号位为 <code>01</code> 或 <code>10</code>：尾数溢出，需右归（见步骤3）。</li>
+<li>双符号位一致（<code>00</code> 或 <code>11</code>）：直接进入规格化。</li>
+</ul>
+</li>
+</ul>
+<p><strong>3. 规格化</strong></p>
+<ul>
+<li><strong>目标</strong>：使尾数最高有效位与符号位不同（即形如 <code>0.1xxx</code> 或 <code>1.0xxx</code>）。<br>
+左-右+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th><strong>情况</strong></th>
+<th><strong>操作</strong></th>
+<th><strong>调整阶码</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>左归</strong>（<code>00.0xxx</code> 或 <code>11.1xxx</code>）</td>
+<td>尾数左移，直到最高有效位为1</td>
+<td>阶码减少左移次数</td>
+</tr>
+<tr>
+<td><strong>右归</strong>（<code>01.xxx</code> 或 <code>10.xxx</code>）</td>
+<td>尾数右移1位</td>
+<td>阶码加1</td>
+</tr>
+<tr>
+<td><strong>溢出处理</strong></td>
+<td>上溢（<code>01.xxx</code>）：触发异常</td>
+<td>下溢（<code>10.xxx</code>）：置为机器零（阶码全0）</td>
+</tr>
+<tr>
+<td><strong>4. 舍入与最终结果</strong></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>舍入</strong>：规格化后对尾数低位进行截断或舍入
+<ul>
+<li>截断法：直接丢弃超出机器字长的尾数低位（导致误差积累）</li>
+<li>末位恒置1法：将机器字长内的尾数的最低位恒置为1（损失1位精度，但误差积累较小）</li>
+<li>0舍1入法：当需要丢弃的尾数低位中的最高位为1时，将机器字长内的尾数的最低位加1</li>
+</ul>
+</li>
+<li><strong>阶码检查</strong>：若阶码超出范围（上溢/下溢），按溢出规则处理。<br>
+注：如果是转补码，按隐藏符号位的最后一个1算。eg.<code>[x]补=11,10100(1)，[-x]补=00,01011(1)</code><br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/7e8a9d22d02d94cba50966f9772de0f.jpg" alt="7e8a9d22d02d94cba50966f9772de0f.jpg"></li>
+</ul>
+<h3 id="1-7-6-IEEE-754-浮点数运算">1.7.6 <strong>IEEE 754 浮点数运算</strong></h3>
+<p>任何一个二进制数N可表示：N=r<sup>E</sup>×M</p>
+<ol>
+<li>对阶 → 2. 尾数加减 → 3. 规格化 → 4. 舍入 → 5. 溢出判断 → 输出结果。<br>
+<strong>1. 对阶（对齐阶码）</strong></li>
+</ol>
+<ul>
+<li><strong>阶码表示</strong>：采用移码（偏置码），单精度偏置值为 <code>127</code>，双精度为 <code>1023</code>。</li>
+<li><strong>对齐规则</strong>：
+<ul>
+<li>小阶向大阶对齐，尾数<strong>算术右移</strong>（移位数 = 阶差绝对值），右移时隐藏位（最高位）需显式参与。</li>
+<li><strong>移码加减规则</strong>：阶码相加减时，需按移码运算公式处理（实际运算需转换为真值后再调整偏置值）。<br>
+<strong>2. 尾数运算（原码运算）</strong></li>
+</ul>
+</li>
+<li><strong>隐藏位处理</strong>：
+<ul>
+<li>运算前需恢复隐藏的 <code>1.</code>（规格化数的隐含前导1）。</li>
+<li>运算后需重新隐藏（规格化后保留前导1）。</li>
+</ul>
+</li>
+<li><strong>运算规则</strong>：
+<ul>
+<li><strong>加法</strong>：两尾数直接相加（原码加减需处理符号位，实际硬件中可能转换为补码运算）。</li>
+<li><strong>减法</strong>：转换为加法（减数符号取反）。<br>
+<strong>3. 规格化</strong></li>
+</ul>
+</li>
+<li><strong>规格化条件</strong>：尾数必须满足 <code>1.xxxxx...</code>（原码形式）。</li>
+<li><strong>规格化操作</strong>：</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th><strong>情况</strong></th>
+<th><strong>操作</strong></th>
+<th><strong>阶码调整</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>左规</strong>（尾数形式为 <code>0.xxxx</code>）</td>
+<td>尾数左移1位，阶码减1</td>
+<td>阶码减1</td>
+</tr>
+<tr>
+<td><strong>右规</strong>（尾数形式为 <code>1b.xxxx</code>）</td>
+<td>尾数右移1位，阶码加1</td>
+<td>阶码加1</td>
+</tr>
+<tr>
+<td><strong>4. 舍入处理</strong></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th><strong>模式</strong></th>
+<th><strong>规则</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>就近舍入（默认）</strong></td>
+<td>舍入到最近的数，中间值向偶数（末位为0）舍入。</td>
+</tr>
+<tr>
+<td><strong>朝正∞舍入</strong></td>
+<td>结果向正无穷方向舍入（取右侧更大的可表示数）。</td>
+</tr>
+<tr>
+<td><strong>朝负∞舍入</strong></td>
+<td>结果向负无穷方向舍入（取左侧更小的可表示数）。</td>
+</tr>
+<tr>
+<td><strong>截断（朝0舍入）</strong></td>
+<td>直接丢弃多余位，结果向0方向舍入。</td>
+</tr>
+<tr>
+<td><strong>5. 溢出判断</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>上溢</strong>：
+<ul>
+<li>阶码超过最大可表示值（单精度阶码全1，即 <code>11111111</code>，对应真值 <code>+127</code>）。</li>
+<li>结果视为 <code>±∞</code>（根据符号位）。</li>
+</ul>
+</li>
+<li><strong>下溢</strong>：
+<ul>
+<li>阶码低于最小可表示值（单精度阶码全0，即 <code>00000000</code>，对应真值 <code>-126</code>）。</li>
+<li>结果视为<strong>非规格化数</strong>或<strong>机器零</strong>（尾数全0）。</li>
+</ul>
+</li>
+</ul>
+<p><strong>与补码浮点运算的差异</strong></p>
+<table>
+<thead>
+<tr>
+<th><strong>特性</strong></th>
+<th><strong>IEEE 754</strong></th>
+<th><strong>补码浮点运算</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>阶码表示</strong></td>
+<td>移码（偏置码）</td>
+<td>补码</td>
+</tr>
+<tr>
+<td><strong>尾数表示</strong></td>
+<td>原码（隐含前导1，需显式参与运算）</td>
+<td>补码（显式符号位）</td>
+</tr>
+<tr>
+<td><strong>规格化规则</strong></td>
+<td>尾数必须为 <code>1.xxxx</code></td>
+<td>补码尾数最高位与符号位不同（如 <code>0.1xxx</code> 或 <code>1.0xxx</code>）</td>
+</tr>
+<tr>
+<td><strong>舍入模式</strong></td>
+<td>支持多种舍入方式（如就近舍入、向偶数舍入）</td>
+<td>通常仅截断或简单舍入</td>
+</tr>
+<tr>
+<td><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250329091853718.png" alt="image.png"></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250329092307636.png" alt="image.png">浮点数相加：<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250405194750013.png" alt="image.png"></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>浮点数相乘：<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250406064555148.png" alt="image.png"></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>浮点数相除：<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250406064740616.png" alt="image.png"></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="1-7-7-浮点数结构">1.7.7 <strong>浮点数结构</strong></h3>
+<p>用<strong>阶码（指数）</strong> 和<strong>尾数</strong>表示数值，适合大范围和高精度需求。 <strong>IEEE 754标准</strong></p>
+<ul>
+<li><strong>单精度（32位）</strong>：1位符号 + 8位阶码（偏置值127） + 23位尾数。$([2^{-126},(2 - 2^{-23})\times2^{127}])$<br>
+$(2 - 2^{-23})\times2^{127}$即$2^{128}-2^{104}$</li>
+<li><strong>双精度（64位）</strong>：1位符号 + 11位阶码（偏置值1023） + 52位尾数。$([2^{-1022},(2 - 2^{-52})\times2^{1023}])$</li>
+<li><strong>阶码范围</strong>：单精度 <code>-126 ~ +127</code>，双精度 <code>-1022 ~ +1023</code>。</li>
+<li><strong>偏移常数</strong>：偏移常数（Bias）用于浮点数的阶码（指数）编码，将实际指数转换为无符号整数存储。对于 n 位阶码，偏移常数为：$2^{n-1}-1$<br>
+单精度浮点数（32位）偏移常数127<br>
+<strong>作用</strong>：将实际指数范围对称分布在正负区间，避免存储负指数时使用符号位<br>
+为什么不采用标准的128，而采用127?
+<ul>
+<li>
+<p>若偏移值为128，<strong>最小规格化数的实际指数为-127</strong>（对应二进制阶码<code>00000001</code>），其倒数为2^127。</p>
+</li>
+<li>
+<p>但单精度浮点数的最大可表示值约为2^127（指数上限为+127）。此时倒数与最大值相等，<strong>可能引发溢出</strong>（因符号位或特殊值冲突）。</p>
+</li>
+<li>
+<p>若偏移值为127，<strong>最小规格化数的实际指数为-126</strong>（对应阶码<code>00000001</code>），其倒数为2^126，而单精度的指数上限仍为+127。此时倒数2^126<strong>完全在可表示范围内</strong>，不会溢出。</p>
+</li>
+</ul>
+</li>
+<li>IEEE 754标准中，<strong>规格化数</strong>的尾数有一个隐含的<strong>最高位1</strong><br>
+1. <strong>节省存储空间</strong>：<br>
+实际存储的尾数部分不包含这个1（例如单精度浮点数的23位尾数），但在计算时会自动补上。这相当于“白嫖”一个额外比特，<strong>提高精度</strong>。<br>
+2. <strong>扩展动态范围</strong>：<br>
+隐含的1使规格化数的实际值为 1.尾数×2^指数，而非 0.尾数×2^指数，从而能表示更大的数值范围。</li>
+</ul>
+<h3 id="1-7-8-特殊值">1.7.8 <strong>特殊值</strong></h3>
+<p>IEEE 754定义了多种特殊值，用于处理边界情况和异常运算：</p>
+<table>
+<thead>
+<tr>
+<th><strong>数值分类</strong></th>
+<th><strong>符号S</strong></th>
+<th><strong>阶码E</strong></th>
+<th><strong>尾数M</strong></th>
+<th><strong>真值公式</strong></th>
+<th><strong>说明</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>正零（+0）</strong></td>
+<td>0</td>
+<td>全0（0）</td>
+<td>0</td>
+<td>+0</td>
+<td>符号为0，表示正零。</td>
+</tr>
+<tr>
+<td><strong>负零（-0）</strong></td>
+<td>1</td>
+<td>全0（0）</td>
+<td>0</td>
+<td>-0</td>
+<td>符号为1，表示负零。实际使用中与+0等效，但符号位不同。</td>
+</tr>
+<tr>
+<td><strong>非规格化正数</strong></td>
+<td>0</td>
+<td>全0（0）</td>
+<td>M \neq 0</td>
+<td>(-1)^0 \times 2^{-126} \times 0.M</td>
+<td>用于表示接近零的极小正数，无隐藏位1，指数固定为-126。</td>
+</tr>
+<tr>
+<td><strong>非规格化负数</strong></td>
+<td>1</td>
+<td>全0（0）</td>
+<td>M \neq 0</td>
+<td>(-1)^1 \times 2^{-126} \times 0.M</td>
+<td>类似非规格化正数，但符号为负。</td>
+</tr>
+<tr>
+<td><strong>正无穷大（+∞）</strong></td>
+<td>0</td>
+<td>全1（255）</td>
+<td>0</td>
+<td>+∞</td>
+<td>表示数值溢出（如非零数除以0），符号为0。</td>
+</tr>
+<tr>
+<td><strong>负无穷大（-∞）</strong></td>
+<td>1</td>
+<td>全1（255）</td>
+<td>0</td>
+<td>-∞</td>
+<td>类似正无穷大，但符号为负。</td>
+</tr>
+<tr>
+<td><strong>NaN（非数）</strong></td>
+<td>0或1</td>
+<td>全1（255）</td>
+<td>M \neq 0</td>
+<td>\text{NaN}</td>
+<td>表示无效运算结果（如0/0、负数平方根），尾数非0。</td>
+</tr>
+<tr>
+<td><strong>规格化正数</strong></td>
+<td>0</td>
+<td>1 \leq E \leq 254</td>
+<td>任意M</td>
+<td>(-1)^0 \times 2^{E-127} \times 1.M</td>
+<td>常规正数，隐藏位1自动补到尾数前，指数范围为-126到+127。</td>
+</tr>
+<tr>
+<td><strong>规格化负数</strong></td>
+<td>1</td>
+<td>1 \leq E \leq 254</td>
+<td>任意M</td>
+<td>(-1)^1 \times 2^{E-127} \times 1.M</td>
+<td>常规负数，隐藏位1自动补到尾数前，指数范围同上。</td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li>
+<p><strong>正零与负零</strong>：</p>
+<ul>
+<li>实际运算中两者等效（如  +0 = -0 ），但符号位不同，某些场景（如函数极限）可能区分两者。</li>
+</ul>
+</li>
+<li>
+<p><strong>非规格化数</strong>：</p>
+<ul>
+<li><strong>作用</strong>：
+<ul>
+<li>解决“<strong>阶码下溢</strong>”问题。当数值小于最小规格化数（ $2^{-126}$ ）时，用非规格化数平缓过渡到零。</li>
+<li>避免计算结果突然归零（例如  $1.0 \times 2^{-127}$  无法用规格化数表示，但可用非规格化数  $0.5 \times 2^{-126}$ 表示）。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>无穷大（±∞）</strong>：</p>
+<ul>
+<li><strong>作用</strong>：
+<ul>
+<li>标记数值溢出（如  1.0 / 0.0 ）或不可达值。</li>
+<li>使程序在溢出时继续运行，而非直接崩溃（例如浮点数除0返回无穷大，整数除0则报错）。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>NaN（非数）</strong>：</p>
+<ul>
+<li><strong>作用</strong>：
+<ul>
+<li>表示无效运算（如  0/0 、 ∞/∞ 、负数平方根）。</li>
+<li>程序可通过检测NaN跳过错误，避免中断（例如返回NaN后继续执行后续逻辑）。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>规格化数</strong>：</p>
+<ul>
+<li><strong>隐藏位1</strong>：尾数前隐含的1无需存储，节省1位空间，提升精度（例如23位尾数实际表示24位数值）。</li>
+<li><strong>指数范围</strong>：阶码E偏移127，实际指数范围为  $-126 \leq E \leq +127$</li>
+</ul>
+</li>
+</ol>
+<ul>
+<li>
+<p><strong>非规格化数应用</strong>：<br>
+计算  $1.0 \times 2^{-128}$ （远小于最小规格化数  $2^{-126}$ ），可用非规格化数表示为  $0.25 \times 2^{-126}$ 。</p>
+</li>
+<li>
+<p><strong>无穷大应用</strong>：<br>
+当计算  1.0 / 0.0  时，结果为  +∞ ，程序可继续执行后续操作（如判断结果是否为无穷大）。</p>
+</li>
+<li>
+<p><strong>NaN应用</strong>：<br>
+计算  $\sqrt{-1}$ 时返回NaN，程序员可捕获此结果并处理异常。</p>
+</li>
+</ul>
+<p>总结：</p>
+<ul>
+<li>非规格化数：缓冲极小值，避免数值突变。</li>
+<li>无穷大：标记溢出，防止程序崩溃。</li>
+<li>NaN：兜底无效运算，增强容错能力。</li>
+</ul>
+<p>注：</p>
+<ul>
+<li>
+<p>浮点数加减法第一步是<strong>对阶</strong><br>
+对阶的规则是：小阶向大阶看齐。即阶码小的数的尾数<mark>算术右移</mark>，每右移一位，阶码加 1直到两数的阶码相等为止。<br>
+因此不存在阶码减小、尾数左移。<mark>只有阶码增大，尾数右移</mark>。<br>
+对阶不会引起阶码<strong>上溢或下溢</strong><br>
+<strong>右规、尾数舍入</strong>时可能引起阶码<strong>上溢</strong><br>
+<strong>左规</strong>时可能引起阶码<strong>下溢</strong></p>
+</li>
+<li>
+<p>在定点运算中，当运算结果超出数的表示范围时，发生溢出；在浮点运算中，运算结果超出尾数表示范围却不一定溢出，只有<strong>规格化后阶码</strong>超出所能表示的范围时，才发生溢出。<br>
+判断浮点数运算是否溢出，取决于阶码是否上溢。阶码下溢可以通过非规格化数来表示。尾数上溢或下溢，可以通过左移或右移进行调整。</p>
+</li>
+<li>
+<p>与非规格化浮点数相比，采用规格化浮点数的目的主要是为了增加数据的表示精度</p>
+</li>
+<li>
+<p>运算结果在0至规格化最小正数之间时称为正下溢，运算结果在0至规格化最大负数之间时称为负下溢，正下溢和负下溢统称下溢。</p>
+</li>
+<li>
+<p><strong>舍入</strong>是浮点数的概念，定点数没有舍入的概念。</p>
+</li>
+<li>
+<p>浮点数舍入的情况有两种：对阶、右规格化。</p>
+</li>
+<li>
+<p>舍入不一定产生误差，如向下舍入11.00 到11.0时是没有误差的</p>
+</li>
+<li>
+<p>浮点数表示中基数的值是约定好的，因此将其隐含。</p>
+</li>
+<li>
+<p>阶移尾原</p>
+</li>
+<li>
+<p>偏置值=2^(n-1)-1</p>
+</li>
+<li>
+<p>阶码决定范围，尾数决定精度。在浮点数总位数不变的情况下。<strong>阶码</strong>位数越多，<strong>尾数</strong>位数越少。即<strong>范围越大，精度越低</strong></p>
+</li>
+<li>
+<p><strong>阶码</strong>的值决定了<strong>小数点的位置</strong></p>
+</li>
+<li>
+<p><strong>基数</strong>越大，在运算中尾数<strong>右移</strong>的可能性越小，运算的<strong>精度损失越小</strong>。</p>
+</li>
+<li>
+<p>由于<strong>基数</strong>大时发生因对阶或尾数溢出需右移及规格化需左移的次数显著减少，因此运算<strong>速度</strong>可以提高。</p>
+</li>
+<li>
+<p><strong>基数</strong>越大，可表示的数的<strong>范围</strong>越大，所表示的数的个数越多，精度降低。</p>
+</li>
+<li>
+<p>IEEE 754浮点数格式位数有限(单精度32位、双精度64位)，无法精确表示无限循环小数。</p>
+</li>
+</ul>
+<h2 id="1-8-C语言中的数据类型及转换">1.8 C语言中的数据类型及转换</h2>
+<p>无论是无符号数还是有符号数，C语言程序并不检测数据在加、减、乘等运算中产生的<strong>溢出</strong>现象。<br>
+程序员应尽量避免出现这种情况，所编制的应用程序应具有对溢出进行判断的功能。<br>
+char 8<br>
+short 16<br>
+int 32<br>
+long 64<br>
+float 32<br>
+double 64<br>
+65535=1111 1111 1111 1111<br>
+<mark>都是按照补码形式存储的</mark><br>
+<font color="#f79646">定义的变量值是真值，存储的是补码，输出的值是真值，要把补码转成有符号位的原码</font><br>
+eg.<br>
+unsigned short x = unsigned short = 65535;<br>
+short y = (short)x;<br>
+y存储的值是1111 1111 1111 1111，补码全为1对应的十进制真值是-1</p>
+<h2 id="1-9-有符号数与无符号数的转换">1.9 有符号数与无符号数的转换</h2>
+<ol>
+<li><strong>转换规则</strong>
+<ul>
+<li>当位数相同的<strong>有符号数</strong>与<strong>无符号数</strong>相互转换时，<strong>二进制位保持不变</strong>，仅改变解释方式。<br>
+注：如果是<strong>负数</strong>，要转换成<strong>补码</strong>形式。同样，如果无符号转有符号，第一位是1，是负数，也要转成补码</li>
+<li><strong>有符号数 → 无符号数</strong>：符号位被当作数值的一部分。<br>
+①若从小字长转换到大字长，则要先对原数字的高位部分进行扩展，若原数字是无符号整数，则进行零扩展；若原数字是有符号整数，则进行符号扩展。<br>
+②若从大字长转换到小字长，则直接截取低位部分。也就是说，先进行字长的转换，再进行符号的转换。<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">short</span> x = <span class="number">-4321</span>;</span><br><span class="line"><span class="type">unsigned</span> <span class="type">short</span> y = (<span class="type">unsigned</span> <span class="type">short</span>)x;</span><br><span class="line"><span class="comment">// x的二进制补码：11101111 11101111</span></span><br><span class="line"><span class="comment">// y被解释为无符号数：61215</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><strong>无符号数 → 有符号数</strong>：最高位被当作符号位。<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">unsigned</span> <span class="type">short</span> x = <span class="number">65535</span>;  <span class="comment">// 二进制全1</span></span><br><span class="line"><span class="type">short</span> y = (<span class="type">short</span>)x;</span><br><span class="line"><span class="comment">// y的二进制补码10000000 00000001解释为有符号数：-1</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ol>
+<h2 id="1-10-不同字长整数之间的转换">1.10 不同字长整数之间的转换</h2>
+<ol>
+<li><strong>大字长 → 小字长（截断高位）</strong>
+<ul>
+<li><strong>规则</strong>：直接截断高位部分，保留低位部分。<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> x = <span class="number">165537</span>;      <span class="comment">// 0010 1000 0110 1010 0001</span></span><br><span class="line"><span class="type">short</span> y = (<span class="type">short</span>)x;  <span class="comment">// 保留低16位，1000 0110 1010 0001 当前是补码，负数，转真值1,111 1001 0101 1111 → 十进制-31071</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> u = <span class="number">-34991</span>;      <span class="comment">// 存储为补码，-34491全部取反+1 0,111 1111 1111 1111 0111 0111 0101 0001</span></span><br><span class="line"><span class="type">short</span> v = (<span class="type">short</span>)u;  <span class="comment">// 保留低16位0111 0111 0101 0001 → 十进制30545</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><strong>小字长 → 大字长（符号扩展或零扩展）</strong>
+<ul>
+<li><strong>规则</strong>：
+<ul>
+<li><strong>有符号数</strong>：进行<strong>符号扩展</strong>（高位填充原符号位）。</li>
+<li><strong>无符号数</strong>：进行<strong>零扩展</strong>（高位填充0）。</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">short</span> x = <span class="number">-4321</span>;      <span class="comment">// 二进制补码：11101111 11101111（符号位1）</span></span><br><span class="line"><span class="type">int</span> y = x;            <span class="comment">// 符号扩展为11111111 11111111 11101111 11101111 → 十进制-4321</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">unsigned</span> <span class="type">short</span> u = <span class="number">61215</span>;  <span class="comment">// 二进制：11101111 11101111</span></span><br><span class="line"><span class="type">unsigned</span> <span class="type">int</span> v = u;        <span class="comment">// 零扩展为00000000 00000000 11101111 11101111 → 十进制61215</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ol>
+<p>注：</p>
+<ol>
+<li>
+<p><strong>混合运算的隐式转换</strong></p>
+<ul>
+<li>若表达式中混合有符号和无符号数，<strong>有符号数会被隐式转换为无符号数</strong>，可能导致逻辑错误。</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> a = <span class="number">-1</span>;</span><br><span class="line"><span class="type">unsigned</span> <span class="type">int</span> b = <span class="number">100</span>;</span><br><span class="line"><span class="keyword">if</span> (a &lt; b) &#123;</span><br><span class="line">    <span class="comment">// 条件为假，因为-1被转换为无符号数（即4294967295）</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p><strong>数据溢出与截断</strong></p>
+<ul>
+<li>大字长转小字长可能导致<strong>数据丢失</strong>（如<code>int</code>→<code>short</code>）。</li>
+<li>小字长转大字长时，需明确扩展方式以避免数值错误。  <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250329144222273.png" alt="image.png"></li>
+</ul>
+</li>
+<li>
+<p><strong>字符型转换的特殊性</strong></p>
+<ul>
+<li><code>char</code>类型(8位)默认按无符号整数处理，转换为<code>int</code>时进行<strong>零扩展</strong>。</li>
+</ul>
+</li>
+</ol>
+<h2 id="1-11-浮点数之间的转换">1.11 浮点数之间的转换</h2>
+<table>
+<thead>
+<tr>
+<th>转换方向</th>
+<th>情况描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>float</code> → <code>double</code></td>
+<td>值相同</td>
+</tr>
+<tr>
+<td><code>double</code> → <code>float</code></td>
+<td>大数可能溢出，高精度发生舍入</td>
+</tr>
+<tr>
+<td><code>float/double</code> → <code>int</code></td>
+<td>小数部分向 0 截断，大数可能溢出</td>
+</tr>
+<tr>
+<td><code>int</code> → <code>float</code></td>
+<td>比较大的数无法精确表示</td>
+</tr>
+<tr>
+<td><code>int</code> → <code>double</code></td>
+<td>值相同</td>
+</tr>
+<tr>
+<td>假设变量 <code>i</code>、<code>f</code>、<code>d</code> 的类型分别是 <code>int</code>、<code>float</code> 和 <code>double</code>，判断下列 C 语言关系表达式是否恒为真。</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li><code>i == (int)(float) i;</code>
+<ul>
+<li>结果：不恒为真</li>
+<li>原因：<code>i</code> 转换为 <code>float</code> 型时就可能出现精度缺失，可不考虑再转回 <code>int</code> 型。</li>
+</ul>
+</li>
+<li><code>f == (float)(int) f;</code>
+<ul>
+<li>结果：不恒为真</li>
+<li>原因：<code>f</code> 转换为 <code>int</code> 型时就可能出现小数部分向 0 截断 ，可不考虑再转回 <code>float</code> 型。</li>
+</ul>
+</li>
+<li><code>i == (int)(double) i;</code>
+<ul>
+<li>结果：恒为真</li>
+<li>原因：<code>i</code> 转换为 <code>double</code> 型后数值不变，因此再转回 <code>int</code> 型后数值不变。</li>
+</ul>
+</li>
+<li><code>f == (float)(double) f;</code>
+<ul>
+<li>结果：恒为真</li>
+<li>原因：<code>f</code> 转换为 <code>double</code> 型后数值不变，因此再转回 <code>float</code> 型后数值不变。</li>
+</ul>
+</li>
+<li><code>d == (float) d;</code>
+<ul>
+<li>结果：不恒为真</li>
+<li>原因：<code>d</code> 转换为 <code>float</code> 型时可能出现大数溢出和高精度舍入。</li>
+</ul>
+</li>
+<li><code>f == -(- f);</code>
+<ul>
+<li>结果：恒为真</li>
+<li>原因：浮点数取负仅将其数符（最高位）取反即可。</li>
+</ul>
+</li>
+</ol>
+<h2 id="1-12-数据存储和边界对齐">1.12 数据存储和边界对齐</h2>
+<ol>
+<li>大小端存储
+<ul>
+<li><strong>小端</strong>：低对低，高对高（如 <code>0x1234</code> 存储为 <code>34 12</code>）。</li>
+<li><strong>大端</strong>：低对高，高对低（如 <code>0x1234</code> 存储为 <code>12 34</code>）。  <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250406115230806.png" alt="image.png|200">指令的二进制编码按 <strong>操作码 → 操作数 → 立即数</strong> 的顺序排列。<br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250406115722956.png" alt="image.png|400"><br>
+在指令编码中，操作码（Opcode）和寄存器编号按顺序连续存放。操作码 MOV 为 40H，存放在地址 1000H；寄存器 EAX 的编号为 12H，存放在地址 1001H。<strong>立即数</strong>按大小端规则存放在后续地址<br>
+在阅读以小端方式存储的机器代码时，要注意字节是按相反顺序显示的。</li>
+</ul>
+</li>
+<li>数据边界对齐存储<br>
+<strong>边界对齐（Alignment）</strong> 是计算机内存管理的重要机制，要求数据在内存中的 <strong>起始地址</strong> 必须是其 <strong>自身大小的整数倍</strong>。现代计算机（尤其是 RISC 架构）普遍采用边界对齐存储，以优化访存效率。</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th><strong>数据类型</strong></th>
+<th><strong>对齐要求（地址必须是…的倍数）</strong></th>
+<th><strong>32位系统示例</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>字节（char）</td>
+<td>1</td>
+<td>地址任意（如 <code>0x0000</code>, <code>0x0001</code>）</td>
+</tr>
+<tr>
+<td>半字（short）</td>
+<td>2</td>
+<td>地址为偶数（如 <code>0x0002</code>, <code>0x0004</code>）</td>
+</tr>
+<tr>
+<td>字（int）</td>
+<td>4</td>
+<td>地址为4的倍数（如 <code>0x0004</code>, <code>0x0008</code>）</td>
+</tr>
+<tr>
+<td>在 C 语言中，结构体（<code>struct</code>）的对齐需满足以下条件：</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li><strong>成员对齐</strong>：每个成员的起始地址必须满足 <code>地址 % 对齐值 = 0</code>。</li>
+<li><strong>结构体对齐</strong>：结构体总长度必须是 <strong>最大成员对齐值</strong> 的整数倍（不足则填充）。</li>
+</ol>
+<p>eg.<br>
+<strong>1. 结构体 A：<code>struct A &#123; int a; char b; short c; &#125;</code></strong></p>
+<ul>
+<li><strong>成员对齐</strong>：</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th><strong>地址范围</strong></th>
+<th><strong>内容</strong></th>
+<th><strong>说明</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0x0000-0x0003</code></td>
+<td><code>int a</code>（4字节）</td>
+<td>对齐到 4 的倍数（0x0000）</td>
+</tr>
+<tr>
+<td><code>0x0004</code></td>
+<td><code>char b</code>（1字节）</td>
+<td>对齐到 1 的倍数（0x0004）</td>
+</tr>
+<tr>
+<td><code>0x0005</code></td>
+<td><strong>填充 1 字节</strong></td>
+<td>确保 <code>short c</code> 对齐到 2 的倍数</td>
+</tr>
+<tr>
+<td><code>0x0006-0x0007</code></td>
+<td><code>short c</code>（2字节）</td>
+<td>对齐到 2 的倍数（0x0006）</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>总大小</strong>：
+<ul>
+<li>实际占用：<code>4 + 1 + 1（填充） + 2 = 8字节</code></li>
+<li>结构体对齐：最大对齐值为4，8是4的倍数，无需额外填充。</li>
+</ul>
+</li>
+</ul>
+<p><strong>2. 结构体 B：<code>struct B &#123; char b; int a; short c; &#125;</code></strong></p>
+<ul>
+<li><strong>成员对齐</strong>：</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th><strong>地址范围</strong></th>
+<th><strong>内容</strong></th>
+<th><strong>说明</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0x0000</code></td>
+<td><code>char b</code>（1字节）</td>
+<td>对齐到 1 的倍数（0x0000）</td>
+</tr>
+<tr>
+<td><code>0x0001-0x0003</code></td>
+<td><strong>填充 3 字节</strong></td>
+<td>确保 <code>int a</code> 对齐到 4 的倍数</td>
+</tr>
+<tr>
+<td><code>0x0004-0x0007</code></td>
+<td><code>int a</code>（4字节）</td>
+<td>对齐到 4 的倍数（0x0004）</td>
+</tr>
+<tr>
+<td><code>0x0008-0x0009</code></td>
+<td><code>short c</code>（2字节）</td>
+<td>对齐到 2 的倍数（0x0008）</td>
+</tr>
+<tr>
+<td><code>0x000A-0x000B</code></td>
+<td><strong>填充 2 字节</strong></td>
+<td>确保结构体总大小为 4 的倍数</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>总大小</strong>：
+<ul>
+<li>实际占用：<code>1 + 3（填充） + 4 + 2 = 10字节</code></li>
+<li>结构体对齐：最大对齐值为4，10不是4的倍数，需填充2字节至12字节。</li>
+</ul>
+</li>
+</ul>
+<p><strong>边界对齐 vs 边界不对齐</strong></p>
+<ol>
+<li>对齐存储</li>
+</ol>
+<ul>
+<li><strong>特点</strong>：
+<ul>
+<li>数据按对齐要求紧密排列，填充字节插入以对齐地址。</li>
+<li><strong>优点</strong>：单次访存读取完整数据，效率高。</li>
+<li><strong>缺点</strong>：可能浪费少量空间。</li>
+</ul>
+</li>
+</ul>
+<ol start="2">
+<li>不对齐存储</li>
+</ol>
+<ul>
+<li><strong>特点</strong>：
+<ul>
+<li>数据连续存放，无填充字节。</li>
+<li><strong>缺点</strong>：跨存储字的数据需多次访存并拼接，效率低。</li>
+</ul>
+</li>
+</ul>
+<p><strong>应用场景</strong></p>
+<ul>
+<li>
+<p><strong>RISC架构</strong>：强制边界对齐，确保指令流水线高效运行。</p>
+</li>
+<li>
+<p><strong>嵌入式系统</strong>：权衡空间与效率，通常选择对齐存储。</p>
+</li>
+<li>
+<p><strong>网络协议</strong>：数据包按对齐格式传输，避免接收端处理复杂度。</p>
+</li>
+<li>
+<p><strong>结构体设计建议</strong>：</p>
+<ul>
+<li>按成员对齐值降序排列（如 <code>int → short → char</code>），减少填充字节。</li>
+</ul>
+</li>
+</ul>
+<h2 id="1-13-第二章错题">1.13 第二章错题</h2>
+<ol>
+<li>已知 [x]补 =1,0000000，则[-x]补 是(D)<br>
+A.0,1111111   B.0,0000001   C.1.0000000   D.无法表示<br>
+<code>1,0000000</code>表示真值-128（最小负数）。  计算[-x]补 )，即求+128的补码。然而，8位补码的最大正数为+127，+128超出表示范围，<strong>无法表示</strong>。</li>
+<li>设x为真值，x* 为其绝对值，满足 [-x*]补=[-x]补 当且仅当<br>
+A. x任意   B.x为正数   c.x为负数   D.以上都不对<br>
+当x为正数时，x* = x，等式成立<br>
+当x为0时，等式成立<br>
+当x为负数时，x* = -x， [x]补≠[-x]补，等式不成立<br>
+b是充分条件，选d</li>
+<li>由3个“1”和5个“0”组成的8位二进制补码，能表示的最小整数是()。<br>
+A.-126   B.-125   C.-32   D.-3<br>
+补码若符号位相同，数值位越大（即二进制中1的位数越多），码值越大。此处1位数一样，<strong>最高位的 <code>1</code> 位置越靠左（权重越大），对应的绝对值越小，码值越大</strong>。故补码为1000 0011，真值为-125<br>
+刚开始想的补码1110 0000，是一个无效补码，因为补码的最小负数是<code>10000000</code>（-128），而<code>11100000</code>不是合法的补码表示。</li>
+<li>若某浮点数为$2^{11}×1.1011$，其中阶码为原码表示，尾数为补码表示，则该浮点数()<br>
+A.需要将尾数数值部分右移1位规格化<br>
+B.需要将尾数数值部分右移2位规格化<br>
+C.需要将尾数数值部分左移1位规格化<br>
+D.已经规格化<br>
+补码负数规格化，符号位为1，则尾数最高位应为0，将尾数数值部分左移1位规格化，即为$2^{10}×1.0110$</li>
+<li>-0.4375的IEEE754单精度浮点数表示为()<br>
+A.BEE0 0000H   B.BF60 0000H    C.BF70 0000H   D.C0E0 0000H<br>
+-0.4375=-0.0111，应该转化为$2^{-2}×(-1.11)$，S=1，E=125=01111101，M=11，选A</li>
+<li>有如下C语言程序段：short si=-32767;unsigned short usi = si;执行上述两条语句后，usi的值为()。<br>
+A.-32767   B.32767   C.32768   D.32769<br>
+因为si是负数，先转换成补码形式1000 0000 0000 0001，转换成无符号数后为32769</li>
+<li>unsigned short usi=65535:short si = usi;执行上述程序段后，si的值为()。<br>
+A.-1   B.-32767   C.-32768   D.-65535<br>
+1111 1111 1111 1111，第一个1看作符号位，负数，转补码，即1000 0000 0000 0001，-1</li>
+<li>一个C语言程序在一台32位机器上运行。程序中定义了三个变量x，y和z，x和z为int型，y为short型当x=127，y=-9时，执行赋值语句z=x+y后，x，y和z的值分别是()。<br>
+A.x=0000007FH，y=FFF9H，2=00000076H<br>
+B.x=0000007FH，y=FFF9H，Z=FFFF0076H<br>
+C.x=0000007FH，y=FFF7H，Z=FFFF0076H<br>
+D.X=0000007FH，y=FFF7H，2=00000076H<br>
+<code>x</code> 为 <code>int</code> 型（32位），赋值为 <code>127</code>，其补码为0x0000007\text{F}<br>
+<code>y</code> 为 <code>short</code> 型（16位），赋值为 <code>-9</code>，其补码为0xFFF7<br>
+<code>y</code> 从 <code>short</code> 提升为 <code>int</code> 时，进行符号扩展0xFFFFFFF7<br>
+执行 <code>z = x + y</code>：  $\begin{align*}0x0000007\text{F} &amp; \quad (\text{十进制 } 127) \+,0xFFFFFFF7 &amp; \quad (\text{十进制 } -9) \\hline0x00000076 &amp; \quad (\text{十进制 } 118)\end{align*}$ d</li>
+<li>对于相同位数(设为N位，不考虑符号位)的二进制补码小数和十进制小数，二进制小数能表示的数的个数/十进制小数所能表示数的个数为()。<br>
+A.$(0.2)^N$   B.$(0.2)^{N-1}$  C.$(0.02)^N$   D.$0.02^{N-1}$<br>
+N位二进制小数共有2^N种状态，每种状态都能表示一个不同的小数，而十进制小数能表示的数的个数为 10^N，二者的商为(0.2)^N</li>
+<li>下列关于补码和移码关系的叙述中，()是不正确的。<br>
+A.相同位数的补码和移码表示具有相同的数据表示范围<br>
+B.0的补码和移码表示相同<br>
+C.同一个数的补码和移码表示，其数值部分相同，而符号相反<br>
+D.一般用移码表示浮点数的阶码，而补码表示定点整数<br>
+0的补码是0000 0000，0的移码是1000 0000，选b</li>
+<li>一个8位的二进制整数由2个“0”和6个“1”组成，采用补码或者移码表示，则下列说法中正确的是()。<br>
+A.若采用移码表示，偏置值为127，则此整数最小为-64<br>
+B若采用移码表示，偏置值为128，则此整数最大为123<br>
+C.若采用补码表示，则此整数最小为-96<br>
+D.若采用补码表示，则此整数最大为 252<br>
+当采用补码表示时，要使得数值最大，就要让符号位为0，且把“1”放在高位，得到的补码为01111110B=126<br>
+要使得数值最小，就要让符号位为1，且把“1”放在低位，得到的补码为 10011111B=-97。<br>
+当采用移码表示时，设偏置值为128，要使数值最大，就要把“1”放在高位，得到的移码为11111100B，转补码是0111 1100=124<br>
+设偏置值为127，要使得数值最小，则应把“1”放在低位，得到的移码为 0,011 1111B，【错误：转补码是1,011 1111B，转原码是1,100 0001B=-65。移码和补码的转换仅适用于特定场景】，真值=移码值−偏置值=63−127=−64，A 正确。</li>
+<li>在计算机中，通常用来表示主存地址的是()<br>
+A.移码   B.补码   C.原码   D.无符号数<br>
+主存地址都是正数，因此不需要符号位，因此直接采用无符号数表示。</li>
+<li>ALU作为运算器的核心部件，其属于()<br>
+A.时序逻辑电路 B.组合逻辑电路 C.控制器 D.寄存器<br>
+ALU 是由组合逻辑电路构成的，最基本的部件是并行加法器。单纯的ALU 不能够存储运算结果和中间变量，因此往往将 ALU 和寄存器或暂存器相连。</li>
+<li>下列四个补码整数存放于8位寄存器中，算术左移不会发生溢出的是()。A. 80H  B. 90H  C.B0H  D.C0H<br>
+80H=(1000 0000)&lt;&lt;1=00000000，左移前的符号位为1，左移后的符号位为0，溢出；90H=(10010000)&lt;&lt;1=0010 0000，左移前的符号位为1，左移后的符号位为0，溢出；B0H=(1011 0000)&lt;&lt;1=01100000，左移前的符号位为1，左移后的符号位为0，溢出。C0H=(11000000)&lt;&lt;1=10000000，左移前的符号位为1，左移后的符号位为1，未溢出，选项D正确。</li>
+<li>设机器数字长8位(含1位符号位)，若机器数BAH为补码，算术左移1位和算术右移1位分别得()。<br>
+A. F4H,EDH  B. B4H,6DH  C.74H,DDH  D. BSH,EDH<br>
+题目中有机器数、寄存器等用机器移动，符号位和数值位一起移。BAH=(10111010)，算术左移1位得(01110100)= 74H，左移前后的符号位不同，溢出；算术右移1位得(1101 1101)= DDH。</li>
+<li>在定点运算器中，无论是采用双符号位还是采用单符号位，必须有()。<br>
+A.译码电路，它一般用“与非”门来实现<br>
+B.编码电路，它一般用“或非”门来实现<br>
+C.溢出判断电路，它一般用“异或”门来实现<br>
+D.移位电路，它一般用“与或非”门来实现<br>
+无论采用单符号位还是双符号位，运算器必须包含<strong>溢出判断电路OF=Cn​⊕Cn−1​</strong>
+<ul>
+<li><strong>译码电路（A）</strong>：用于指令译码，属于控制单元功能，非运算器必需。</li>
+<li><strong>编码电路（B）</strong>：用于信号编码，非运算核心部件。</li>
+<li><strong>移位电路（D）</strong>：乘除运算需要移位，但纯加减运算无需移位，非必需。</li>
+</ul>
+</li>
+<li>机器运算发生溢出的根本原因是()<br>
+A.寄存器的位数有限                 B.运算中将符号位的进位丢弃<br>
+C.运算中将符号位的借位丢弃  D.数据运算中发生错误<br>
+a</li>
+<li>关于模4补码，下列说法正确的是()。<br>
+A.模4补码和模2补码不同，它不容易检查乘除运算中的溢出问题B.每个模4补码存储时只需一个符号位<br>
+C.存储每个模4 补码需要两个符号位<br>
+D.模4补码，在算术与逻辑单元中为一个符号位<br>
+模4补码（即双符号位补码）是一种用于检测运算溢出的编码方式。c</li>
+<li>某计算机字长为8位，CPU中有一个8位加法器。已知无符号数x=69，y=38，若在该加法器中计算x-y，则加法器的两个输入端信息和输入的低位进位信息分别为()。<br>
+A.01000101、00100110、0<br>
+B.01000101、11011001、1<br>
+C.01000101、11011010、0<br>
+D.01000101、11011010、1<br>
+x=01000101，y=00100110，-y的补码=11011010，低位进位Sub为1，d</li>
+<li>某8位计算机中，x和y是两个有符号整数，用补码表示，[x]补=44H，[y]补=DCH，则x-2y的机器数及相应的溢出标志OF分别是()。<br>
+[x]补=44H = 01000100，[y]补=DCH = 11011100。执行 x - 2y 时，先将 y 算术左移一位，得到 10111000，未溢出，然后各位取反，再与 x 相加，做减法时 sub = 1，即 01000100+01000111 + 1=10001100(8CH)，两个加数的符号都为 0，而结果的符号为 1，因此发生了溢出，即 OF = 1。</li>
+<li>某C语言代码段如下:<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> si=<span class="number">65536</span>;</span><br><span class="line"><span class="type">short</span> i=si;</span><br><span class="line"><span class="type">unsigned</span> j=<span class="number">0</span>;</span><br><span class="line"><span class="keyword">if</span>(i&lt;=j<span class="number">-1</span>) <span class="built_in">printf</span>(<span class="string">&quot;王道&quot;</span>);</span><br><span class="line"><span class="keyword">else</span> <span class="built_in">printf</span>(<span class="string">&quot;计算机教育&quot;</span>);</span><br></pre></td></tr></table></figure>
+当上述代码段执行到i分支条件的判断时，会根据标志寄存器中的()决定执行顺序最终的输出结果是()。<br>
+<a target="_blank" rel="noopener" href="http://A.CF">A.CF</a>、王道   B.CF.计算机教育   C.OF,王道   D.OF，计算机教育<br>
+<strong><code>int si = 65536</code></strong>：00000000 00000001 00000000 00000000<br>
+<strong><code>short i = si</code></strong>：截取低16位 <code>0x0000</code>，转换为有符号 <code>short</code>，值为 <strong>0</strong>。<br>
+<strong><code>unsigned j = 0</code></strong>：<code>j-1</code> 为 <code>0-1</code>，无符号运算结果为 <code>UINT_MAX</code>（如32位为 <code>4294967295</code>）。<br>
+<strong>比较 <code>i &lt;= j-1</code></strong>：
+<ul>
+<li>
+<p>有符号 <code>i</code>（0）转换为无符号 <code>0</code>，与无符号 <code>j-1</code>（<code>UINT_MAX</code>）比较。</p>
+</li>
+<li>
+<p><strong>无符号比较规则</strong>：通过进位标志 <code>CF</code> 判断。若 <code>a &lt;= b</code>，则 <code>CF=1</code>（借位）或 <code>ZF=1</code>（相等）。</p>
+</li>
+<li>
+<p>此处 <code>0 &lt;= UINT_MAX</code> 为真，触发 <code>CF=1</code>，条件成立。</p>
+<ul>
+<li><strong>CF（进位标志）</strong>：无符号比较时，<code>CF=1</code> 表示被减数小于减数。</li>
+<li><strong>OF（溢出标志）</strong>：有符号运算溢出时触发，此处不适用。<br>
+<strong>A. CF、王道</strong>。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>【2024 统考真题】C语言代码段如下，执行该代码段后，j的值是()。int i=32777;short si=i;int j=si;<br>
+A.-32777   B.-32759   C.32759   D.32777<br>
+2^15=32768，i=000…0 1000000000001001，将32 位有符号数i强制转换为 16 位有符号数si机器数为1000000000001001，补码1,111111111110111，si=-32759。</li>
+<li>设机器数字长8位(含1位符号位)，若机器数BAH为原码，算术左移1位和算术右移1位分别得()。<br>
+A. F4H,EDH   B. B4H,6DH   C.F4H,9DH   D.BSH,EDH<br>
+若机器数 BAH为补码，其余条件同上题，则有<br>
+A.F4H, DDH   B.B4H,6DH   C.F4H,9DH   D. BSH,EDH<br>
+BA=1,0111010<br>
+原码时：算数左移1,1110100 FAH；算数右移1,0011101 9DH<br>
+补码时：算术左移1,1110100 FAH；算数右移1,1011101 DDH</li>
+<li>在规格化浮点运算中，若某浮点数为2^5x1.10101，其中尾数为补码表示，则该数()。<br>
+A.不需规格化                          B.需右移规格化<br>
+C.需将尾数左移一位规格化   D.需将尾数左移两位规格化<br>
+补码浮点数规格化应该形如 1.0xxx，尾数左移1位，变为 1.01010，2^4×1.01010。c</li>
+<li>下列关于对阶操作说法正确的是()<br>
+A.在浮点加减运算的对阶操作中，若阶码减小，则尾数左移<br>
+B.在浮点加减运算的对阶操作中，若阶码增大，则尾数右移；若阶码减小，则尾数左移<br>
+C.在浮点加减运算的对阶操作中，若阶码增大，则尾数右移<br>
+D.以上都不对<br>
+对阶操作，是将较小的阶码调整到与较大的阶码一致，因此不存在阶码减小、尾数左移的情况，因此选项 A、B 错误。选c</li>
+<li>若某单精度浮点数、某原码、某补码、某移码的 32 位机器数均为 0xF0000000，则这些数从大到小的顺序是()<br>
+A.浮原补移   B.浮移补原   C.移原补浮   D.移补原浮<br>
+x=1111 000…0，浮点数=-2^113；原码=-111 000…0=-1879048192；补码=-0001 000…0=-268435456；移码=x-128=1,879,048,192<br>
+选d</li>
+<li>已知 foat 型采用 IEEE 754单精度浮点格式,若x、y为foat型变量,且x=-126,y= 15.75,则执行语句 z=x+y时，在浮点运算单元中进行对阶操作后的结果是()<br>
+A.x不变，y为010000101,0.001111110…0<br>
+B.x不变，y为010000110,0.001111110…0<br>
+C.y不变，x为 110000101,0.001111110…0<br>
+D.y不变，x为 110000110,0.001111110…0<br>
+-126 = -1.11111 × 2^6，阶码：<code>6 + 127 = 133 → 10000101</code><br>
+15.75 = 1.11111 × 2^3，阶码：<code>3 + 127 = 130 → 10000010</code><br>
+y是小阶，要向大阶6对齐，y的尾数相应右移3位，变为0.00111111B<br>
+a</li>
+<li>在 IEEE 754 标准浮点格式中，非规格化浮点数表示为<br>
+A.阶码为 0，尾数为任意非0的二进制数<br>
+B.阶码为 255，尾数全为 0<br>
+C.阶码为 255，尾数为任意非0的二进制数<br>
+D.阶码为 0，尾数全为 0<br>
+在 IEEE 754 标准格式中，阶码全为0，尾数不全为0表示非规格化数，非规格化数可用于处理阶码下溢，使得出现比最小规格化数还小的数时程序也能继续进行下去。</li>
+<li>假设已定义三个 int 型变量 x、y和 z，sizeof(int)=4，double 型采用 IEEE 754 双精度浮点数格式，变量 dx、dy 和 dz 的声明和初始化如下：double dx=(double)x;double dy=(double)y;double dz=(double)z;则下列关系表达式中永远为真的是()。<br>
+I. dx+ dy == (double)(x+y)<br>
+Il. dx × dx &gt;= 0<br>
+III. dx/dx == dy/dy<br>
+IV.(dx + dy)+ dz== dx + (dy + dz)<br>
+A. I和 II   B.II和III   C.III和IV   D.II和IV<br>
+选项I非永真，因为x+y可能溢出，而 dx+dy 不会溢出。如果是dx+ dy == (double)x+(double)y正确；选项Ⅱ永真，符号和数值部分分开计算，不管结果是否溢出，都不会影响乘积的符号；选项III非永真，dx 和 dy 中只要有一个为 0、另一个不为0 就不相等；选项 IV 永真，因为dx、dy 和 dz 是由 32 位 int 型转换得到的，double 型可以精确地表示 int 型，且对阶时尾数移动位数不会超过 52 位，因此尾数不会舍入，于是不会发生大数吃小数的情况。</li>
+<li>在按字节编址的计算机中，采用小端方式存储数据，某静态二维数组b的声明如下：<code>static short b[2][4]=&#123;&#123;2,9,-1,5&#125;,&#123;3,1,-6,2&#125;&#125;;</code>若b的首地址为 0x8049820，采用按行优先存储，地址0x804982c中的内容是()<br>
+A. FAH   B. FFH   C.00H   D.05H<br>
+short型占2字节，采用按行优先存储，<code>b[0][0]</code>的地址为 0x8049820，<code>b[0][1]</code>的地址为 0x8049822，以此类推，<code>b[1][2]</code>的地址为 0x804982c。d对应值为-6，补码表示为 1111 1111 1111 1010，FFFAH，采用小端方式存储，因此地址 0x804982c存放的是低位字节 FAH。</li>
+<li>在按字节编址的 32 位计算机中，按边界对齐方式为以下结构型变量x分配存储空间：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">   struct cont info&#123;</span><br><span class="line">    char id;</span><br><span class="line">    unsigned post;</span><br><span class="line">    char phone;</span><br><span class="line">&#125;x;</span><br></pre></td></tr></table></figure>
+若x的首地址为 0x8049820，则成员变量phone的起始地址为()<br>
+A.0x8049828   B.0x8049826   C.0x8049825   D.0x8049822<br>
+char放到0x8049820，unsigned默认是unsigned int，起始地址应该是4的整数倍，0x8049821不可以，往后直到0x8049824可以，占四个字节，char是0x8049828</li>
+<li>【2009 统考真题】浮点数加、减运算过程一般包括对阶、尾数运算、规格化、舍入和判断溢出等步骤。设浮点数的阶码和尾数均采用补码表示，且位数分别为5和7(均含2位符号位)。若有两个数X=2^7×29/32和Y=2^5×5/8，则用浮点加法计算X+Y的最终结果是( )。<br>
+A.001111100010   B.001110100010<br>
+C.010000010001   D.发生溢出<br>
+29的二进制是11101，尾数共7位，写成0011101，除32，即2^5，定点整数的小数点在最后，即0011101.，向左移动五位，00,11101，X=00,111;00,11101<br>
+5的二进制是101，扩展位数0000101，向左3位，即0000,101，前面多的0省略并补充位数，即00,10100，Y=00.101;00,10100<br>
+对阶：Y=00,111;00,00101<br>
+尾数相加：01,00010<br>
+规格化：右规，即01,000;00,10001(0)，阶码01，溢出，d</li>
+<li>【2014 统考真题】float 型数据常用 IEEE 754 单精度浮点格式表示。假设两个 foat 型变量x和y分别存放在 32位寄存器和12中,若(fl)=CC90 0000H,(f2)=B0C0 0000H,则x和y之间的关系为()<br>
+A.x&lt;y且符号相同      B. x&lt;y 且符号不同<br>
+C.x&gt;y且符号相同      D.x&gt;y且符号不同<br>
+x，y都是负数，(f1)和(12)对应的二进制分别是(110011001001.),和(101100001100…)，(f1)的绝对值为 1.001×2^26，(f2)的绝对值为 1.1×2^-30，(1)的绝对值比(12)的绝对值大，而符号为负，真值大小相反，即(f1)的真值比(f2)的真值小，即 x&lt;y。a</li>
+<li>【2018 统考真题】某 32 位计算机按字节编址，采用小端方式。若语句“inti=0:”对应指令的机器代码为“C7 45 FC 00 00 00 00”，则语句“inti=-64:”对应指令的机器代码是()。<br>
+A. C7 45 FC CO FF FF FF   B. C 45 FC OC FF FF FF<br>
+C. C7 45 FC FF FF FF CO   D. C7 45 FC FF FF FF OC</li>
+</ol>
+<div class="main-hero-waves-area"><div class="waves-area"><svg class="waves-svg" version="1.1" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 1440 140" preserveAspectRatio="none"><path class="parallax" d="M 0 44 C 355 167 415 0 725 44 L 725 44 L 0 44 Z"></path><use class="parallax" xlink:href="#wave1" x="48" y="3"></use><use class="parallax" xlink:href="#wave1" x="48" y="5"></use><use class="parallax" xlink:href="#wave1" x="48" y="7"></use><use class="parallax" xlink:href="#wave1" x="48" y="9"></use></svg></div></div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://labi.com">Lorinda</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://labi.com/post/undefined.html">http://labi.com/post/undefined.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="http://labi.com" target="_blank">蜡笔梦工厂</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/c/">c</a><a class="post-meta__tags" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86/">计算机组成原理</a></div><div class="post-share"><div class="social-share" data-image="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_160146.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://lib.baomitu.com/social-share.js/1.0.16/css/share.min.css" media="print" onload="this.media='all'"><script src="https://lib.baomitu.com/social-share.js/1.0.16/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/post/bae4ff13.html" title="Redis"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_160146.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">Redis</div></div><div class="info-2"><div class="info-item-1">Redis</div></div></div></a><a class="pagination-related" href="/post/undefined.html" title="计算机组成原理（一）"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112855.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">计算机组成原理（一）</div></div><div class="info-2"><div class="info-item-1">计算机组成原理</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/post/79666db.html" title="数据结构"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_155656.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-03-12</div><div class="info-item-2">数据结构</div></div><div class="info-2"><div class="info-item-1">数据结构</div></div></div></a></div></div><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="card-info-avatar"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_155535.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-status-box"><div class="author-status"><g-emoji class="g-emoji" alias="palm_tree" fallback-src="https://lskypro.acozycotage.net/LightPicture/2022/12/fe1dc0402e623096.jpg">🐟</g-emoji><span>认真摸鱼中</span></div></div></div><div class="author-info-name">Lorinda</div><div class="author-info-description">欢迎来到Lorinda的个人博客\^o^/</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">5</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">4</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://lr0513.github.io/"><i class="fab fa-github"></i><span>你回来了~</span><i class="faa-passing animated" style="padding-left:20px;display:inline-block;vertical-align:middle;"><svg class="icon" style="height:28px;width:28px;fill:currentColor;position:relative;top:5px"><use xlink:href="#icon-hexolabixiaoxin1"></use></svg></i></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content"></div><div id="welcome-info"></div></div><div class="xpand" style="height:200px;"><canvas class="illo" width="800" height="800" style="max-width: 200px; max-height: 200px; touch-action: none; width: 640px; height: 640px;"></canvas></div><script src="https://npm.elemecdn.com/ethan4116-blog/lib/js/other/two-people/twopeople1.js"></script><script src="https://npm.elemecdn.com/ethan4116-blog/lib/js/other/two-people/zdog.dist.js"></script><script id="rendered-js" src="https://npm.elemecdn.com/ethan4116-blog/lib/js/other/two-people/twopeople.js"></script><style>.card-widget.card-announcement {
+margin: 0;
+align-items: center;
+justify-content: center;
+text-align: center;
+}
+canvas {
+display: block;
+margin: 0 auto;
+cursor: move;
+}</style><div class="card-widget" id="newYear"><div class="item-headline"><i></i><span></span></div><div class="item-content"><div id="newYear-main"><div class="mask"></div> <p class="title"></p> <div class="newYear-time"></div> <p class="today" style="text-align: right;"></p> </div></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">1 计算机内部的数据表示</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-1-%E6%95%B0%E5%80%BC%E8%BD%AC%E6%8D%A2%E4%B8%8E%E7%BC%96%E7%A0%81"><span class="toc-number">1.1.</span> <span class="toc-text">1.1 数值转换与编码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-2-%E5%AE%9A%E7%82%B9%E6%95%B0%E7%9A%84%E7%BC%96%E7%A0%81"><span class="toc-number">1.2.</span> <span class="toc-text">1.2 定点数的编码</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-1-%E5%AE%9A%E7%82%B9%E6%95%B0"><span class="toc-number">1.2.1.</span> <span class="toc-text">1.2.1 定点数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-2-%E5%8E%9F%E7%A0%81"><span class="toc-number">1.2.2.</span> <span class="toc-text">1.2.2 原码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-3-%E5%8F%8D%E7%A0%81"><span class="toc-number">1.2.3.</span> <span class="toc-text">1.2.3 反码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-4-%E8%A1%A5%E7%A0%81"><span class="toc-number">1.2.4.</span> <span class="toc-text">1.2.4 补码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-5-%E7%A7%BB%E7%A0%81"><span class="toc-number">1.2.5.</span> <span class="toc-text">1.2.5 移码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-6-%E8%B4%9F%E6%95%B0%E5%A4%A7%E5%B0%8F%E5%88%A4%E6%96%AD"><span class="toc-number">1.2.6.</span> <span class="toc-text">1.2.6 负数大小判断</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-7-%E5%AE%9A%E7%82%B9%E6%95%B0%E7%9A%84%E4%BD%8D%E6%95%B0%E6%89%A9%E5%B1%95"><span class="toc-number">1.2.7.</span> <span class="toc-text">1.2.7 定点数的位数扩展</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-2-7-1-%E5%AE%9A%E7%82%B9%E6%95%B4%E6%95%B0%E4%B8%8E%E5%AE%9A%E7%82%B9%E5%B0%8F%E6%95%B0%E7%9A%84%E6%89%A9%E5%B1%95%E8%A7%84%E5%88%99"><span class="toc-number">1.2.7.1.</span> <span class="toc-text">1.2.7.1 定点整数与定点小数的扩展规则</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-2-7-2-%E5%8E%9F%E7%A0%81%E3%80%81%E8%A1%A5%E7%A0%81%E3%80%81%E5%8F%8D%E7%A0%81%E7%9A%84%E6%89%A9%E5%B1%95%E8%A7%84%E5%88%99"><span class="toc-number">1.2.7.2.</span> <span class="toc-text">1.2.7.2 原码、补码、反码的扩展规则</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-3-%E6%95%B4%E6%95%B0%E8%A1%A8%E7%A4%BA%E4%B8%8E%E8%BF%90%E7%AE%97"><span class="toc-number">1.3.</span> <span class="toc-text">1.3 整数表示与运算</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-4-%E5%AE%9A%E7%82%B9%E6%95%B0%E8%BF%90%E7%AE%97"><span class="toc-number">1.4.</span> <span class="toc-text">1.4 定点数运算</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-4-1-%E7%A7%BB%E4%BD%8D%E8%BF%90%E7%AE%97"><span class="toc-number">1.4.1.</span> <span class="toc-text">1.4.1 移位运算</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-4-1-1-%E9%80%BB%E8%BE%91%E7%A7%BB%E4%BD%8D%EF%BC%88%E6%97%A0%E7%AC%A6%E5%8F%B7%E6%95%B0%EF%BC%89"><span class="toc-number">1.4.1.1.</span> <span class="toc-text">1.4.1.1 逻辑移位（无符号数）</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#1-4-1-1-1-%E6%8C%89%E4%BD%8D%E6%88%96%EF%BC%88-%EF%BC%89%EF%BC%9A%E5%B0%86%E6%9F%90%E4%BD%8D%E7%BD%AE1"><span class="toc-number">1.4.1.1.1.</span> <span class="toc-text">1.4.1.1.1 按位或（|）：将某位置1</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#1-4-1-1-2-%E6%8C%89%E4%BD%8D%E4%B8%8E%EF%BC%88-%EF%BC%89%EF%BC%9A%E5%B0%86%E6%9F%90%E4%BD%8D%E6%B8%850"><span class="toc-number">1.4.1.1.2.</span> <span class="toc-text">1.4.1.1.2 按位与（&amp;）：将某位清0</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#1-4-1-1-3-%E6%8C%89%E4%BD%8D%E5%BC%82%E6%88%96%EF%BC%88-%EF%BC%89%EF%BC%9A%E5%88%87%E6%8D%A2%E6%9F%90%E4%BD%8D%E7%8A%B6%E6%80%81"><span class="toc-number">1.4.1.1.3.</span> <span class="toc-text">1.4.1.1.3 按位异或（^）：切换某位状态</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#1-4-1-1-4-%E6%8C%89%E4%BD%8D%E9%9D%9E%EF%BC%88-%EF%BC%89%EF%BC%9A%E5%8F%96%E5%8F%8D%E6%89%80%E6%9C%89%E4%BD%8D"><span class="toc-number">1.4.1.1.4.</span> <span class="toc-text">1.4.1.1.4 按位非（~）：取反所有位</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-4-1-2-%E7%AE%97%E6%95%B0%E7%A7%BB%E4%BD%8D%EF%BC%88%E6%9C%89%E7%AC%A6%E5%8F%B7%E6%95%B0%EF%BC%89"><span class="toc-number">1.4.1.2.</span> <span class="toc-text">1.4.1.2 算数移位（有符号数）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-4-1-3-%E5%BE%AA%E7%8E%AF%E7%A7%BB%E4%BD%8D%EF%BC%88%E6%97%A0%E7%AC%A6%E5%8F%B7%E6%95%B0%EF%BC%89"><span class="toc-number">1.4.1.3.</span> <span class="toc-text">1.4.1.3 循环移位（无符号数）</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-5-%E9%80%BB%E8%BE%91%E9%97%A8"><span class="toc-number">1.5.</span> <span class="toc-text">1.5 逻辑门</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-5-1-%E5%8D%8A%E5%8A%A0%E5%99%A8"><span class="toc-number">1.5.1.</span> <span class="toc-text">1.5.1 半加器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-5-2-%E4%B8%80%E4%BD%8D%E5%85%A8%E5%8A%A0%E5%99%A8FA"><span class="toc-number">1.5.2.</span> <span class="toc-text">1.5.2 一位全加器FA</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-5-3-%E4%B8%B2%E8%A1%8C%E8%BF%9B%E4%BD%8D%E5%8A%A0%E6%B3%95%E5%99%A8"><span class="toc-number">1.5.3.</span> <span class="toc-text">1.5.3 串行进位加法器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-5-4-%E5%85%88%E8%A1%8C%E8%BF%9B%E4%BD%8D%E5%8A%A0%E6%B3%95%E5%99%A8"><span class="toc-number">1.5.4.</span> <span class="toc-text">1.5.4 先行进位加法器</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-6-%E4%B9%98%E6%B3%95%E4%B8%8E%E9%99%A4%E6%B3%95"><span class="toc-number">1.6.</span> <span class="toc-text">1.6 乘法与除法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-6-1-%E6%97%A0%E7%AC%A6%E5%8F%B7%E6%95%B0%E4%B9%98%E6%B3%95%E7%9A%84%E7%A1%AC%E4%BB%B6%E9%80%BB%E8%BE%91"><span class="toc-number">1.6.1.</span> <span class="toc-text">1.6.1 无符号数乘法的硬件逻辑</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-6-2-%E5%AE%9A%E7%82%B9%E6%95%B0%E7%9A%84%E4%B9%98%E6%B3%95%E8%BF%90%E7%AE%97"><span class="toc-number">1.6.2.</span> <span class="toc-text">1.6.2 定点数的乘法运算</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-6-2-1-%E5%8E%9F%E7%A0%81%E4%B9%98%E6%B3%95%E8%BF%90%E7%AE%97%E7%9A%84%E7%A1%AC%E4%BB%B6%E9%80%BB%E8%BE%91%E5%AE%9E%E7%8E%B0"><span class="toc-number">1.6.2.1.</span> <span class="toc-text">1.6.2.1 原码乘法运算的硬件逻辑实现</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-6-2-2-%E8%A1%A5%E7%A0%81%E4%B9%98%E6%B3%95%E8%BF%90%E7%AE%97%E7%9A%84%E7%A1%AC%E4%BB%B6%E9%80%BB%E8%BE%91%E5%AE%9E%E7%8E%B0"><span class="toc-number">1.6.2.2.</span> <span class="toc-text">1.6.2.2 补码乘法运算的硬件逻辑实现</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-6-2-3-%E6%97%A0%E7%AC%A6%E5%8F%B7%E9%98%B5%E5%88%97%E4%B9%98%E6%B3%95%E5%99%A8"><span class="toc-number">1.6.2.3.</span> <span class="toc-text">1.6.2.3 无符号阵列乘法器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-6-2-4-%E8%A1%A5%E7%A0%81%E9%98%B5%E5%88%97%E4%B9%98%E6%B3%95%E5%99%A8"><span class="toc-number">1.6.2.4.</span> <span class="toc-text">1.6.2.4 补码阵列乘法器</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-6-3-%E5%AE%9A%E7%82%B9%E6%95%B0%E7%9A%84%E9%99%A4%E6%B3%95%E8%BF%90%E7%AE%97"><span class="toc-number">1.6.3.</span> <span class="toc-text">1.6.3 定点数的除法运算</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-6-3-1-%E5%8E%9F%E7%A0%81%E9%99%A4%E6%B3%95"><span class="toc-number">1.6.3.1.</span> <span class="toc-text">1.6.3.1 原码除法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-6-3-2-%E8%A1%A5%E7%A0%81%E9%99%A4%E6%B3%95"><span class="toc-number">1.6.3.2.</span> <span class="toc-text">1.6.3.2 补码除法</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-7-%E6%B5%AE%E7%82%B9%E6%95%B0%E8%A1%A8%E7%A4%BA%E4%B8%8E%E8%BF%90%E7%AE%97"><span class="toc-number">1.7.</span> <span class="toc-text">1.7 浮点数表示与运算</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-7-1-%E6%B5%AE%E7%82%B9%E8%BF%90%E7%AE%97%E6%AD%A5%E9%AA%A4"><span class="toc-number">1.7.1.</span> <span class="toc-text">1.7.1 浮点运算步骤</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-7-2-%E6%B5%AE%E7%82%B9%E6%95%B0%E7%9A%84%E6%BA%A2%E5%87%BA"><span class="toc-number">1.7.2.</span> <span class="toc-text">1.7.2 浮点数的溢出</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-7-3-%E6%B5%AE%E7%82%B9%E6%95%B0%E8%A1%A8%E7%A4%BA%E8%8C%83%E5%9B%B4"><span class="toc-number">1.7.3.</span> <span class="toc-text">1.7.3 浮点数表示范围</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-7-4-%E6%B5%AE%E7%82%B9%E6%95%B0%E7%9A%84%E8%A7%84%E6%A0%BC%E5%8C%96"><span class="toc-number">1.7.4.</span> <span class="toc-text">1.7.4 浮点数的规格化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-7-5-%E6%B5%AE%E7%82%B9%E6%95%B0%E7%9A%84%E5%8A%A0%E5%87%8F%E6%B3%95"><span class="toc-number">1.7.5.</span> <span class="toc-text">1.7.5 浮点数的加减法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-7-6-IEEE-754-%E6%B5%AE%E7%82%B9%E6%95%B0%E8%BF%90%E7%AE%97"><span class="toc-number">1.7.6.</span> <span class="toc-text">1.7.6 IEEE 754 浮点数运算</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-7-7-%E6%B5%AE%E7%82%B9%E6%95%B0%E7%BB%93%E6%9E%84"><span class="toc-number">1.7.7.</span> <span class="toc-text">1.7.7 浮点数结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-7-8-%E7%89%B9%E6%AE%8A%E5%80%BC"><span class="toc-number">1.7.8.</span> <span class="toc-text">1.7.8 特殊值</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-8-C%E8%AF%AD%E8%A8%80%E4%B8%AD%E7%9A%84%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E5%8F%8A%E8%BD%AC%E6%8D%A2"><span class="toc-number">1.8.</span> <span class="toc-text">1.8 C语言中的数据类型及转换</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-9-%E6%9C%89%E7%AC%A6%E5%8F%B7%E6%95%B0%E4%B8%8E%E6%97%A0%E7%AC%A6%E5%8F%B7%E6%95%B0%E7%9A%84%E8%BD%AC%E6%8D%A2"><span class="toc-number">1.9.</span> <span class="toc-text">1.9 有符号数与无符号数的转换</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-10-%E4%B8%8D%E5%90%8C%E5%AD%97%E9%95%BF%E6%95%B4%E6%95%B0%E4%B9%8B%E9%97%B4%E7%9A%84%E8%BD%AC%E6%8D%A2"><span class="toc-number">1.10.</span> <span class="toc-text">1.10 不同字长整数之间的转换</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-11-%E6%B5%AE%E7%82%B9%E6%95%B0%E4%B9%8B%E9%97%B4%E7%9A%84%E8%BD%AC%E6%8D%A2"><span class="toc-number">1.11.</span> <span class="toc-text">1.11 浮点数之间的转换</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-12-%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8%E5%92%8C%E8%BE%B9%E7%95%8C%E5%AF%B9%E9%BD%90"><span class="toc-number">1.12.</span> <span class="toc-text">1.12 数据存储和边界对齐</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-13-%E7%AC%AC%E4%BA%8C%E7%AB%A0%E9%94%99%E9%A2%98"><span class="toc-number">1.13.</span> <span class="toc-text">1.13 第二章错题</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/post/undefined.html" title="计算机组成原理（一）"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112855.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="计算机组成原理（一）"/></a><div class="content"><a class="title" href="/post/undefined.html" title="计算机组成原理（一）">计算机组成原理（一）</a><time datetime="2025-04-07T13:11:00.000Z" title="发表于 2025-04-07 21:11:00">2025-04-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/undefined.html" title="计算机组成原理（二）"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_160146.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="计算机组成原理（二）"/></a><div class="content"><a class="title" href="/post/undefined.html" title="计算机组成原理（二）">计算机组成原理（二）</a><time datetime="2025-04-07T13:11:00.000Z" title="发表于 2025-04-07 21:11:00">2025-04-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/bae4ff13.html" title="Redis"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_160146.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Redis"/></a><div class="content"><a class="title" href="/post/bae4ff13.html" title="Redis">Redis</a><time datetime="2025-03-12T08:47:00.000Z" title="发表于 2025-03-12 16:47:00">2025-03-12</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/79666db.html" title="数据结构"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_155656.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="数据结构"/></a><div class="content"><a class="title" href="/post/79666db.html" title="数据结构">数据结构</a><time datetime="2025-03-12T08:47:00.000Z" title="发表于 2025-03-12 16:47:00">2025-03-12</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/b8b0eacd.html" title="java基础"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_160146.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="java基础"/></a><div class="content"><a class="title" href="/post/b8b0eacd.html" title="java基础">java基础</a><time datetime="2025-03-12T08:47:00.000Z" title="发表于 2025-03-12 16:47:00">2025-03-12</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2025  <i id="heartbeat" class="fa fas fa-heartbeat"></i> By Lorinda</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">I wish you to become your own sun, no need to rely on who's light.<p><a target="_blank" href="https://hexo.io/"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img.shields.io/badge/Frame-Hexo-blue?style=flat&logo=hexo" title="博客框架为Hexo"></a>&nbsp;<a target="_blank" href="https://butterfly.js.org/"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img.shields.io/badge/Theme-Butterfly-6513df?style=flat&logo=bitdefender" title="主题采用butterfly"></a>&nbsp;<a target="_blank" href="https://www.jsdelivr.com/"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img.shields.io/badge/CDN-jsDelivr-orange?style=flat&logo=jsDelivr" title="本站使用JsDelivr为静态资源提供CDN加速"></a> &nbsp;<a target="_blank" href="https://vercel.com/ "><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img.shields.io/badge/Hosted-Vervel-brightgreen?style=flat&logo=Vercel" title="本站采用双线部署，默认线路托管于Vercel"></a>&nbsp;<a target="_blank" href="https://vercel.com/ "><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img.shields.io/badge/Hosted-Coding-0cedbe?style=flat&logo=Codio" title="本站采用双线部署，联通线路托管于Coding"></a>&nbsp;<a target="_blank" href="https://github.com/"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img.shields.io/badge/Source-Github-d021d6?style=flat&logo=GitHub" title="本站项目由Gtihub托管"></a>&nbsp;<a target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img.shields.io/badge/Copyright-BY--NC--SA%204.0-d42328?style=flat&logo=Claris" title="本站采用知识共享署名-非商业性使用-相同方式共享4.0国际许可协议进行许可"></a></p></div></div><div class="js-pjax" id="rightMenu"><div class="rightMenu-group rightMenu-small"><a class="rightMenu-item" href="javascript:window.history.back();"><i class="fa fa-arrow-left"></i></a><a class="rightMenu-item" href="javascript:window.history.forward();"><i class="fa fa-arrow-right"></i></a><a class="rightMenu-item" href="javascript:window.location.reload();"><i class="fa fa-refresh"></i></a><a class="rightMenu-item" href="javascript:rmf.scrollToTop();"><i class="fa fa-arrow-up"></i></a></div><div class="rightMenu-group rightMenu-line hide" id="menu-text"><a class="rightMenu-item" href="javascript:rmf.copySelect();"><i class="fa fa-copy"></i><span>复制</span></a><a class="rightMenu-item" href="javascript:window.open(&quot;https://www.baidu.com/s?wd=&quot;+window.getSelection().toString());window.location.reload();"><i class="fa fa-search"></i><span>百度搜索</span></a></div><div class="rightMenu-group rightMenu-line hide" id="menu-too"><a class="rightMenu-item" href="javascript:window.open(window.getSelection().toString());window.location.reload();"><i class="fa fa-link"></i><span>转到链接</span></a></div><div class="rightMenu-group rightMenu-line hide" id="menu-paste"><a class="rightMenu-item" href="javascript:rmf.paste()"><i class="fa fa-copy"></i><span>粘贴</span></a></div><div class="rightMenu-group rightMenu-line hide" id="menu-post"><a class="rightMenu-item" href="javascript:rmf.copyWordsLink()"><i class="fa fa-link"></i><span>复制本文地址</span></a></div><div class="rightMenu-group rightMenu-line hide" id="menu-to"><a class="rightMenu-item" href="javascript:rmf.openWithNewTab()"><i class="fa fa-window-restore"></i><span>新窗口打开</span></a><a class="rightMenu-item" id="menu-too" href="javascript:rmf.open()"><i class="fa fa-link"></i><span>转到链接</span></a><a class="rightMenu-item" href="javascript:rmf.copyLink()"><i class="fa fa-copy"></i><span>复制链接</span></a></div><div class="rightMenu-group rightMenu-line hide" id="menu-img"><a class="rightMenu-item" href="javascript:rmf.saveAs()"><i class="fa fa-download"></i><span>保存图片</span></a><a class="rightMenu-item" href="javascript:rmf.openWithNewTab()"><i class="fa fa-window-restore"></i><span>在新窗口打开</span></a><a class="rightMenu-item" href="javascript:rmf.copyLink()"><i class="fa fa-copy"></i><span>复制图片链接</span></a></div><div class="rightMenu-group rightMenu-line"><a class="rightMenu-item" href="javascript:randomPost()"><i class="fa fa-paper-plane"></i><span>随便逛逛</span></a><a class="rightMenu-item" href="javascript:switchNightMode();"><i class="fa fa-moon"></i><span>昼夜切换</span></a><a class="rightMenu-item" href="javascript:rmf.switchReadMode();"><i class="fa fa-book"></i><span>阅读模式</span></a><a class="rightMenu-item" href="/about/"><i class="fa fa-info-circle"></i><span>关于博客</span></a><a class="rightMenu-item" href="javascript:rmf.fullScreen();"><i class="fas fa-expand"></i><span>切换全屏</span></a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><a class="icon-V hidden" onclick="switchNightMode()" title="日间和夜间模式切换"><svg width="25" height="25" viewBox="0 0 1024 1024"><use id="modeicon" xlink:href="#icon-moon"></use></svg></a><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="to_comment" type="button" title="前往评论" onclick="FixedCommentBtn();"><i class="fas fa-comments"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i><span id="percent">0<span>%</span></span></button><button id="go-down" type="button" title="直达底部" onclick="btf.scrollToDest(document.body.scrollHeight, 500)"><i class="fas fa-arrow-down"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.min.js"></script><script src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/instant.page/5.1.0/instantpage.min.js" type="module"></script><script src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/vanilla-lazyload/17.3.1/lazyload.iife.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/node-snackbar/0.1.16/snackbar.min.js"></script><script>(() => {
+  const panguFn = () => {
+    if (typeof pangu === 'object') pangu.autoSpacingPage()
+    else {
+      btf.getScript('https://cdnjs.cloudflare.com/ajax/libs/pangu/4.0.7/pangu.min.js')
+        .then(() => {
+          pangu.autoSpacingPage()
+        })
+    }
+  }
+
+  const panguInit = () => {
+    if (false){
+      GLOBAL_CONFIG_SITE.isPost && panguFn()
+    } else {
+      panguFn()
+    }
+  }
+
+  btf.addGlobalFn('pjaxComplete', panguInit, 'pangu')
+  document.addEventListener('DOMContentLoaded', panguInit)
+})()</script><div class="js-pjax"><script>(() => {
+  const runMermaid = ele => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    ele.forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = `%%{init:{ 'theme':'${theme}'}}%%\n`
+      const mermaidID = `mermaid-${index}`
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+      const renderMermaid = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      // mermaid v9 and v10 compatibility
+      typeof renderFn === 'string' ? renderMermaid(renderFn) : renderFn.then(({ svg }) => renderMermaid(svg))
+    })
+  }
+
+  const codeToMermaid = () => {
+    const codeMermaidEle = document.querySelectorAll('pre > code.mermaid')
+    if (codeMermaidEle.length === 0) return
+
+    codeMermaidEle.forEach(ele => {
+      const preEle = document.createElement('pre')
+      preEle.className = 'mermaid-src'
+      preEle.hidden = true
+      preEle.textContent = ele.textContent
+      const newEle = document.createElement('div')
+      newEle.className = 'mermaid-wrap'
+      newEle.appendChild(preEle)
+      ele.parentNode.replaceWith(newEle)
+    })
+  }
+
+  const loadMermaid = () => {
+    if (true) codeToMermaid()
+    const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+    if ($mermaid.length === 0) return
+
+    const runMermaidFn = () => runMermaid($mermaid)
+    btf.addGlobalFn('themeChange', runMermaidFn, 'mermaid')
+    window.loadMermaid ? runMermaidFn() : btf.getScript('https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.4.0/mermaid.min.js').then(runMermaidFn)
+  }
+
+  btf.addGlobalFn('encrypt', loadMermaid, 'mermaid')
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script><script>(() => {
+  const isShuoshuo = GLOBAL_CONFIG_SITE.isShuoshuo
+  const option = null
+
+  const getCount = () => {
+    const countELement = document.getElementById('twikoo-count')
+    if(!countELement) return
+    twikoo.getCommentsCount({
+      envId: 'https://twikoo-api-three-beta.vercel.app/',
+      region: 'ap-beijing',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(res => {
+      countELement.textContent = res[0].count
+    }).catch(err => {
+      console.error(err)
+    })
+  }
+
+  const init = (el = document, path = location.pathname) => {
+    twikoo.init({
+      el: el.querySelector('#twikoo-wrap'),
+      envId: 'https://twikoo-api-three-beta.vercel.app/',
+      region: 'ap-beijing',
+      onCommentLoaded: () => {
+        btf.loadLightbox(document.querySelectorAll('#twikoo .tk-content img:not(.tk-owo-emotion)'))
+      },
+      ...option,
+      path: isShuoshuo ? path : (option && option.path) || path
+    })
+
+    
+
+    isShuoshuo && (window.shuoshuoComment.destroyTwikoo = () => {
+      if (el.children.length) {
+        el.innerHTML = ''
+        el.classList.add('no-comment')
+      }
+    })
+  }
+
+  const loadTwikoo = (el, path) => {
+    if (typeof twikoo === 'object') setTimeout(() => init(el, path), 0)
+    else btf.getScript('https://cdn.staticfile.org/twikoo/1.6.8/twikoo.all.min.js').then(() => init(el, path))
+  }
+
+  if (isShuoshuo) {
+    'Twikoo' === 'Twikoo'
+      ? window.shuoshuoComment = { loadComment: loadTwikoo }
+      : window.loadOtherComment = loadTwikoo
+    return
+  }
+
+  if ('Twikoo' === 'Twikoo' || !false) {
+    if (false) btf.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else loadTwikoo()
+  } else {
+    window.loadOtherComment = loadTwikoo
+  }
+})()</script></div><script async src="//at.alicdn.com/t/c/font_4860073_9duzoqyl2cn.js"></script><script defer data-pjax src="/js/readPercent.js"></script><script async src="/js/fps.js"></script><script data-pjax defer src="/js/custom/fixed_comment.js"></script><script async data-pjax src="/js/txmap.js"></script><script defer type="text/javascript" src="https://cdn1.tianli0.top/npm/sweetalert2@8.19.0/dist/sweetalert2.all.js"></script><script async data-pjax src="/js/music.js"></script><script defer src="/js/lunar.js"></script><script async src="https://cdn1.tianli0.top/npm/vue@2.6.14/dist/vue.min.js"></script><script async src="https://cdn1.tianli0.top/npm/element-ui@2.15.6/lib/index.js"></script><script type="text/javascript" src="https://cdn1.tianli0.top/npm/jquery@latest/dist/jquery.min.js"></script><script> let backimg =["url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/d42bcc24810cda2c22eaed769b79a93.jpg)","url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/2f5e89ae13329dd89bdcdbfc68c5fde.jpg)","url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/48b137c38cc79ad960ecf2a9a12fc20.jpg)","url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/4474312751631fedb37381e37cdb9c0.jpg)","url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/be978bd80f41d2781455513ba1676a2.jpg)","url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/a01223e0819746191dd135670a2d7da.jpg)","url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/af380cb8a5ed3f047e66dbfe731f488.jpg)"];let index = Math.floor(Math.random() * backimg.length);;document.getElementById("web_bg").style.backgroundImage = backimg[index]</script><script type="text/javascript" src="/js/rightmenu.js"></script><script src="/js/history.js"></script><script src="/js/historyroll.js"></script><script async src="//at.alicdn.com/t/font_2264842_3izu8i5eoc2.js"></script><script defer src="/js/day.js"></script><script defer src="/js/sakura.js"></script><script async src="/js/title.js"></script><script defer src="/js/random.js"></script><canvas id="universe"></canvas><script defer src="/js/universe.js"></script><script async src="//npm.elemecdn.com/pace-js@1.2.4/pace.min.js"></script><script src="/js/sun_moon.js" async></script><script>
+  document.addEventListener('copy', function(e) {
+    const selection = window.getSelection().toString()
+    if (selection.length > 30) {
+      const notice = document.createElement('div')
+      notice.className = 'copy-notification'
+      notice.textContent = '内容已复制到剪贴板'
+
+      document.body.appendChild(notice)
+      setTimeout(() => notice.classList.add('show'), 10)
+
+      setTimeout(() => {
+        notice.classList.remove('show')
+        setTimeout(() => notice.remove(), 300)
+      }, 2000)
+    }
+  })
+</script>
+<div class="aplayer no-destroy" data-id="7338633309" data-server="netease" data-type="playlist" data-fixed="true" data-mini="true" data-listFolded="false" data-order="random" data-lrctype="1" data-preload="none" data-autoplay="true" muted></div><script src="https://cdn.staticfile.org/jquery/3.6.3/jquery.min.js"></script><script async data-pjax src="https://cdn.wpon.cn/2022-sucai/Gold-ingot.js"></script><script async data-pjax src="/js/newYear.js"></script><script id="canvas_nest" defer="defer" color="0,0,255" opacity="0.7" zIndex="-1" count="30" mobile="false" src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/canvas-nest.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = true;
+document.body.addEventListener('input', POWERMODE);
+</script><script id="click-show-text" src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/click-show-text.min.js" data-mobile="false" data-text="Ha,Ha,Ha" data-fontsize="15px" data-random="false" async="async"></script><script>(() => {
+  const isChatBtn = true
+  const isChatHideShow = true
+
+  if (isChatBtn) {
+    const close = () => {
+      Chatra('minimizeWidget')
+      Chatra('hide')
+    }
+
+    const open = () => {
+      Chatra('openChat', true)
+      Chatra('show')
+    }
+
+    window.ChatraSetup = { startHidden: true }
+  
+    window.chatBtnFn = () => {
+      document.getElementById('chatra').classList.contains('chatra--expanded') ? close() : open()
+    }
+  } else if (isChatHideShow) {
+    window.chatBtn = {
+      hide: () => Chatra('hide'),
+      show: () => Chatra('show')
+    }
+  }
+
+  (function(d, w, c) {
+    w.ChatraID = 'E3NZpK6rk4cR7jmwK'
+    var s = d.createElement('script')
+    w[c] = w[c] || function() {
+      (w[c].q = w[c].q || []).push(arguments)
+    }
+    s.async = true
+    s.src = 'https://call.chatra.io/chatra.js'
+    if (d.head) d.head.appendChild(s)
+  })(document, window, 'Chatra')
+})()</script><link rel="stylesheet" href="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/aplayer/1.10.1/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/aplayer/1.10.1/APlayer.min.js"></script><script src="https://npm.elemecdn.com/hexo-anzhiyu-music@1.0.1/assets/js/Meting2.min.js"></script><script>(() => {
+  const destroyAplayer = () => {
+    if (window.aplayers) {
+      for (let i = 0; i < window.aplayers.length; i++) {
+        if (!window.aplayers[i].options.fixed) {
+          window.aplayers[i].destroy()
+        }
+      }
+    }
+  }
+
+  const runMetingJS = () => {
+    typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+  }
+
+  btf.addGlobalFn('pjaxSend', destroyAplayer, 'destroyAplayer')
+  btf.addGlobalFn('pjaxComplete', loadMeting, 'runMetingJS')
+})()</script><script src="https://lib.baomitu.com/pjax/0.2.8/pjax.min.js"></script><script>(() => {
+  const pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+  window.pjax = new Pjax({
+    elements: 'a:not([target="_blank"]):not([href="/music/"]):not([href="/no-pjax/"])',
+    selectors: pjaxSelectors,
+    cacheBust: false,
+    analytics: false,
+    scrollRestoration: false
+  })
+
+  const triggerPjaxFn = (val) => {
+    if (!val) return
+    Object.values(val).forEach(fn => fn())
+  }
+
+  document.addEventListener('pjax:send', () => {
+    // removeEventListener
+    btf.removeGlobalFnEvent('pjaxSendOnce')
+    btf.removeGlobalFnEvent('themeChange')
+
+    // reset readmode
+    const $bodyClassList = document.body.classList
+    if ($bodyClassList.contains('read-mode')) $bodyClassList.remove('read-mode')
+
+    triggerPjaxFn(window.globalFn.pjaxSend)
+  })
+
+  document.addEventListener('pjax:complete', () => {
+    btf.removeGlobalFnEvent('pjaxCompleteOnce')
+    document.querySelectorAll('script[data-pjax]').forEach(item => {
+      const newScript = document.createElement('script')
+      const content = item.text || item.textContent || item.innerHTML || ""
+      Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+      newScript.appendChild(document.createTextNode(content))
+      item.parentNode.replaceChild(newScript, item)
+    })
+
+    triggerPjaxFn(window.globalFn.pjaxComplete)
+  })
+
+  document.addEventListener('pjax:error', e => {
+    if (e.request.status === 404) {
+      pjax.loadUrl('/404.html')
+    }
+  })
+})()</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div><!-- hexo injector body_end start --><script data-pjax>
+    function butterfly_categories_card_injector_config(){
+      var parent_div_git = document.getElementsByClassName('recent-posts')[0];
+      var item_html = '<div class="recent-post-item" style="height:auto;width:100%;padding:0px;"><div id="categoryBar"><ul class="categoryBar-list"><li class="categoryBar-list-item" style="background:url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_155818.png);"> <a class="categoryBar-list-link" onclick="pjax.loadUrl(&quot;categories/技术栈/&quot;);" href="javascript:void(0);">技术栈</a><span class="categoryBar-list-count">1</span><span class="categoryBar-list-descr">java指南</span></li><li class="categoryBar-list-item" style="background:url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112813.png);"> <a class="categoryBar-list-link" onclick="pjax.loadUrl(&quot;categories/计算机基础/&quot;);" href="javascript:void(0);">计算机基础</a><span class="categoryBar-list-count">3</span><span class="categoryBar-list-descr">java技术栈</span></li><li class="categoryBar-list-item" style="background:url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112758.png);"> <a class="categoryBar-list-link" onclick="pjax.loadUrl(&quot;categories/八股/&quot;);" href="javascript:void(0);">八股</a><span class="categoryBar-list-count">1</span><span class="categoryBar-list-descr">计算机基础指南</span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" onclick="pjax.loadUrl(&quot;categories/计算机基础/专业课/&quot;);" href="javascript:void(0);">专业课</a><span class="categoryBar-list-count">2</span><span class="categoryBar-list-descr"></span></li></ul></div></div>';
+      console.log('已挂载butterfly_categories_card')
+      parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+      }
+    if( document.getElementsByClassName('recent-posts')[0] && (location.pathname ==='/'|| '/' ==='all')){
+    butterfly_categories_card_injector_config()
+    }
+  </script><script data-pjax>
+  function butterfly_clock_anzhiyu_injector_config(){
+    var parent_div_git = document.getElementsByClassName('sticky_layout')[0];
+    var item_html = '<div class="card-widget card-clock"><div class="card-glass"><div class="card-background"><div class="card-content"><div id="hexo_electric_clock"><img class="entered loading" id="card-clock-loading" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://cdn.cbd.int/hexo-butterfly-clock-anzhiyu/lib/loading.gif" style="height: 120px; width: 100%;" data-ll-status="loading"/></div></div></div></div></div>';
+    console.log('已挂载butterfly_clock_anzhiyu')
+    if(parent_div_git) {
+      parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+    }
+  }
+  var elist = 'null'.split(',');
+  var cpage = location.pathname;
+  var epage = '/';
+  var qweather_key = '9aac1b5db191491a8993c445d664de8f';
+  var gaud_map_key = '3cc01a5a19f500daa0e9e680ef0f6db2';
+  var baidu_ak_key = 'undefined';
+  var flag = 0;
+  var clock_rectangle = '120.780172,40.624088';
+  var clock_default_rectangle_enable = 'false';
+
+  for (var i=0;i<elist.length;i++){
+    if (cpage.includes(elist[i])){
+      flag++;
+    }
+  }
+
+  if ((epage ==='all')&&(flag == 0)){
+    butterfly_clock_anzhiyu_injector_config();
+  }
+  else if (epage === cpage){
+    butterfly_clock_anzhiyu_injector_config();
+  }
+  </script><script src="https://widget.qweather.net/simple/static/js/he-simple-common.js?v=2.0"></script><script data-pjax src="https://cdn.cbd.int/hexo-butterfly-clock-anzhiyu/lib/clock.min.js"></script><script data-pjax>
+  function butterfly_swiper_injector_config(){
+    var parent_div_git = document.getElementById('recent-posts');
+    var item_html = '<div class="recent-post-item" style="height: auto;width: 100%"><div class="blog-slider swiper-container-fade swiper-container-horizontal" id="swiper_container"><div class="blog-slider__wrp swiper-wrapper" style="transition-duration: 0ms;"><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/bae4ff13.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_160146.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-03-12</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/bae4ff13.html&quot;);" href="javascript:void(0);" alt="">Redis</a><div class="blog-slider__text">Redis</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/bae4ff13.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/undefined.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_160146.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-04-07</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/undefined.html&quot;);" href="javascript:void(0);" alt="">计算机组成原理（二）</a><div class="blog-slider__text">计算机组成原理</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/undefined.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/undefined.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112855.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-04-07</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/undefined.html&quot;);" href="javascript:void(0);" alt="">计算机组成原理（一）</a><div class="blog-slider__text">计算机组成原理</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/undefined.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/b8b0eacd.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_160146.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-03-12</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/b8b0eacd.html&quot;);" href="javascript:void(0);" alt="">java基础</a><div class="blog-slider__text">Java基础</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/b8b0eacd.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/79666db.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_155656.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-03-12</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/79666db.html&quot;);" href="javascript:void(0);" alt="">数据结构</a><div class="blog-slider__text">数据结构</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/79666db.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div></div><div class="blog-slider__pagination swiper-pagination-clickable swiper-pagination-bullets"></div></div></div>';
+    console.log('已挂载butterfly_swiper')
+    parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+    }
+  var elist = 'undefined'.split(',');
+  var cpage = location.pathname;
+  var epage = '/';
+  var flag = 0;
+
+  for (var i=0;i<elist.length;i++){
+    if (cpage.includes(elist[i])){
+      flag++;
+    }
+  }
+
+  if ((epage ==='all')&&(flag == 0)){
+    butterfly_swiper_injector_config();
+  }
+  else if (epage === cpage){
+    butterfly_swiper_injector_config();
+  }
+  </script><script defer src="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiper.min.js"></script><script defer data-pjax src="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiper_init.js"></script><div class="js-pjax"><script async="async">var arr = document.getElementsByClassName('recent-post-item');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '2s');
+    arr[i].setAttribute('data-wow-delay', '1s');
+    arr[i].setAttribute('data-wow-offset', '100');
+    arr[i].setAttribute('data-wow-iteration', '1');
+  }</script><script async="async">var arr = document.getElementsByClassName('card-widget');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '');
+    arr[i].setAttribute('data-wow-delay', '');
+    arr[i].setAttribute('data-wow-offset', '');
+    arr[i].setAttribute('data-wow-iteration', '');
+  }</script></div><script defer src="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/wow.min.js"></script><script defer src="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/wow_init.js"></script><!-- hexo injector body_end end --><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"log":false});</script></body></html>
