@@ -844,7 +844,7 @@ preloader:
 enter_transitions: true
 
 # Default display mode - light (default) / dark
-display_mode: dark
+display_mode: light
 
 # Configuration for beautifying the content of the article
 beautify:
@@ -1108,7 +1108,7 @@ inject:
     - <script async src="//at.alicdn.com/t/c/font_4860073_9duzoqyl2cn.js"></script>
     - <script defer data-pjax src="/js/readPercent.js"></script>
     - <script async src="/js/fps.js"></script> # 帧率检测
-    - <script data-pjax defer src="/js/custom/fixed_comment.js"></script>
+    # - <script data-pjax defer src="/js/custom/fixed_comment.js"></script>
     - <script async data-pjax src="/js/txmap.js"></script> # 腾讯位置API
     - <script defer type="text/javascript" src="https://cdn1.tianli0.top/npm/sweetalert2@8.19.0/dist/sweetalert2.all.js"></script>
     - <script async data-pjax src="/js/music.js"></script>
@@ -1204,8 +1204,10 @@ CDN:
     # canvas_ribbon:
     # canvas_fluttering_ribbon:
     # canvas_nest:
-    lazyload: https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/vanilla-lazyload/17.3.1/lazyload.iife.min.js
-    instantpage: https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/instant.page/5.1.0/instantpage.min.js
+    lazyload:
+    # https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/vanilla-lazyload/17.3.1/lazyload.iife.min.js
+    instantpage: https://cdn.jsdelivr.net/npm/instant.page@5.1.0/instantpage.min.js
+    # https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/instant.page/5.1.0/instantpage.min.js
     typed: https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/typed.js/2.0.12/typed.min.js
     # pangu:
     fancybox_css_v4: https://cdn.staticfile.org/fancyapps-ui/4.0.31/fancybox.min.css

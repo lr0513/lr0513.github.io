@@ -11,7 +11,5 @@ swiper_index: 1
 abbrlink: 77666db
 date: 2025-04-07 21:11:00
 ---
-<div>
-    <iframe src="https://lr0513.github.io/myjs/pdfjs/web/viewer.html?file=https://lr0513.github.io/pdfs/jz.pdf" width="100%" height="800px"></iframe>
-</div>
+
 
