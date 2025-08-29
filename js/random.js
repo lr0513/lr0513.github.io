@@ -18,13 +18,52 @@ function randomPost() {
         .then(res => res.text())
         .then(str => (new window.DOMParser()).parseFromString(str, "text/xml"))
         .then(data => {
-            let ls = data.querySelectorAll('url loc');
+            // 获取所有链接并转换为数组
+            let allLinks = Array.from(data.querySelectorAll('url loc')).map(loc => loc.innerHTML);
+
+            // 过滤出仅包含文章的链接（根据实际路径调整规则）
+            let articleLinks = allLinks.filter(link => {
+                const url = new URL(link);
+                const path = url.pathname;
+
+                // 保留包含文章特征路径的链接（根据你的博客调整）
+                const isArticle = path.includes('/post/') || path.includes('/article/');
+
+                // 排除非文章页面（根据你的博客页面路径调整）
+                const isExcluded =
+                    path.includes('/categories/') ||
+                    path.includes('/tags/') ||
+                    path.includes('/music/') ||
+                    path.includes('/about/') ||
+                    path.includes('/archive/') ||
+                    path === '/' ||  // 排除首页
+                    path.endsWith('/');  // 排除目录页
+
+                return isArticle && !isExcluded;
+            });
+
+            // 检查是否有可用的文章链接
+            if (articleLinks.length === 0) {
+                throw new Error('未找到可用的文章链接');
+            }
+
+            // 随机选择一个不重复当前页面的文章链接
             while (true) {
-                let path = ls[Math.floor(Math.random() * ls.length)].innerHTML;
-                if (location.pathname === new URL(path).pathname) continue;
-                let fullUrl = location.origin + new URL(path).pathname;
-                location.href = fullUrl;
-                return;
+                let randomLink = articleLinks[Math.floor(Math.random() * articleLinks.length)];
+                let targetPath = new URL(randomLink).pathname;
+
+                // 确保不跳转到当前页面
+                if (location.pathname !== targetPath) {
+                    let fullUrl = location.origin + targetPath;
+                    location.href = fullUrl;
+                    return;
+                }
+
+                // 如果只剩最后一个链接且是当前页面，直接跳转（避免无限循环）
+                if (articleLinks.length === 1) {
+                    location.href = location.origin + targetPath;
+                    return;
+                }
             }
         })
         .catch(err => {
