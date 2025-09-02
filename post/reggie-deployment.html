@@ -1,0 +1,2135 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>瑞吉外卖：Linux环境与自动化部署 | 蜡笔梦工厂</title><meta name="author" content="Lorinda"><meta name="copyright" content="Lorinda"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="详解瑞吉外卖部署流程，包括Linux环境配置、Git版本管理、自动化脚本与项目发布实践。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="瑞吉外卖：Linux环境与自动化部署">
+<meta property="og:url" content="http://labi.com/post/reggie-deployment.html">
+<meta property="og:site_name" content="蜡笔梦工厂">
+<meta property="og:description" content="详解瑞吉外卖部署流程，包括Linux环境配置、Git版本管理、自动化脚本与项目发布实践。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112618.png">
+<meta property="article:published_time" content="2025-09-02T02:04:00.000Z">
+<meta property="article:modified_time" content="2025-09-02T12:33:20.036Z">
+<meta property="article:author" content="Lorinda">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="Git">
+<meta property="article:tag" content="自动化部署">
+<meta property="article:tag" content="Nginx">
+<meta property="article:tag" content="项目发布">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112618.png"><link rel="shortcut icon" href="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_155552.png"><link rel="canonical" href="http://labi.com/post/reggie-deployment.html"><link rel="preconnect" href="//cdnjs.cloudflare.com"/><link rel="preconnect" href="//hm.baidu.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/node-snackbar/0.1.16/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!true && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?bf06f078fafddfd82b474ce179303666";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+btf.addGlobalFn('pjaxComplete', () => {
+  _hmt.push(['_trackPageview',window.location.pathname])
+}, 'baidu_analytics')
+</script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":{"enable":true},"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: true,
+    post: true
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"已切换为繁体中文","cht_to_chs":"已切换为简体中文","day_to_night":"已切换为深色模式","night_to_day":"已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"bottom-left"},
+  infinitegrid: {
+    js: 'https://cdnjs.cloudflare.com/ajax/libs/egjs-infinitegrid/4.12.0/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isAnchor: true,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '瑞吉外卖：Linux环境与自动化部署',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  isShuoshuo: false
+}</script><link rel="stylesheet" href="/css/wave.css"><link rel="stylesheet" href="/css/readPercent.css"><link rel="stylesheet" href="//at.alicdn.com/t/font_2264842_b004iy0kk2b.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/loading.css"><link rel="stylesheet" href="/css/about.css"><link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script><link rel="stylesheet" href="https://fastly.jsdelivr.net/gh/HCLonely/images@master/others/heartbeat.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/l-lin/font-awesome-animation/dist/font-awesome-animation.min.css"  media="defer" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/ethan4116-blog/lib/css/plane_v2.css"><link rel="stylesheet" href="/css/universe.css"><link rel="stylesheet" href="/css/progress_bar.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="https://cdn1.tianli0.top/npm/element-ui@2.15.6/packages/theme-chalk/lib/index.css"><span id="fps"></span><svg aria-hidden="true" style="position:absolute; overflow:hidden; width:0; height:0"><symbol id="icon-sun" viewBox="0 0 1024 1024"><path d="M960 512l-128 128v192h-192l-128 128-128-128H192v-192l-128-128 128-128V192h192l128-128 128 128h192v192z" fill="#FFD878" p-id="8420"></path><path d="M736 512a224 224 0 1 0-448 0 224 224 0 1 0 448 0z" fill="#FFE4A9" p-id="8421"></path><path d="M512 109.248L626.752 224H800v173.248L914.752 512 800 626.752V800h-173.248L512 914.752 397.248 800H224v-173.248L109.248 512 224 397.248V224h173.248L512 109.248M512 64l-128 128H192v192l-128 128 128 128v192h192l128 128 128-128h192v-192l128-128-128-128V192h-192l-128-128z" fill="#4D5152" p-id="8422"></path><path d="M512 320c105.888 0 192 86.112 192 192s-86.112 192-192 192-192-86.112-192-192 86.112-192 192-192m0-32a224 224 0 1 0 0 448 224 224 0 0 0 0-448z" fill="#4D5152" p-id="8423"></path></symbol><symbol id="icon-moon" viewBox="0 0 1024 1024"><path d="M611.370667 167.082667a445.013333 445.013333 0 0 1-38.4 161.834666 477.824 477.824 0 0 1-244.736 244.394667 445.141333 445.141333 0 0 1-161.109334 38.058667 85.077333 85.077333 0 0 0-65.066666 135.722666A462.08 462.08 0 1 0 747.093333 102.058667a85.077333 85.077333 0 0 0-135.722666 65.024z" fill="#FFB531" p-id="11345"></path><path d="M329.728 274.133333l35.157333-35.157333a21.333333 21.333333 0 1 0-30.165333-30.165333l-35.157333 35.157333-35.114667-35.157333a21.333333 21.333333 0 0 0-30.165333 30.165333l35.114666 35.157333-35.114666 35.157334a21.333333 21.333333 0 1 0 30.165333 30.165333l35.114667-35.157333 35.157333 35.157333a21.333333 21.333333 0 1 0 30.165333-30.165333z" fill="#030835" p-id="11346"></path></symbol></svg><!-- hexo injector head_end start --><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-categories-card@1.0.0/lib/categorybar.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-double-row-display@1.00/cardlistpost.min.css"/>
+<style>#recent-posts > .recent-post-item >.recent-post-info > .article-meta-wrap > .tags:before {content:"\A";
+  white-space: pre;}#recent-posts > .recent-post-item >.recent-post-info > .article-meta-wrap > .tags > .article-meta__separator{display:none}</style>
+<link rel="stylesheet" href="https://cdn.cbd.int/hexo-butterfly-clock-anzhiyu/lib/clock.min.css" /><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/animate.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiper.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiperstyle.css" media="print" onload="this.media='all'"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body><div id="loading-box" onclick="document.getElementById(&quot;loading-box&quot;).classList.add(&quot;loaded&quot;)"><div class="loading-bg"><div class="loading-img"></div><div class="loading-image-dot"></div></div></div><script>const preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',()=> { preloader.endLoading() })
+
+if (true) {
+  document.addEventListener('pjax:send', () => { preloader.initLoading() })
+  document.addEventListener('pjax:complete', () => { preloader.endLoading() })
+}</script><script>window.paceOptions = {
+  restartOnPushState: false
+}
+
+btf.addGlobalFn('pjaxSend', () => {
+  Pace.restart()
+}, 'pace_restart')
+
+</script><link rel="stylesheet" href="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_160015.png"/><script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js"></script><div id="web_bg" style="background-image: url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/af380cb8a5ed3f047e66dbfe731f488.jpg);"></div><div id="an_music_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_155535.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">29</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">109</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">10</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/"><i class="fa-fw icon-hexoa-homezhuyefangzijia"></i><svg class="icon fas fa-home" aria-hidden="true"><use xlink:href="#icon-hexoa-homezhuyefangzijia"></use></svg><span> 首页</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/comments/"><i class="fa-fw icon-hexoshouhuiban"></i><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexoshouhuiban"></use></svg><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group faa-parent animated-hover" href="javascript:void(0);"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexohuanjiaowenzhang"></use></svg><span> 文章</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/categories/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexofenlei"></use></svg><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexobiaoqian"></use></svg><span> 标签</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/archives/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexoguidang"></use></svg><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page group faa-parent animated-hover" href="javascript:void(0);"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexoicon_liebiao"></use></svg><span> 娱乐</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/music/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexoyinle"></use></svg><span> 音乐</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/gallery/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexotubiaozhizuomoban"></use></svg><span> 相册</span></a></li></ul></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/link/"><i class="fa-fw icon-hexopengyou"></i><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexopengyou"></use></svg><span> 友链</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/about/"><i class="fa-fw icon-hexowode"></i><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexowode"></use></svg><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112618.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><img class="site-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_155552.png" alt="Logo"><span class="site-name">蜡笔梦工厂</span></a><a class="nav-page-title" href="/"><span class="site-name">瑞吉外卖：Linux环境与自动化部署</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i></span></div><div class="menus_items"><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/"><i class="fa-fw icon-hexoa-homezhuyefangzijia"></i><svg class="icon fas fa-home" aria-hidden="true"><use xlink:href="#icon-hexoa-homezhuyefangzijia"></use></svg><span> 首页</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/comments/"><i class="fa-fw icon-hexoshouhuiban"></i><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexoshouhuiban"></use></svg><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group faa-parent animated-hover" href="javascript:void(0);"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexohuanjiaowenzhang"></use></svg><span> 文章</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/categories/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexofenlei"></use></svg><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexobiaoqian"></use></svg><span> 标签</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/archives/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexoguidang"></use></svg><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page group faa-parent animated-hover" href="javascript:void(0);"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexoicon_liebiao"></use></svg><span> 娱乐</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/music/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexoyinle"></use></svg><span> 音乐</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/gallery/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexotubiaozhizuomoban"></use></svg><span> 相册</span></a></li></ul></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/link/"><i class="fa-fw icon-hexopengyou"></i><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexopengyou"></use></svg><span> 友链</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/about/"><i class="fa-fw icon-hexowode"></i><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexowode"></use></svg><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div><div id="randomPost"><a class="site-page social-icon search" href="javascript:;" onclick="randomPost()" title="随机访问一篇文章"><i class="fas fa-circle-notch fa-fw"></i></a></div></nav><div id="post-info"><h1 class="post-title">瑞吉外卖：Linux环境与自动化部署</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-09-02T02:04:00.000Z" title="发表于 2025-09-02 10:04:00">2025-09-02</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-09-02T12:33:20.036Z" title="更新于 2025-09-02 20:33:20">2025-09-02</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%91%9E%E5%90%89%E5%A4%96%E5%8D%96%E9%A1%B9%E7%9B%AE/">瑞吉外卖项目</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">14.1k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>49分钟</span></span><span class="post-meta-separator">|</span><span id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="twikoo_visitors"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><section class="main-hero-waves-area waves-area"><svg class="waves-svg" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto"><defs><path id="gentle-wave" d="M -160 44 c 30 0 58 -18 88 -18 s 58 18 88 18 s 58 -18 88 -18 s 58 18 88 18 v 44 h -352 Z"></path></defs><g class="parallax"><use href="#gentle-wave" x="48" y="0"></use><use href="#gentle-wave" x="48" y="3"></use><use href="#gentle-wave" x="48" y="5"></use><use href="#gentle-wave" x="48" y="7"></use></g></svg></section></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><div class="series-navigation"><h4 class="series-title">瑞吉外卖项目开发指南</h4><ol class="series-list"><li class="series-item"><a class="series-link" href="/post/reggie-overview.html"><span class="series-icon">•</span><span class="series-text">📋 瑞吉外卖：项目概述与整体架构</span></a></li><li class="series-item"><a class="series-link" href="/post/reggie-business.html"><span class="series-icon">•</span><span class="series-text">💼 瑞吉外卖：核心业务功能开发</span></a></li><li class="series-item"><a class="series-link" href="/post/reggie-mobile.html"><span class="series-icon">•</span><span class="series-text">📱 瑞吉外卖：移动端交互与用户端实现</span></a></li><li class="series-item"><a class="series-link" href="/post/reggie-optimization.html"><span class="series-icon">•</span><span class="series-text">🚀 瑞吉外卖：性能优化与架构升级</span></a></li><li class="series-item series-current"><a class="series-link" href="/post/reggie-deployment.html"><span class="series-icon">•</span><span class="series-text">🌐 瑞吉外卖：Linux环境与自动化部署</span></a><span class="series-current-tag">← 当前位置 🛸</span></li></ol></div><p>网卡设置：由于启动服务器时未加载网卡，导致IP地址初始化失败</p>
+<p>ssh连接工具：finalshell</p>
+<p>SSH（Secure Shell）：建立在应用层基础桑的安全协议，是一种加密的网络协议，用于安全地访问远程服务器。SSH连接工具允许用户通过SSH协议连接到远程服务器并执行命令</p>
+<p>不是10. 是172.41.119.107</p>
+<p>连接失败的话，更改虚拟机网络nat，桥接，一直换到192开头的</p>
+<p>192.168.168.55</p>
+<p>vwmare 192.168.40.128</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>编号</td>
+<td>目录</td>
+<td>含义</td>
+</tr>
+<tr>
+<td>1</td>
+<td>/bin</td>
+<td>存放二进制可执行文件</td>
+</tr>
+<tr>
+<td>2</td>
+<td>/boot</td>
+<td>存放系统引导时使用的各种文件</td>
+</tr>
+<tr>
+<td>3</td>
+<td>/dev</td>
+<td>存放设备文件</td>
+</tr>
+<tr>
+<td>4</td>
+<td>/etc</td>
+<td>存放系统配置文件</td>
+</tr>
+<tr>
+<td>5</td>
+<td>/home</td>
+<td>存放系统用户的文件</td>
+</tr>
+<tr>
+<td>6</td>
+<td>/lib</td>
+<td>存放程序运行所需的共享库和内核模块</td>
+</tr>
+<tr>
+<td>7</td>
+<td>/opt</td>
+<td>额外安装的可选应用程序包所放置的位置</td>
+</tr>
+<tr>
+<td>8</td>
+<td>/root</td>
+<td>超级用户目录</td>
+</tr>
+<tr>
+<td>9</td>
+<td>/sbin</td>
+<td>存放二进制可执行文件，只有root用户才能访问</td>
+</tr>
+<tr>
+<td>10</td>
+<td>/tmp</td>
+<td>存放临时文件</td>
+</tr>
+<tr>
+<td>11</td>
+<td>/usr</td>
+<td>存放系统应用程序</td>
+</tr>
+<tr>
+<td>12</td>
+<td>/var</td>
+<td>存放运行时需要改变数据的文件，例如日志文件</td>
+</tr>
+</tbody>
+</table>
+<h2 id="常用命令">常用命令</h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>序号</td>
+<td>命令</td>
+<td>对应英文</td>
+<td>作用</td>
+</tr>
+<tr>
+<td>1</td>
+<td>ls [目录名]</td>
+<td>list</td>
+<td>查看当前目录下的内容</td>
+</tr>
+<tr>
+<td>2</td>
+<td>pwd</td>
+<td></td>
+<td>查看当前所在目录</td>
+</tr>
+<tr>
+<td>3</td>
+<td>cd [目录名]</td>
+<td>change directory</td>
+<td>切换目录</td>
+</tr>
+<tr>
+<td>4</td>
+<td>touch [文件名]</td>
+<td>touch</td>
+<td>如果文件不存在,创建文件</td>
+</tr>
+<tr>
+<td>5</td>
+<td>mkdir [目录名]</td>
+<td>make directory</td>
+<td>创建目录</td>
+</tr>
+<tr>
+<td>6</td>
+<td>rm [文件名]</td>
+<td>remove</td>
+<td>删除指定文件</td>
+</tr>
+</tbody>
+</table>
+<p>vim test.txt 打开文件</p>
+<p>在执行Linux命令时，提示信息如果显示为乱码，如上图所示。这是由于编码问题导致，只需要修改Linux的编码即可，命令如下：</p>
+<p><code>echo 'LANG=&quot;en_US.UTF-8&quot;' &gt;&gt; /etc/profile</code></p>
+<p><code>source /etc/profile</code></p>
+<h3 id="Linux命令格式"><strong>Linux命令格式</strong></h3>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">command [-options] [parameter]</span><br><span class="line"></span><br><span class="line">说明:</span><br><span class="line">	command: 	 命令名</span><br><span class="line">	[-options]:  选项，可用来对命令进行控制，也可以省略</span><br><span class="line">	[parameter]: 传给命令的参数，可以是零个、一个或者多个</span><br><span class="line"></span><br><span class="line">注意:</span><br><span class="line">	[] 	 代表可选</span><br><span class="line">	命令名、选项、参数之间有空格进行分隔</span><br></pre></td></tr></table></figure>
+<p>rm -f 直接删除，不询问</p>
+<p>sudo su</p>
+<h3 id="1-目录内容查看">1. 目录内容查看</h3>
+<ul>
+<li><strong>命令</strong>: <code>ls</code></li>
+<li><strong>语法</strong>: <code>ls [-al] [dir]</code></li>
+<li><strong>说明</strong>:
+<ul>
+<li><code>a</code>: 显示所有文件及目录（包括隐藏文件，以<code>.</code>开头）。</li>
+<li><code>l</code>: 显示详细信息，包括文件类型、权限、拥有者、文件大小等。</li>
+</ul>
+</li>
+<li><strong>示例</strong>:
+<ul>
+<li><code>ls -al</code>等价于<code>ll</code>: 查看当前目录所有文件及目录详细信息。</li>
+<li><code>ls -al /etc</code>: 查看<code>/etc</code>目录下所有文件及目录详细信息。</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-切换目录">2. 切换目录</h3>
+<ul>
+<li><strong>命令</strong>: <code>cd</code></li>
+<li><strong>语法</strong>: <code>cd [dirName]</code></li>
+<li><strong>特殊说明</strong>:
+<ul>
+<li><code>~</code>: 用户的 home 目录。</li>
+<li><code>.</code>: 表示当前目录。</li>
+<li><code>..</code>: 表示当前目录的上级目录。</li>
+</ul>
+</li>
+<li><strong>示例</strong>:
+<ul>
+<li>
+<p><code>cd ..</code>: 切换到当前目录的上级目录。</p>
+</li>
+<li>
+<p><code>cd ~</code>: 切换到用户的 home 目录。</p>
+</li>
+<li>
+<p><code>cd /usr/local</code>: 切换到<code>/usr/local</code>目录。</p>
+</li>
+<li>
+<p>注：用户的home目录</p>
+<p>——root用户 /root</p>
+<p>——其他用户 /home/xxx</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="3-创建文件">3. 创建文件</h3>
+<ul>
+<li><strong>命令</strong>: <code>touch</code></li>
+<li><strong>语法</strong>: <code>touch [文件名]</code></li>
+<li><strong>示例</strong>:
+<ul>
+<li><code>touch 1.txt</code>: 创建文件<code>1.txt</code>。</li>
+<li><code>touch 2.txt 3.txt 4.txt</code>: 一次性创建文件<code>2.txt</code>, <code>3.txt</code>, <code>4.txt</code>。</li>
+</ul>
+</li>
+</ul>
+<h3 id="4-创建目录">4. 创建目录</h3>
+<ul>
+<li>
+<p><strong>命令</strong>: <code>mkdir</code></p>
+</li>
+<li>
+<p><strong>语法</strong>: <code>mkdir [-p] dirName</code></p>
+</li>
+<li>
+<p><strong>说明</strong>:</p>
+<ul>
+<li><code>p</code>: 确保目录名称存在，不存在则创建。可实现多层目录同时创建。</li>
+</ul>
+</li>
+<li>
+<p><strong>示例</strong>:</p>
+<ul>
+<li><code>mkdir itcast</code>: 在当前目录下创建名为<code>itcast</code>的子目录。</li>
+<li><code>mkdir -p itcast/test</code>: 在<code>itcast</code>目录中创建名为<code>test</code>的子目录，若<code>itcast</code>目录不存在，则建立。</li>
+</ul>
+<h3 id="rmdir">rmdir</h3>
+<ul>
+<li><strong>作用</strong>：删除空目录。</li>
+<li><strong>语法</strong>：<code>rmdir [-p] dirName</code></li>
+<li><strong>说明</strong>：
+<ul>
+<li><code>p</code>：如果父目录在删除子目录后变为空目录，那么也一并删除父目录。</li>
+</ul>
+</li>
+<li><strong>示例</strong>：
+<ul>
+<li><code>rmdir itcast</code>：删除名为 <code>itcast</code> 的空目录。</li>
+<li><code>rmdir -p itcast/test</code>：删除 <code>itcast</code> 目录中名为 <code>test</code> 的子目录，如果 <code>test</code> 目录被删除后 <code>itcast</code> 目录变为空目录，则 <code>itcast</code> 目录也会被删除。</li>
+<li><code>rmdir itcast*</code>：删除所有以 <code>itcast</code> 开头的空目录。</li>
+<li><code>rmdir *itcast</code>：删除所有以 <code>itcast</code> 结尾的空目录。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="5-删除文件或目录">5. 删除文件或目录</h3>
+<ul>
+<li><strong>命令</strong>: <code>rm</code></li>
+<li><strong>语法</strong>: <code>rm [-rf] name</code></li>
+<li><strong>说明</strong>:
+<ul>
+<li><code>r</code>: 递归删除目录及其中的文件和子目录。</li>
+<li><code>f</code>: 无需确认，直接删除。</li>
+</ul>
+</li>
+<li><strong>示例</strong>:
+<ul>
+<li><code>rm -r itcast/</code>: 删除名为<code>itcast</code>的目录及其中的所有文件和子目录，删除前需确认。</li>
+<li><code>rm -rf itcast/</code>: 无需确认，直接删除名为<code>itcast</code>的目录及其中的所有文件和子目录。</li>
+<li><code>rm -f hello.txt</code>: 无需确认，直接删除<code>hello.txt</code>文件。</li>
+</ul>
+</li>
+</ul>
+<h3 id="6-拷贝文件或目录">6. 拷贝文件或目录</h3>
+<ul>
+<li><strong>命令</strong>: <code>cp</code></li>
+<li><strong>语法</strong>: <code>cp [-r] source dest</code></li>
+<li><strong>说明</strong>:
+<ul>
+<li><code>r</code>: 如果复制的是目录，将复制该目录下所有的子目录和文件。</li>
+</ul>
+</li>
+<li><strong>示例</strong>:
+<ul>
+<li><code>cp hello.txt itcast/</code>：将 <code>hello.txt</code> 复制到 <code>itcast</code> 目录中。</li>
+<li><code>cp hello.txt ./hi.txt</code>：将 <code>hello.txt</code> 复制到当前目录，并改名为 <code>hi.txt</code>。</li>
+<li><code>cp -r itcast/ ./itheima/</code>：将 <code>itcast</code> 目录及其下所有文件复制到 <code>itheima</code> 目录下。</li>
+<li><code>cp -r itcast/* ./itheima/</code>：将 <code>itcast</code> 目录下所有文件复制到 <code>itheima</code> 目录下。</li>
+</ul>
+</li>
+</ul>
+<h3 id="7-移动或重命名">7. 移动或重命名</h3>
+<ul>
+<li>
+<p><strong>命令</strong>: <code>mv</code></p>
+</li>
+<li>
+<p><strong>语法</strong>: <code>mv source dest</code></p>
+</li>
+<li>
+<p><strong>示例</strong>:</p>
+<ul>
+<li><code>mv hello.txt hi.txt</code>: 将<code>hello.txt</code><mark>重命名</mark>为<code>hi.txt</code>。</li>
+<li><code>mv hi.txt itheima/</code>: 将文件<code>hi.txt</code><mark>移动</mark>到<code>itheima</code>目录中。</li>
+<li><code>mv hi.txt itheima/hello.txt</code>：将 <code>hi.txt</code> 移动到 <code>itheima</code> 目录中，并重命名为 <code>hello.txt</code>。</li>
+<li><code>mv itcast/ itheima/</code>：如果 <code>itheima</code> 目录不存在，将 <code>itcast</code> 目录重命名为 <code>itheima</code>。</li>
+<li><code>mv itcast/ itheima/</code>：如果 <code>itheima</code> 目录存在，将 <code>itcast</code> 目录移动到 <code>itheima</code> 目录中。</li>
+</ul>
+<p><code>mv</code> 命令既能够改名，又可以移动，具体是改名还是移动，系统会根据我们输入的参数进行判定(如果第二个参数dest是一个已存在的目录,将执行移动操作,其他情况都是改名)</p>
+</li>
+</ul>
+<h3 id="8-打包压缩">8. 打包压缩</h3>
+<ul>
+<li>
+<p><strong>命令</strong>: <code>tar</code></p>
+</li>
+<li>
+<p><strong>语法</strong>: <code>tar [-zcxvf] fileName [files]</code></p>
+</li>
+<li>
+<p><strong>后缀说明</strong>：</p>
+<ul>
+<li><code>.tar</code>：仅打包，不压缩。</li>
+<li><code>.tar.gz</code> 或 <code>.tgz</code>：打包并使用gzip进行压缩。</li>
+</ul>
+</li>
+<li>
+<p><strong>说明</strong>:</p>
+<ul>
+<li><code>z</code>: 使用gzip压缩或解压。</li>
+<li><code>c</code>: create创建新的包文件。</li>
+<li><code>x</code>: 从包文件中还原extract文件。</li>
+<li><code>v</code>: 显示命令执行verbose过程。</li>
+<li><code>f</code>: 指定包文件file的名称。</li>
+</ul>
+</li>
+<li>
+<p><strong>示例</strong>:</p>
+<ul>
+<li><strong>打包</strong>：
+<ul>
+<li><code>tar -cvf hello.tar ./*</code>：将当前目录下所有文件打包，文件名为<code>hello.tar</code>。</li>
+<li><code>tar -zcvf hello.tar.gz ./*</code>：将当前目录下所有文件打包并压缩，文件名为<code>hello.tar.gz</code>。</li>
+</ul>
+</li>
+<li><strong>解包</strong>：
+<ul>
+<li><code>tar -xvf hello.tar</code>：解包<code>hello.tar</code>文件，并将文件放在当前目录。</li>
+<li><code>tar -zxvf hello.tar.gz</code>：解压<code>hello.tar.gz</code>文件，并将文件放在当前目录。</li>
+<li><code>tar -zxvf hello.tar.gz -C /usr/local</code>：解压<code>hello.tar.gz</code>文件，并将文件放在<code>/usr/local</code>目录。</li>
+</ul>
+</li>
+</ul>
+<p>注：解压到指定目录,需要加上参数 -C</p>
+</li>
+</ul>
+<h3 id="9-文本编辑">9. 文本编辑</h3>
+<ul>
+<li><strong>命令</strong>: <code>vim</code></li>
+<li><strong>语法</strong>: <code>vim fileName</code></li>
+</ul>
+<p>![[c126c05807d74bd19147f9d50adbef24.png]]</p>
+<ul>
+<li>
+<p><strong>命令模式（Command mode）</strong>：用于执行命令，如移动光标、删除文本等。</p>
+<ul>
+<li>打开 Vim，默认进入命令模式。</li>
+<li>指令：
+<ul>
+<li><code>gg</code>：定位到文件的第一行。</li>
+<li><code>G</code>：定位到文件的最后一行。</li>
+<li><code>dd</code>：删除光标所在行。</li>
+<li><code>ndd</code>：删除当前行及之后 n 行。</li>
+<li><code>u</code>：撤销操作。</li>
+<li><code>shift+zz</code>：保存并退出。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>插入模式（Insert mode）</strong>：用于插入文本。</p>
+<ul>
+<li>按 <code>i</code>、<code>a</code> 或 <code>o</code> 进入插入模式。</li>
+<li>按 <code>ESC</code> 键从插入模式返回命令模式。</li>
+</ul>
+</li>
+<li>
+<p><strong>底行模式（Last line mode）</strong>：用于执行更复杂的命令，如保存文件、退出编辑器等。</p>
+<ul>
+<li>按 <code>:</code> 进入底行模式。</li>
+<li><code>:wq</code>：保存并退出。</li>
+<li><code>:q!</code>：不保存退出。</li>
+<li><code>:set nu</code>：显示行号。</li>
+<li><code>:set nonu</code>：取消行号显示。</li>
+<li><code>:n</code>：定位到第 n 行，例如 <code>:10</code> 定位到第 10 行。</li>
+</ul>
+</li>
+<li>
+<p>如果文件存在，使用 <code>vim 文件名</code> 打开并编辑文件。</p>
+</li>
+<li>
+<p>如果文件不存在，使用 <code>vim 文件名</code> 创建并编辑新文件。</p>
+</li>
+</ul>
+<h3 id="10-查找命令">10. 查找命令</h3>
+<ul>
+<li>
+<p><strong>find</strong></p>
+<ul>
+<li>在指定目录下查找<mark>文件</mark>。</li>
+<li>语法: <code>find dirName -option fileName</code></li>
+<li>示例: <code>find . -name &quot;*.java&quot;</code> 在当前目录(.)及其子目录下查找<code>.java</code>结尾的文件。</li>
+</ul>
+</li>
+<li>
+<p><strong>grep</strong></p>
+<ul>
+<li>
+<p>从指定文件中查找文本<mark>内容</mark>。</p>
+</li>
+<li>
+<p>语法: <code>grep word fileName</code></p>
+</li>
+<li>
+<p>示例:</p>
+<p><code>grep Hello HelloWorld.java</code> 查找<code>HelloWorld.java</code>文件中出现的<code>Hello</code>字符串的位置。</p>
+<p>grep hello *.java 查找当前目录中所有.java结尾的文件中包含hello字符串的位置</p>
+<p>![[7c6e7dfec54943c8b62fb43343fe8736.png]]</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="11-查看命令">11. 查看命令</h3>
+<p><strong>cat:</strong></p>
+<ul>
+<li><strong>作用</strong>：<code>cat</code> 命令用于显示文件内容。</li>
+<li><strong>语法</strong>：<code>cat [-n] fileName</code></li>
+<li><strong>选项</strong>：
+<ul>
+<li><code>n</code>：在输出的每一行前面加上行号，行号从1开始递增。</li>
+</ul>
+</li>
+<li><strong>示例</strong>：
+<ul>
+<li><code>cat /etc/profile</code>：查看 <code>/etc</code> 目录下的 <code>profile</code> 文件内容。</li>
+</ul>
+</li>
+</ul>
+<p><strong>more</strong>:</p>
+<ul>
+<li><strong>作用</strong>：<code>more</code> 命令用于以分页的形式显示文件内容，方便查看大文件。</li>
+<li><strong>语法</strong>：<code>more fileName</code></li>
+<li><strong>操作说明</strong>：
+<ul>
+<li>回车键：向下滚动一行。</li>
+<li>空格键：向下滚动一屏。</li>
+<li><code>b</code>：返回上一屏。</li>
+<li><code>q</code> 或 Ctrl+C：退出 <code>more</code>。</li>
+</ul>
+</li>
+<li><strong>示例</strong>：
+<ul>
+<li><code>more /etc/profile</code>：以分页方式显示 <code>/etc</code> 目录下的 <code>profile</code> 文件内容。</li>
+</ul>
+</li>
+</ul>
+<p><strong>tail</strong>:</p>
+<ul>
+<li><strong>作用</strong>：<code>tail</code> 命令用于查看文件末尾的内容。</li>
+<li><strong>语法</strong>：<code>tail [-f] fileName</code></li>
+<li><strong>选项</strong>：
+<ul>
+<li><code>f</code>：跟随文件，动态读取文件末尾内容并显示。当文件更新时，<code>tail</code> 会实时显示新增的内容，通常用于实时查看日志文件的更新。</li>
+<li><code>n</code>：后面可以跟一个数字，表示显示文件末尾的行数。如果不指定 <code>n</code>，则默认显示最后10行。</li>
+</ul>
+</li>
+<li><strong>示例</strong>：
+<ul>
+<li><code>tail /etc/profile</code>：显示 <code>/etc</code> 目录下的 <code>profile</code> 文件末尾10行的内容。</li>
+<li><code>tail -20 /etc/profile</code>：显示 <code>/etc</code> 目录下的 <code>profile</code> 文件末尾20行的内容。</li>
+<li><code>tail -f /itcast/my.log</code>：动态读取 <code>/itcast</code> 目录下的 <code>my.log</code> 文件末尾内容并显示。</li>
+</ul>
+</li>
+</ul>
+<h3 id="12-终端输出命令">12. 终端输出命令</h3>
+<ol>
+<li>
+<p><strong>输出文本</strong>：</p>
+<p>echo &quot;Hello, World!&quot;这将在终端输出字符串 “Hello, World!”。</p>
+</li>
+<li>
+<p><strong>输出变量的值</strong>：</p>
+<p>echo $HOME这将输出当前用户的主目录路径。</p>
+</li>
+<li>
+<p><strong>输出换行</strong>：<br>
+默认情况下，<br>
+<code>echo</code> 命令不会在末尾添加换行符。要输出换行符，可以使用 <code>e</code> 选项或 <code>\\n</code>：</p>
+<p>echo -e &quot;Hello, World!\n&quot;或者echo “Hello, World!” “\n”</p>
+</li>
+<li>
+<p><strong>使用转义字符</strong>：</p>
+<p><code>echo</code> 命令支持一些转义字符，如 <code>\t</code>（制表符）、<code>\n</code>（换行符）等：echo “Name\tAge\nJohn\t30”</p>
+</li>
+<li>
+<p><strong>不输出换行符</strong>：<br>
+使用<br>
+<code>n</code> 选项，<code>echo</code> 命令将不会在末尾添加换行符：<br>
+echo -n “Processing…”</p>
+</li>
+<li>
+<p><strong>输出命令执行结果</strong>：</p>
+<p>echo <code>date</code><br>
+这将输出当前日期和时间。</p>
+</li>
+<li>
+<p><strong>输出多个字符串</strong>：</p>
+<p>echo “First string” “Second string”<br>
+这将输出两个字符串，它们之间由一个空格分隔。</p>
+</li>
+<li>
+<p><strong>输出文件内容</strong>：</p>
+<p>echo &quot;File content: &quot; ; cat filename.txt<br>
+这将输出 &quot;File content: &quot; 后跟<br>
+<code>filename.txt</code> 文件的内容。</p>
+</li>
+<li>
+<p><strong>设置环境变量</strong>：</p>
+<p>echo ‘export PATH=$PATH:/usr/local/bin’ &gt;&gt; ~/.bashrc<br>
+这将把<br>
+<code>export PATH=$PATH:/usr/local/bin</code> 这一行追加到 <code>~/.bashrc</code> 文件中，用于更新环境变量。</p>
+</li>
+<li>
+<p><strong>创建或更新文件</strong>：</p>
+<p>echo “New content” &gt; filename.txt<br>
+这将创建<br>
+<code>filename.txt</code> 文件（如果它不存在的话），或者清空它，然后写入 “New content”。</p>
+</li>
+</ol>
+<h2 id="软件安装">软件安装</h2>
+<p>![[/Untitled 3 92.png|Untitled 3 92.png]]</p>
+<h3 id="jdk">jdk</h3>
+<p><strong>1). 上传安装包</strong></p>
+<p>使用FinalShell自带的上传工具将jdk的二进制发布包上传到Linux</p>
+<p>![[b99664a81485473495c50ba56ea9d75a.png]]</p>
+<p><strong>2). 解压安装包</strong></p>
+<p>执行如下指令，将上传上来的压缩包进行解压，并通过-C参数指定解压文件存放目录为 /usr/local</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo tar -zxvf apache-tomcat-10.1.24.tar.gz -C /usr/local</span><br></pre></td></tr></table></figure>
+<p><strong>3). 配置环境变量</strong></p>
+<p>使用vim命令修改/etc/profile文件，在文件末尾加入如下配置</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">JAVA_HOME=/usr/local/jdk-11.0.22</span><br><span class="line">PATH=$JAVA_HOME/bin:$PATH</span><br></pre></td></tr></table></figure>
+<p>1). 编辑/etc/profile文件，进入命令模式<br>
+vim /etc/profile</p>
+<p>2). 在命令模式中，输入指令 G ， 切换到文件最后<br>
+G</p>
+<p>3). 在命令模式中输入 i/a/o 进入插入模式，然后切换到文件最后一行<br>
+i</p>
+<p>4). 将上述的配置拷贝到文件中<br>
+JAVA_HOME=/usr/local/jdk1.8.0_171<br>
+PATH=$JAVA_HOME/bin:$PATH</p>
+<p>5). 从插入模式，切换到指令模式<br>
+ESC</p>
+<p>6). 按:进入底行模式，然后输入wq，回车保存<br>
+:wq</p>
+<p><strong>4). 重新加载profile文件</strong></p>
+<p>为了使更改的配置立即生效，需要重新加载profile文件，执行命令:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">source /etc/profile</span><br></pre></td></tr></table></figure>
+<p><strong>5). 检查安装是否成功</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -version</span><br></pre></td></tr></table></figure>
+<p>![[/Untitled 4 86.png|Untitled 4 86.png]]</p>
+<h3 id="Tomcat">Tomcat</h3>
+<p><strong>1). 上传安装包</strong></p>
+<p>使用FinalShell自带的上传工具将Tomcat的二进制发布包上传到Linux(与前面上传JDK安装包步骤一致)。</p>
+<p><strong>2). 解压安装包</strong></p>
+<p>将上传上来的安装包解压到指定目录/usr/local下，执行命令为</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar -zxvf apache-tomcat-10.1.10.tar.gz -C /usr/local/</span><br></pre></td></tr></table></figure>
+<p><strong>3). 启动Tomcat</strong></p>
+<p>进入Tomcat的bin目录启动服务。执行命令为:</p>
+<p>cd /usr/local/apache-tomcat-7.0.57/</p>
+<p>cd bin</p>
+<p>sh startup.sh或者./startup.sh</p>
+<p>![[588ae7229f8f46b98f6da4ed13e5b40c.png]]</p>
+<p>![[be243703d2724d73a12dd0a9c60d2ceb.png]]</p>
+<h3 id="Tomcat进程查看"><strong>Tomcat进程查看</strong></h3>
+<p>上述我们将Tomcat启动完成之后，并不能知道Tomcat是否正常运行，那么我们验证Tomcat启动是否成功，有多种方式，我们这里主要介绍常见的两种方式：</p>
+<p><strong>1). 查看启动日志</strong></p>
+<p>Tomcat的启动日志输出在Tomcat的安装目录下的logs目录中，Tomcat的启动及运行日志文件名为 catalina.out，所以我们查看Tomcat启动日志，主要可以通过两条指令，如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>). 分页查询Tomcat的日志信息</span><br><span class="line">more /usr/local/apache-tomcat-<span class="number">7.0</span><span class="number">.57</span>/logs/catalina.out</span><br><span class="line"></span><br><span class="line"><span class="number">2</span>). 查询日志文件尾部的<span class="number">50</span>行记录</span><br><span class="line">tail -<span class="number">50</span> /usr/local/apache-tomcat-<span class="number">7.0</span><span class="number">.57</span>/logs/catalina.out</span><br></pre></td></tr></table></figure>
+<p>只要Tomcat在启动的过程中，日志输出没有报错，基本可以判定Tomcat启动成功了。</p>
+<p><strong>2). 查询系统进程</strong></p>
+<p>我们也可以通过Linux系统的查看系统进程的指令，来判定Tomcat进程是否存在，从而判定Tomcat是否启动。执行如下指令：</p>
+<p>ps -ef | grep tomcat</p>
+<p>|：（管道符）将前一个的运行结果作为输入给后面的一个</p>
+<p><a target="_blank" rel="noopener" href="https://img-blog.csdnimg.cn/f177fd202e5f4e9fac15887e2e084c67.png"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img-blog.csdnimg.cn/f177fd202e5f4e9fac15887e2e084c67.png" alt=""></a></p>
+<p><strong>说明:</strong></p>
+<ul>
+<li>ps命令是linux下非常强大的进程查看命令，通过ps -ef可以查看当前运行的所有进程的详细信息</li>
+<li>“|” 在Linux中称为管道符，可以将前一个命令的结果输出给后一个命令作为输入</li>
+<li>使用ps命令查看进程时，经常配合管道符和查找命令 grep 一起使用，来查看特定进程</li>
+</ul>
+<p>1.3.3 防火墙操作<br>
+前面我们已经通过日志的方式及查看系统进程的方式，验证了Tomcat服务已经正常启动，接下来我们就可以尝试访问一下。访问地址：<br>
+<a target="_blank" rel="noopener" href="http://192.168.168.55:8080/">192.168.168.55:8080</a>，我们发现是访问不到的。</p>
+<p>![[af058263045f445b99dd837f2216b8a4.png]]</p>
+<p>那为什么tomcat启动成功了，但就是访问不到呢？原因就在于Linux系统的防火墙，系统安装完毕后，系统启动时，防火墙自动启动，防火墙拦截了所有端口的访问。接下来我们就需要学习一下，如何操作防火墙，具体指令如下：</p>
+<ol>
+<li><strong>查看防火墙状态</strong>：
+<ul>
+<li>使用命令：<code>systemctl status firewalld</code> 或者 <code>firewall-cmd --state</code></li>
+<li>Ubuntu：sudo ufw status</li>
+<li>备注：可以查看防火墙是否正在运行。active/inactive</li>
+</ul>
+</li>
+<li><strong>暂时关闭防火墙</strong>：
+<ul>
+<li>使用命令：<code>systemctl stop firewalld</code></li>
+<li>U:sudo ufw enable</li>
+<li>备注：这将立即停止防火墙服务，但不会影响系统的下次启动。</li>
+</ul>
+</li>
+<li><strong>永久关闭防火墙（禁用开机自启）</strong>：
+<ul>
+<li>使用命令：<code>systemctl disable firewalld</code></li>
+<li>U:sudo ufw disable</li>
+<li>备注：这将关闭防火墙服务，并设置为下次启动时不自动启动。</li>
+</ul>
+</li>
+<li><strong>暂时开启防火墙</strong>：
+<ul>
+<li>使用命令：<code>systemctl start firewalld</code></li>
+<li>备注：这将立即启动防火墙服务。</li>
+</ul>
+</li>
+<li><strong>永久开启防火墙（启用开机自启）</strong>：
+<ul>
+<li>使用命令：<code>systemctl enable firewalld</code></li>
+<li>备注：这将设置防火墙服务为下次启动时自动启动。</li>
+</ul>
+</li>
+<li><strong>开放指定端口</strong>：
+<ul>
+<li>使用命令：<code>firewall-cmd --zone=public --add-port=8080/tcp --permanent</code></li>
+<li>备注：这将开放端口8080，<code>-permanent</code>标志表示永久生效，需要执行重新加载。</li>
+</ul>
+</li>
+<li><strong>关闭指定端口</strong>：
+<ul>
+<li>使用命令：<code>firewall-cmd --zone=public --remove-port=8080/tcp --permanent</code></li>
+<li>备注：这将关闭端口8080，<code>-permanent</code>标志表示永久生效，需要执行重新加载。</li>
+</ul>
+</li>
+<li><strong>立即生效（重新加载）</strong>：
+<ul>
+<li>使用命令：<code>firewall-cmd --reload</code></li>
+<li>备注：应用当前规则库的更改，不重启服务。</li>
+</ul>
+</li>
+<li><strong>查看开放端口</strong>：
+<ul>
+<li>使用命令：<code>firewall-cmd --zone=public --list-ports</code></li>
+<li>备注：列出当前区域下开放的所有端口。</li>
+</ul>
+</li>
+</ol>
+<p>Ubuntu：</p>
+<ol>
+<li><strong>查看防火墙状态</strong>：
+<ul>
+<li>使用命令：<code>sudo ufw status</code></li>
+<li>备注：可以查看防火墙的当前状态和规则。</li>
+</ul>
+</li>
+<li><strong>暂时关闭防火墙</strong>：
+<ul>
+<li>使用命令：<code>sudo ufw disable</code></li>
+<li>备注：这将立即停止防火墙服务，但不会影响系统的下次启动。</li>
+</ul>
+</li>
+<li><strong>永久关闭防火墙（禁用开机自启）</strong>：
+<ul>
+<li>使用命令：<code>sudo ufw disable</code></li>
+<li>备注：这将关闭防火墙服务，并设置为下次启动时不自动启动。</li>
+</ul>
+</li>
+<li><strong>暂时开启防火墙</strong>：
+<ul>
+<li>使用命令：<code>sudo ufw enable</code></li>
+<li>备注：这将立即启动防火墙服务。</li>
+</ul>
+</li>
+<li><strong>永久开启防火墙（启用开机自启）</strong>：
+<ul>
+<li>使用命令：<code>sudo ufw enable</code></li>
+<li>备注：这将设置防火墙服务为下次启动时自动启动。</li>
+</ul>
+</li>
+<li><strong>开放指定端口</strong>：
+<ul>
+<li>使用命令：<code>sudo ufw allow [port_number]/tcp</code>sudo ufw allow 8080/tcp</li>
+<li>备注：这将开放端口<code>[port_number]</code>，需要指定协议（例如tcp）。</li>
+</ul>
+</li>
+<li><strong>关闭指定端口</strong>：
+<ul>
+<li>使用命令：<code>sudo ufw delete allow [port_number]/tcp</code></li>
+<li>备注：这将删除允许端口<code>[port_number]</code>的规则。</li>
+</ul>
+</li>
+<li><strong>立即生效（重新加载）</strong>：
+<ul>
+<li>使用命令：<code>sudo ufw reload</code></li>
+<li>备注：这将重新加载防火墙规则，立即应用更改。</li>
+</ul>
+</li>
+<li><strong>查看开放端口</strong>：
+<ul>
+<li>使用命令：<code>sudo ufw status</code></li>
+<li>备注：列出当前开放的所有端口和防火墙规则。</li>
+</ul>
+</li>
+</ol>
+<p><strong>注意</strong>：</p>
+<ul>
+<li>A. <code>systemctl</code> 是管理Linux中服务的命令，可以对服务进行启动、停止、重启、查看状态等操作。</li>
+<li>B. <code>firewall-cmd</code> 是Linux中专门用于控制防火墙的命令。</li>
+<li>C. 为了保证系统安全，服务器的防火墙不建议关闭。</li>
+</ul>
+<p>那么我们要想访问到Tomcat，就可以采取两种类型的操作：</p>
+<p><strong>A. 开放Tomcat的端口号8080</strong></p>
+<p>执行指令:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">①. 先开启系统防火墙</span><br><span class="line">systemctl start firewalld</span><br><span class="line"></span><br><span class="line">②. 再开放<span class="number">8080</span>端口号</span><br><span class="line">firewall-cmd --zone=<span class="keyword">public</span> --add-port=<span class="number">8080</span>/tcp --permanent</span><br><span class="line"></span><br><span class="line">③. 重新加载防火墙</span><br><span class="line">firewall-cmd --reload</span><br><span class="line"></span><br><span class="line">④.最后查看已经开发的防火墙是否包括<span class="number">8080</span>端口</span><br><span class="line">firewall-cmd --list-ports</span><br></pre></td></tr></table></figure>
+<p>执行上述的操作之后，就开放了当前系统中的8080端口号，再次访问Tomcat。</p>
+<p>![[/Untitled 5 82.png|Untitled 5 82.png]]</p>
+<p><strong>停止Tomcat</strong></p>
+<p>在Linux系统中，停止Tomcat服务的方式主要有两种：</p>
+<p><strong>1). 运行Tomcat提供的脚本文件</strong></p>
+<p>在Tomcat安装目录下有一个bin目录，这个目录中存放的是tomcat的运行脚本文件，其中有一个脚本就是用于停止tomcat服务的。</p>
+<p>![[170da9844e4847bf98f6dad23e5151b2.png]]</p>
+<p>我们可以切换到bin目录，并执行如下指令，来停止Tomcat服务：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cd /usr/local/apache-tomcat-7.0.57/</span><br><span class="line">cd bin</span><br><span class="line"></span><br><span class="line">sh shutdown.sh或者./shutdown.sh</span><br></pre></td></tr></table></figure>
+<p><strong>2). 结束Tomcat进程</strong></p>
+<p>我们可以先通过 ps -ef|grep tomcat 指令查看tomcat进程的信息，从进程信息中获取tomcat服务的进程号。然后通过kill -9 的形式，来杀死系统进程。</p>
+<p>![[bf1716f997134e85b32fdc637eeca820.png]]</p>
+<p>通过上述的指令，我们可以获取到tomcat的进程号为 79947。接下来，我们就可以通过指令 ，来杀死tomcat的进程 ：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kill -9 79947</span><br></pre></td></tr></table></figure>
+<p>执行完上述指令之后，我们再访问Linux系统中的Tomcat，就访问不到了。</p>
+<blockquote>
+<p>注意：</p>
+<p>kill命令是Linux提供的用于结束进程的命令，-9表示强制结束</p>
+</blockquote>
+<p>注意 ：</p>
+<p>虽然上述讲解的两种方式，都可以停止Tomcat服务，但是</p>
+<p>推荐使用第一种方式(./shutdown.sh)执行脚本来关闭tomcat服务</p>
+<p>，如果通过第一种方式停止不了tomcat了，这个时候，我们可以考虑使用第二种方式，强制杀死进程。</p>
+<h3 id="MySQL">MySQL</h3>
+<p>使用前面讲解的第二种安装方式rpm进行安装。那么首先我们先了解一下什么rpm？</p>
+<blockquote>
+<p>RPM： 全称为 Red-Hat Package Manager，RPM软件包管理器，是红帽Linux用于管理和安装软件的工具。</p>
+</blockquote>
+<p><strong>1). 检测当前系统是否安装过MySQL相关数据库</strong></p>
+<p>需要通过rpm相关指令，来查询当前系统中是否存在已安装的mysql软件包，执行指令如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">rpm -qa							查询当前系统中安装的所有软件</span><br><span class="line">rpm -qa | grep mysql			查询当前系统中安装的名称带mysql的软件</span><br><span class="line">rpm -qa | grep mariadb			查询当前系统中安装的名称带mariadb的软件</span><br></pre></td></tr></table></figure>
+<p>通过rpm -qa 查询到系统通过rpm安装的所有软件，太多了，不方便查看，所以我们可以通过管道符 | 配合着grep进行过滤查询。</p>
+<p><a target="_blank" rel="noopener" href="https://img-blog.csdnimg.cn/f98942c370cd4fddb28ac9f417c0bc5e.png"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img-blog.csdnimg.cn/f98942c370cd4fddb28ac9f417c0bc5e.png" alt=""></a></p>
+<p>通过查询</p>
+<p>，我们发现在当前系统中存在mariadb数据库，是CentOS7中自带的，而这个数据库和MySQL数据库是冲突的，所以要想保证MySQL成功安装，需要卸载mariadb数据库。</p>
+<p><strong>2). 卸载现有的MySQL数据库</strong></p>
+<p>在rpm中，卸载软件的语法为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rpm -e --nodeps  软件名称</span><br></pre></td></tr></table></figure>
+<p>那么，我们就可以通过指令，卸载 mariadb，具体指令为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rpm -e --nodeps mariadb-libs-5.5.60-1.el7_5.x86_64</span><br></pre></td></tr></table></figure>
+<p>![[2dd70f6a399b41279501cf68a310304a.png]]</p>
+<p>我们看到执行完毕之后， 再次查询 mariadb，就查不到了，因为已经被成功卸载了。</p>
+<p>Ubuntu：</p>
+<ol>
+<li>
+<p><strong>查询当前系统中安装的所有软件</strong>：</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dpkg --get-selections</span><br></pre></td></tr></table></figure>
+<p>或者使用 <code>apt</code> 命令：</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apt list --installed</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p><strong>查询当前系统中安装的名称带mysql的软件</strong>：</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dpkg --get-selections | grep mysql</span><br></pre></td></tr></table></figure>
+<p>或者</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apt list --installed | grep mysql</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p><strong>查询当前系统中安装的名称带mariadb的软件</strong>：</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dpkg --get-selections | grep mariadb</span><br></pre></td></tr></table></figure>
+<p>或者</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apt list --installed | grep mariadb</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>这些命令将列出所有已安装的软件包，然后通过管道 <code>|</code> 将输出传递给 <code>grep</code> 命令来过滤包含特定字符串（如 <code>mysql</code> 或 <code>mariadb</code>）的行。</p>
+<h3 id="ubantu彻底卸载mysql"><strong>ubantu彻底卸载mysql</strong></h3>
+<p>sudo apt purge mysql-*</p>
+<p>sudo rm -rf /etc/mysql/ /var/lib/mysql</p>
+<p>sudo apt autoremove</p>
+<p>sudo apt autoclean</p>
+<p><strong>3). 将资料中提供的MySQL安装包上传到Linux并解压</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mkdir /usr/local/mysql</span><br><span class="line">tar -zxvf mysql-<span class="number">5.7</span><span class="number">.25</span>-<span class="number">1.</span>el7.x86_64.rpm-bundle.tar.gz -C /usr/local/mysql</span><br></pre></td></tr></table></figure>
+<p>4). 安装顺序安装rpm安装包</p>
+<p>rpm -ivh mysql-community-common-5.7.25-1.el7.x86_64.rpm<br>
+rpm -ivh mysql-community-libs-5.7.25-1.el7.x86_64.rpm<br>
+rpm -ivh mysql-community-devel-5.7.25-1.el7.x86_64.rpm<br>
+rpm -ivh mysql-community-libs-compat-5.7.25-1.el7.x86_64.rpm<br>
+rpm -ivh mysql-community-client-5.7.25-1.el7.x86_64.rpm<br>
+yum install net-tools<br>
+rpm -ivh mysql-community-server-5.7.25-1.el7.x86_64.rpm<br>
+————————————————</p>
+<p>说明:</p>
+<ul>
+<li>因为rpm安装方式，是不会自动处理依赖关系的，需要我们自己处理，所以对于上面的rpm包的安装顺序不能随意修改。</li>
+<li>安装过程中提示缺少net-tools依赖，使用yum安装(yum是一种在线安装方式，需要保证联网)</li>
+<li>可以通过指令(yum update)升级现有软件及系统内核</li>
+</ul>
+<ol>
+<li>
+<p><strong>检查 MySQL 服务状态</strong>：</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo systemctl status mysql</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p><strong>启动 MySQL 服务</strong>：</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo systemctl start mysql</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p><strong>停止 MySQL 服务</strong>：</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo systemctl stop mysql</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p><strong>重启 MySQL 服务</strong>：</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo systemctl restart mysql</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p><strong>查看 MySQL 服务的日志</strong>：</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo journalctl -u mysql</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p><strong>安全地安装 MySQL（设置 root 用户密码，移除匿名用户等）</strong>：</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo mysql_secure_installation</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p><strong>登录到 MySQL</strong>：</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql -u root -p</span><br></pre></td></tr></table></figure>
+<p>输入 root 用户密码后，你将能够登录到 MySQL 命令行界面。</p>
+</li>
+<li>
+<p><strong>创建新的 MySQL 用户</strong>：</p>
+ <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">USER</span> <span class="string">&#x27;newuser&#x27;</span>@<span class="string">&#x27;localhost&#x27;</span> IDENTIFIED <span class="keyword">BY</span> <span class="string">&#x27;password&#x27;</span>;</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p><strong>给用户授权</strong>：</p>
+ <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">GRANT</span> <span class="keyword">ALL</span> PRIVILEGES <span class="keyword">ON</span> <span class="operator">*</span>.<span class="operator">*</span> <span class="keyword">TO</span> <span class="string">&#x27;newuser&#x27;</span>@<span class="string">&#x27;localhost&#x27;</span> <span class="keyword">WITH</span> <span class="keyword">GRANT</span> OPTION;</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p><strong>刷新权限</strong>：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">FLUSH PRIVILEGES;</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p><strong>创建新的数据库</strong>：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> DATABASE newdatabase;</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p><strong>选择数据库</strong>：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">复制USE newdatabase;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h3 id="lrzsz">lrzsz</h3>
+<p>用于在Linux系统中<mark>文件上传下载</mark>的软件。大家可能会存在疑问，我们用finalShell图形化界面就可以很方便的完成上传下载，为什么还要使用这个软件来完成上传下载呢？实际上是这样的，Linux的远程连接工具有很多，而finalShell只是其中的一种，而还有很多的远程连接工具并没有上传下载的功能，这个时候就需要依赖于lrzsz这个软件了。</p>
+<p>对于lrzsz的安装，我们需要通过第三种软件安装方式<strong>yum</strong>来进行安装。这里，我们先对yum做一个简单介绍。</p>
+<p>Yum： (Yellow dog Updater,Modified)，是一个在Fedora和RedHat以及CentOS中的Shell前端软件包管理器。基于RPM包管理，能够从指定的服务器自动下载RPM包并且安装，可以自动处理依赖关系，并且一次安装所有依赖的软件包，无须繁琐地一次次下载、安装。<br>
+rz 文件上传</p>
+<h2 id="项目部署">项目部署</h2>
+<h3 id="手工部署项目">手工部署项目</h3>
+<ol>
+<li>
+<p><strong>在IDEA中开发SpringBoot项目并打成jar包</strong></p>
+</li>
+<li>
+<p><strong>将jar包上传到Linux服务器</strong></p>
+<p>通过rz指令，将打好的jar包上传至Linux服务器的 /usr/local/app 目录下。 先执行指令创建app目录。</p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">A. 在/usr/local下创建目录app</span><br><span class="line">mkdir /usr/local/app</span><br><span class="line"></span><br><span class="line">B. 切换到app目录下</span><br><span class="line">cd /usr/local/app</span><br><span class="line"></span><br><span class="line">C. 执行指令,进行jar包上传</span><br><span class="line">rz</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p><strong>启动SpringBoot程序java -jar helloworld-1.0-SNAPSHOT.ja</strong></p>
+<p>注意： 由于前面安装的Tomcat在启动时，会占用端口号8080，而当前springboot项目我们没有配置端口号，默认也是8080，所以我们要想启动springboot项目，需要把之前运行的Tomcat停止掉。</p>
+</li>
+<li>
+<p><strong>检查防火墙，确保8080端口对外开放，访问SpringBoot项目</strong></p>
+<p>firewall-cmd --zone=public --list-ports</p>
+<p>U:</p>
+<ol>
+<li>
+<p><strong>查看状态</strong>：</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo ufw status</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p><strong>允许端口</strong>：</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo ufw allow [port_number]/tcp# 允许 TCP 端口</span><br><span class="line">sudo ufw allow [port_number]/udp# 允许 UDP 端口</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p><strong>拒绝端口</strong>：</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo ufw deny [port_number]/tcp</span><br><span class="line">sudo ufw deny [port_number]/udp</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p><strong>删除规则</strong>：</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo ufw delete [rule_number]</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p><strong>关闭防火墙</strong>：</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo ufw disable</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p><strong>开启防火墙</strong>：</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo ufw enable</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p><strong>查看防火墙规则</strong>：</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">复制sudo ufw status numbered</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+</li>
+<li>
+<p><strong>访问测试</strong><a target="_blank" rel="noopener" href="http://192.168.168.55:8080/hello">http://192.168.138.130:8080/hello</a></p>
+</li>
+<li>
+<p><strong>后台运行项目</strong></p>
+<p>当前这个demo工程我们已经部署成功了，并且我们也可以访问项目了。但是这个工程目前是存在问题的，就是当前我们项目启动的这个窗口被霸屏占用了，如果我们把这个窗口关闭掉(或ctrl+c)，当前服务也就访问不到</p>
+<p><strong>目前程序运行的问题：</strong></p>
+<p>A. 线上程序不会采用控制台霸屏的形式运行程序，而是将程序在后台运行</p>
+<p>B. 线上程序不会将日志输出到控制台，而是输出到日志文件，方便运维查阅信息</p>
+<p><strong>后台运行程序:</strong></p>
+<p>要想让我们部署的项目进行后台运行，这个时候我们需要使用到linux中的一个命令 nohup ，接下来，就来介绍一下<mark>nohup</mark>命令。</p>
+<p><strong>nohup命令：</strong> 英文全称 no hang up（不挂起），用于不挂断地运行指定命令，退出终端不会影响程序的运行</p>
+<p><strong>语法格式：</strong> nohup Command [ Arg … ] [&amp;]</p>
+<p><strong>参数说明：</strong></p>
+<p>Command：要执行的命令</p>
+<p>Arg：一些参数，可以指定输出文件</p>
+<p><mark>&amp;</mark>：让命令在后台运行</p>
+<blockquote>
+<p>举例：</p>
+<p><code>nohup java -jar boot工程名称.jar &amp;&gt; hello.log &amp;</code></p>
+<p>上述指令的含义为： 后台运行 java -jar 命令，并将日志输出到hello.log文件</p>
+</blockquote>
+<p>要想让当前部署的项目后台运行，就可以使用下面的指令：</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">root@Ubuntu-23-12:/usr/local/app#</span><br><span class="line">nohup java -jar delivery-project-1.0-SNAPSHOT.jar &amp;&gt; delivery-project.log &amp;</span><br></pre></td></tr></table></figure>
+<p>这样的话，我们的项目就已经启动成功了，我们可以通过ps</p>
+<p>指令，查看到系统的进程。</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ps -ef | grep java</span><br></pre></td></tr></table></figure>
+<p><a target="_blank" rel="noopener" href="https://img-blog.csdnimg.cn/c31adebff4a44a8097e0878d0b45f4ce.png"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img-blog.csdnimg.cn/c31adebff4a44a8097e0878d0b45f4ce.png" alt=""></a></p>
+</li>
+<li>
+<p><strong>停止SpringBoot项目</strong></p>
+<p>通过杀进程的方式：kill -9 进程号</p>
+</li>
+</ol>
+<h3 id="通过shell脚本自动部署项目">通过shell脚本自动部署项目</h3>
+<p>![[e3781ecfe55f488a828f4bfd9d4aa17d.png]]</p>
+<p>1). 在Gitee上创建远程仓库，并将本地的项目代码推送到远程仓库中<br>
+2). 在Linux中安装Git,克隆代码<br>
+3). 在Linux中安装maven<br>
+4). 编写Shell脚本（拉取代码、编译、打包、启动）<br>
+5). 为用户授予执行Shell脚本的权限<br>
+6). 执行Shell脚本</p>
+<ol>
+<li>
+<p>安装<strong>Git</strong></p>
+<ol>
+<li>
+<p><strong>更新软件包列表</strong>：</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">sudo apt update</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p><strong>安装Git</strong>：</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">sudo apt install git</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p><strong>验证安装</strong>：<br>
+安装完成后，可以通过以下命令检查Git是否安装成功，以及查看安装的Git版本：</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">git --version</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>Git克隆代码</p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd /usr/local/</span><br><span class="line">git clone https:<span class="comment">//gitee.com/liangruisyc/helloworld.git</span></span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+</li>
+<li>
+<p><strong>Maven安装</strong></p>
+<p>由于我们的工程是maven工程，我们要想进行项目的编译打包，需要用到maven的指令，所以需要安装maven。具体操作步骤如下：</p>
+<ol>
+<li>
+<p>rz上传安装包</p>
+</li>
+<li>
+<p><strong>解压maven安装包到/usr/local目录</strong></p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar -zxvf apache-maven-3.5.4-bin.tar.gz -C /usr/local</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>在/etc/profile配置文件中配置环境变量</p>
+<p>vim /etc/profile</p>
+<p>修改配置文件，进入到命令模式，按G切换到最后一行<br>
+export MAVEN_HOME=/usr/local/apache-maven-3.5.4<br>
+export PATH=$JAVA_HOME/bin:$MAVEN_HOME/bin:$PATH</p>
+<p>然后按ESC进入到命令模式，输入 :wq 保存并退出</p>
+<p>要想让配置的环境变量生效,还需要执行如下指令：</p>
+<p>source /etc/profile</p>
+</li>
+<li>
+<p><strong>修改maven的settings.xml配置文件,配置本地仓库地址</strong></p>
+<p>在usr/local下创建一个目录repo作为<strong>本地仓库</strong>mkdir repo</p>
+<p>A. 切换目录</p>
+<p>cd /usr/local/apache-maven-3.5.4/conf<br>
+B. 编辑settings.xml配置文件</p>
+<p>vim settings.xml<br>
+在其中增加如下配置,配置本地仓库地址:</p>
+<p><localRepository>/usr/local/repo</localRepository></p>
+<p>并在settings.xml中的标签中,配置阿里云的私服(选做):</p>
+ <mirror>
+ <id>alimaven</id>
+ <mirrorOf>central</mirrorOf>
+ <name>aliyun maven</name>
+ <url>
+ [http://maven.aliyun.com/nexus/content/groups/public/](http://maven.aliyun.com/nexus/content/groups/public/)</url>
+ </mirror>
+<p><a target="_blank" rel="noopener" href="https://www.notion.soundefined"></a></p>
+</li>
+</ol>
+</li>
+<li>
+<p>Shell脚本准备<br>
+Shell脚本（shell script），是一种Linux系统中的脚本程序。使用Shell脚本编程跟 JavaScript、Java编程一样，只要有一个能编写代码的文本编辑器和一个能解释执行的脚本解释器就可以了。</p>
+<p>对于Shell脚本编写不作为本课程重点内容，直接使用课程资料中提供的脚本文件bootStart.sh即可。<br>
+用于停止正在运行的旧版本应用程序，从 Git 仓库拉取最新代码，打包项目并启动新的应用程序实例</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">!/bin/sh</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">指定使用 /bin/sh 解释器执行脚本</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-*- coding: UTF-8 -*-</span></span><br><span class="line">echo =================================</span><br><span class="line">echo  自动化部署脚本启动</span><br><span class="line">echo =================================</span><br><span class="line"></span><br><span class="line">echo 停止原来运行中的工程</span><br><span class="line">APP_NAME=helloworld</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查找正在运行的应用程序进程ID</span></span><br><span class="line">tpid=`ps -ef|grep $APP_NAME|grep -v grep|grep -v kill|awk &#x27;&#123;print $2&#125;&#x27;`</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">使用 ps -ef 列出所有进程，grep 过滤出与 APP_NAME 匹配的进程，awk 提取进程ID</span></span><br><span class="line"></span><br><span class="line">if [ $&#123;tpid&#125; ]; then</span><br><span class="line">    echo &#x27;Stop Process...&#x27;</span><br><span class="line">    kill -15 $tpid</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">sleep 2</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">再次检查进程是否仍在运行，如果是，则强制杀死进程</span></span><br><span class="line">tpid=`ps -ef|grep $APP_NAME|grep -v grep|grep -v kill|awk &#x27;&#123;print $2&#125;&#x27;`</span><br><span class="line">if [ $&#123;tpid&#125; ]; then</span><br><span class="line">    echo &#x27;Kill Process!&#x27;</span><br><span class="line">    kill -9 $tpid</span><br><span class="line">else</span><br><span class="line">    echo &#x27;Stop Success!&#x27;</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">echo 准备从Git仓库拉取最新代码</span><br><span class="line">cd /usr/local/helloworld</span><br><span class="line"></span><br><span class="line">echo 开始从Git仓库拉取最新代码</span><br><span class="line">git pull</span><br><span class="line">echo 代码拉取完成</span><br><span class="line"></span><br><span class="line">echo 开始打包</span><br><span class="line">output=`mvn clean package -Dmaven.test.skip=true`</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">使用 Maven 清理和打包项目，跳过测试</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">mvn clean package -Dmaven.test.skip=<span class="literal">true</span> 会清理项目并创建可执行的 JAR 文件</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">切换到target目录</span></span><br><span class="line">cd target</span><br><span class="line"></span><br><span class="line">echo 启动项目</span><br><span class="line">nohup java -jar helloworld-1.0-SNAPSHOT.jar &amp;&gt; helloworld.log &amp;</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">使用 <span class="built_in">nohup</span> 命令在后台启动新的应用程序实例，将输出重定向到 helloworld.log 文件中</span></span><br><span class="line">echo 项目启动完成</span><br></pre></td></tr></table></figure>
+<p>在/usr/local/目录下创建一个目录 sh(mkdir sh)，并将shell脚本上传到该目录下。<a target="_blank" rel="noopener" href="http://xn--shbootStart-mm8qoe1rn81c8utsm4azlbv51a9rhc3tqy5f2dau53vhxf.sh">或者直接在sh目录下创建一个脚本bootStart.sh</a></p>
+<p>，然后将资料中的bootStart.sh文件打开,内容拷贝过来即可。</p>
+<p><a target="_blank" rel="noopener" href="https://www.notion.soundefined"></a></p>
+</li>
+<li>
+<p><strong>Linux权限</strong></p>
+<p>前面我们已经把Shell脚本准备好了，但是Shell脚本要想正常的执行，还需要给Shell脚本分配执行权限。 由于linux系统是一个多用户的操作系统，并且针对每一个用户，Linux会严格的控制操作权限。接下来，我们就需要介绍一下Linux系统的权限控制。</p>
+<blockquote>
+<p>1). chmod（英文全拼：change mode）命令是控制用户对文件的权限的命令</p>
+<p>2). Linux中的权限分为三种 ：读®、写(w)、执行(x)</p>
+<p>3). Linux文件权限分为三级 : 文件所有者（Owner）、用户组（Group）、其它用户（Other Users）</p>
+<p>4). 只有文件的所有者和超级用户可以修改文件或目录的权限</p>
+<p>5). 要执行Shell脚本需要有对此脚本文件的执行权限(x)，如果没有则不能执行</p>
+</blockquote>
+<p>Linux系统中权限描述如下：</p>
+<p><a target="_blank" rel="noopener" href="https://www.notion.soundefined"></a></p>
+<p>解析当前脚本的权限情况:</p>
+<p><a target="_blank" rel="noopener" href="https://img-blog.csdnimg.cn/165568eff11f45a8aaff386ea2c205e3.png"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img-blog.csdnimg.cn/165568eff11f45a8aaff386ea2c205e3.png" alt=""></a></p>
+<p>owner→group→others</p>
+<p>chmod命令可以使用八进制数来指定权限(0 - 代表无 , 1 - 执行x , 2 - 写w , 4 - 读r):</p>
+<table>
+<thead>
+<tr>
+<th><strong>值</strong></th>
+<th><strong>权限</strong></th>
+<th><strong>rwx</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>7</td>
+<td>读 + 写 + 执行</td>
+<td>rwx</td>
+</tr>
+<tr>
+<td>6</td>
+<td>读 + 写</td>
+<td>rw-</td>
+</tr>
+<tr>
+<td>5</td>
+<td>读 + 执行</td>
+<td>r-x</td>
+</tr>
+<tr>
+<td>4</td>
+<td>只读</td>
+<td>r–</td>
+</tr>
+<tr>
+<td>3</td>
+<td>写 + 执行</td>
+<td>-wx</td>
+</tr>
+<tr>
+<td>2</td>
+<td>只写</td>
+<td>-w-</td>
+</tr>
+<tr>
+<td>1</td>
+<td>只执行</td>
+<td>–x</td>
+</tr>
+<tr>
+<td>0</td>
+<td>无</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p>举例:</p>
+<p>chmod 777 <a target="_blank" rel="noopener" href="http://bootstart.sh/">bootStart.sh</a> 为所有用户授予读、写、执行权限<br>
+chmod 755<br>
+<a target="_blank" rel="noopener" href="http://bootstart.sh/">bootStart.sh</a> 为文件拥有者授予读、写、执行权限，同组用户和其他用户授予读、执行权限<br>
+chmod 210<br>
+<a target="_blank" rel="noopener" href="http://bootstart.sh/">bootStart.sh</a> 为文件拥有者授予写权限，同组用户授予执行权限，其他用户没有任何权限</p>
+<p>注意:</p>
+<p>三个数字分别代表不同用户的权限</p>
+<ul>
+<li>第1位表示文件拥有者的权限</li>
+<li>第2位表示同组用户的权限</li>
+<li>第3位表示其他用户的权限</li>
+</ul>
+</li>
+<li>
+<p><strong>授权并执行脚本</strong></p>
+<p>在测试阶段，我们可以给所有的人都赋予执行该shell脚本的权限。所以可以执行如下指令：chmod 777 <a target="_blank" rel="noopener" href="http://bootStart.sh">bootStart.sh</a></p>
+<p>权限解读:</p>
+<p>A. 第一个7，代表当前文件所有者root用户，对该文件具有读写执行权限；</p>
+<p>B. 第二个7，代表当前文件所有者所属组的用户，对该文件具有读写执行权限；</p>
+<p>B. 第三个7，代表其他用户，对该文件具有读写执行权限；</p>
+<p>执行该shell脚本:</p>
+<p><code>./bootStart.sh</code></p>
+<p>注意： 在执行maven指令进行打包时，第一次执行可能会耗时比较长，因为在进行maven工程的打包时，需要到中央仓库下载工程依赖的jar包和插件(可以在settings.xml中配置阿里云私服加速下载)。</p>
+<p>启动完成之后, 我们可以查看java进程：ps -ef|grep java</p>
+<p><a target="_blank" rel="noopener" href="https://img-blog.csdnimg.cn/42695dec2dae4879869546c06a2bf9e0.png"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img-blog.csdnimg.cn/42695dec2dae4879869546c06a2bf9e0.png" alt=""></a></p>
+<p>查看日志：</p>
+<p><a target="_blank" rel="noopener" href="https://www.notion.soundefined"></a></p>
+<p>访问项目：</p>
+<p><a target="_blank" rel="noopener" href="https://img-blog.csdnimg.cn/f23331d0d95746d2aea483be3e209228.png"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img-blog.csdnimg.cn/f23331d0d95746d2aea483be3e209228.png" alt=""></a></p>
+</li>
+<li>
+<p>设置静态IP<br>
+  我们目前安装的Linux操作系统，安装完毕之后并没有配置IP地址，默认IP地址是动态获取的，那如果我们使用该Linux服务器部署项目，IP动态获取的话，也就意味着，IP地址可能会发生变动，那我们访问项目的话就会非常繁琐，所以作为服务器，我们一般还需要把IP地址设置为静态的。<br>
+本机网卡名为：<strong>enp0s3</strong>，<code>IP</code>地址为：<code>192.168.168.55</code>，<a target="_blank" rel="noopener" href="https://so.csdn.net/so/search?q=%E5%AD%90%E7%BD%91%E6%8E%A9%E7%A0%81&amp;spm=1001.2101.3001.7020">子网掩码</a>为：<code>255.255.255.0</code></p>
+<p><a target="_blank" rel="noopener" href="https://www.notion.soundefined"></a></p>
+<p><a target="_blank" rel="noopener" href="https://www.notion.soundefined"></a></p>
+<p>1). 设置静态IP</p>
+<p>设置静态ip，我们就需要修改</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">/etc/sysconfig/network-scripts/ifcfg-ens33</span><br><span class="line">U：cd /etc/netplan</span><br><span class="line">vim 01-network-manager-all.yaml</span><br></pre></td></tr></table></figure>
+<p>配置文件，内容如下：</p>
+<p>注意：最后的这个文件不是固定的名称</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">TYPE=Ethernet</span><br><span class="line">PROXY_METHOD=none</span><br><span class="line">BROWSER_ONLY=no</span><br><span class="line">BOOTPROTO=static                \#设置成静态的</span><br><span class="line">IPADDR=&quot;192.168.138.100&quot;        # 设置的静态IP地址</span><br><span class="line">NETMASK=&quot;255.255.255.0&quot;         # 子网掩码</span><br><span class="line">GATEWAY=&quot;192.168.138.2&quot;         # 网关地址</span><br><span class="line">DNS1=&quot;192.168.138.2&quot;            # DNS服务器</span><br><span class="line">DEFROUTE=yes</span><br><span class="line">IPV4_FAILURE_FATAL=no</span><br><span class="line">IPV6INIT=yes</span><br><span class="line">IPV6_AUTOCONF=yes</span><br><span class="line">IPV6_DEFROUTE=yes</span><br><span class="line">IPV6_FAILURE_FATAL=no</span><br><span class="line">IPV6_ADDR_GEN_MODE=stable-privacy</span><br><span class="line">NAME=ens33</span><br><span class="line">UUID=afd0baa3-8bf4-4e26-8d20-5bc426b75fd6</span><br><span class="line">DEVICE=ens33</span><br><span class="line">ONBOOT=yes</span><br><span class="line">ZONE=public</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">U：</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">Let NetworkManager manage all devices on this system</span></span><br><span class="line">network:</span><br><span class="line">  version: 2</span><br><span class="line">  renderer: NetworkManager</span><br><span class="line">  ethernets:</span><br><span class="line">    enp0s3:</span><br><span class="line">      dhcp4: no</span><br><span class="line">      addresses: [192.168.168.55/24]</span><br><span class="line">      gateway4: 192.168.168.232</span><br><span class="line">      nameservers:</span><br><span class="line">        addresses: [8.8.8.8, 8.8.4.4]</span><br></pre></td></tr></table></figure>
+<ol>
+<li>应用配置。运行以下命令应用更改：</li>
+</ol>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">sudo netplan apply</span><br></pre></td></tr></table></figure>
+<ol>
+<li>确认IP地址已设置。运行以下命令查看IP地址是否已更改：</li>
+</ol>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip addr show enp0s3</span><br></pre></td></tr></table></figure>
+<p><code>ping</code>一下百度，发现网络可用。</p>
+<p><a target="_blank" rel="noopener" href="https://www.notion.soundefined"></a></p>
+<p>上述我们所设置的网段为138，并不是随意指定的，需要和我们虚拟机中的虚拟网络编辑器中的NAT模式配置的网关保持一致。</p>
+<p><a target="_blank" rel="noopener" href="https://www.notion.soundefined"></a></p>
+<p>2). 重启网络服务</p>
+<p>ip地址修改完毕之后，需要重启网络服务，执行如下指令：</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">systemctl restart network</span><br><span class="line">U:sudo systemctl restart systemd-networkd</span><br></pre></td></tr></table></figure>
+<p>注意：重启完网络服务后ip地址已经发生了改变，此时FinalShell已经连接不上Linux系统，需要创建一个新连接才能连接到Linux。</p>
+<p>再次连接上Linux之后，我们再次查看IP地址，就可以看到我们所设置的静态IP：</p>
+</li>
+</ol>
+<p>分布式版本控制系统</p>
+<p>本地仓库：开发人员自己电脑上的git仓库</p>
+<p>远程仓库：远程服务器上的git仓库</p>
+<h3 id="分布式VS集中式">分布式VS集中式</h3>
+<p>除了git还有svn、cvs这样的版本控制系统，它们的区别在于一个是分布式一个是集中式</p>
+<p>集中式就是svn和csv这样的版本控制系统，分布式是git</p>
+<p>区别在于集中式的版本控制系统每次在写代码时都需要从服务器中拉取一份下来，并且如果服务器丢失了，那么所有的就都丢失了，你本机客户端仅保存当前的版本信息，换句话说，集中式就是把代码放在一个服务器上集中管理，你的所有回滚等操作都需要服务器的支持。</p>
+<p>分布式的区别在于，每个人的电脑都是服务器，当你从主仓库拉取一份代码下来后，你的电脑就是服务器，无需担心主仓库被删或者找不到的情况，你可以自由在本地回滚，提交，当你想把自己的代码提交到主仓库时，只需要合并推送到主仓库就可以了，同时你可以把自己的代码新建一份仓库分享给其它人。</p>
+<p>像集中式它们都有一个主版本号，所有的版本迭代都以这个版本号为主，而分布式因为每个客户端都是服务器，git没有固定的版本号，但是有一个由哈希算法算出的id，用来回滚用的，同时也有一个master仓库，这个仓库是一切分支仓库的主仓库，我们可以推送提交到master并合并到主仓库上，主仓库的版本号会迭代一次，我们客户端上的git版本号无论迭代多少次，都跟master无关，只有合并时，master才会迭代一次。</p>
+<p>git gui here 打开git图形界面</p>
+<p>git bash here 打开git命令行</p>
+<h2 id="Git代码托管服务">Git代码托管服务</h2>
+<ul>
+<li>GitHub <a target="_blank" rel="noopener" href="https://github.com/">https://github.com/</a></li>
+<li>码云 <a target="_blank" rel="noopener" href="https://gitee.com/">https://gitee.com/</a> 159 lr</li>
+<li>GitLab <a target="_blank" rel="noopener" href="https://about.gitlab.com/">https://about.gitlab.com/</a></li>
+<li>BitBucker <a target="_blank" rel="noopener" href="https://bitbucket.org/">https://bitbucket.org/</a></li>
+</ul>
+<h2 id="Git常用命令">Git常用命令</h2>
+<h3 id="Git全局设置">Git全局设置</h3>
+<p>设置用户信息：</p>
+<p><code>git config --global user.name &quot;lr&quot;</code></p>
+<p><code>git config --global user.email &quot;15941174592@163.com&quot;</code></p>
+<p>查看配置信息：</p>
+<p><code>git config --list</code></p>
+<h3 id="获取Git仓库">获取Git仓库</h3>
+<p>要使用Git对我们的代码进行版本控制，首先需要获得Git仓库</p>
+<ul>
+<li>
+<p>在本地初始化一个Git仓库</p>
+<ol>
+<li>在任意目录不创建一个空目录(例如repo1)作为我们的本地Git仓库</li>
+<li>进入这个目录中，点击右键打开Gitbash窗口</li>
+<li>执行命令<code>git init</code></li>
+</ol>
+<hr>
+<p>如果在当前目录中看到.git文件夹(此文件夹为隐藏文件夹)则说明Git仓库创建成功</p>
+</li>
+<li>
+<p>从远程仓库克隆（常用）</p>
+<p><a target="_blank" rel="noopener" href="https://gitee.com/liangruisyc/hellogit.git">https://gitee.com/liangruisyc/hellogit.git</a></p>
+<p><code>git clone https://gitee.com/liangruisyc/hellogit.git</code></p>
+<p><mark>注：仓库内部不能嵌套</mark></p>
+</li>
+</ul>
+<h3 id="工作区、暂存区、版本库">工作区、暂存区、版本库</h3>
+<p><strong>工作区</strong>：包含.git文件夹的目录就是工作区，也称为工作目录，主要用于存放开发的代码</p>
+<p><strong>暂存区</strong>：.git文件夹中有很多文件，其中有一个index文件就是暂存区，也可以叫做stage。暂存区是一个临时保存修改文件的地方</p>
+<p><strong>版本库</strong>：前面看到的.git隐藏文件夹就是版本库，版本库中存储了很多配置信息、日志信息和文件版本信息等</p>
+<p>![[/Untitled 218.png|Untitled 218.png]]</p>
+<h3 id="Git工作区中文件的状态">Git工作区中文件的状态</h3>
+<ul>
+<li>untracked 未跟踪(未被纳入版本控制)【未执行add命令】</li>
+<li>tracked 已跟踪(被纳入版本控制)
+<ul>
+<li>Unmodified 未修改状态</li>
+<li>Modified 已修改状态</li>
+<li>Staged 已暂存状态</li>
+</ul>
+</li>
+</ul>
+<p>注意：<mark>这些文件的状态会随着我们执行Git的命令发生变化</mark></p>
+<h3 id="本地仓库常用命令">本地仓库常用命令</h3>
+<ul>
+<li>
+<p>git status——查看文件状态</p>
+</li>
+<li>
+<p>git add——将文件的修改加入<strong>暂存区</strong></p>
+</li>
+<li>
+<p>git reset——将<strong>暂存区</strong>的文件<strong>取消</strong>暂存或者是切换到指定<strong>版本</strong>将暂存区的文件</p>
+</li>
+<li>
+<p><mark>git commit</mark>——修改提交到<strong>版本库</strong></p>
+<p>“提交信息”</p>
+<p>git commit -m “init test.txt” test.txt</p>
+<p>git commit -m “edit test.txt” test.txt</p>
+</li>
+<li>
+<p>git log——查看日志</p>
+</li>
+</ul>
+<p>取消暂存或切换版本 git reset —hard &lt;版本号&gt;</p>
+<ul>
+<li>
+<p>完整操作示例</p>
+<p>以下是一个完整的 Git 操作示例，展示了从创建一个新的 Git 仓库开始，到进行版本控制、分支管理、回滚和恢复等一系列操作：</p>
+<h3 id="1-初始化一个新的-Git-仓库">1. 初始化一个新的 Git 仓库</h3>
+  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># 在当前目录下创建一个新的 Git 仓库</span><br><span class="line">git init my_project</span><br><span class="line">cd my_project</span><br></pre></td></tr></table></figure>
+<h3 id="2-配置用户信息（如果之前没有配置）">2. 配置用户信息（如果之前没有配置）</h3>
+  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git config --global user.name &quot;Your Name&quot;</span><br><span class="line">git config --global user.email &quot;your.email@example.com&quot;</span><br></pre></td></tr></table></figure>
+<h3 id="3-创建一个文件并添加到-Git-仓库">3. 创建一个文件并添加到 Git 仓库</h3>
+  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># 创建一个新文件</span><br><span class="line">echo &quot;Hello, Git!&quot; &gt; hello.txt</span><br><span class="line"># 将文件添加到暂存区</span><br><span class="line">git add hello.txt</span><br><span class="line"># 提交文件</span><br><span class="line">git commit -m &quot;Initial commit: Add hello.txt&quot;</span><br></pre></td></tr></table></figure>
+<h3 id="4-查看提交历史">4. 查看提交历史</h3>
+  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git log</span><br></pre></td></tr></table></figure>
+<p>输出可能如下：</p>
+  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">commit a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z (HEAD -&gt; master)</span><br><span class="line">Author: Your Name &lt;your.email@example.com&gt;</span><br><span class="line">Date:   [Date]</span><br><span class="line"></span><br><span class="line">    Initial commit: Add hello.txt</span><br></pre></td></tr></table></figure>
+<h3 id="5-修改文件和提交">5. 修改文件和提交</h3>
+  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"># 修改文件</span><br><span class="line">echo &quot;Hello, Git again!&quot; &gt;&gt; hello.txt</span><br><span class="line"># 查看修改</span><br><span class="line">git status</span><br><span class="line"># 显示工作区和暂存区的差异</span><br><span class="line">git diff</span><br><span class="line"># 将修改添加到暂存区</span><br><span class="line">git add hello.txt</span><br><span class="line"># 提交修改</span><br><span class="line">git commit -m &quot;Update hello.txt&quot;</span><br></pre></td></tr></table></figure>
+<h3 id="6-创建一个新的分支">6. 创建一个新的分支</h3>
+  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git checkout -b feature_branch</span><br></pre></td></tr></table></figure>
+<h3 id="7-在新分支上修改文件并提交">7. 在新分支上修改文件并提交</h3>
+  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># 修改文件</span><br><span class="line">echo &quot;This is a feature&quot; &gt;&gt; feature.txt</span><br><span class="line"># 添加文件到暂存区</span><br><span class="line">git add feature.txt</span><br><span class="line"># 提交文件</span><br><span class="line">git commit -m &quot;Add feature.txt on feature_branch&quot;</span><br></pre></td></tr></table></figure>
+<h3 id="8-切换回主分支并合并新分支">8. 切换回主分支并合并新分支</h3>
+  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git checkout master</span><br><span class="line">git merge --no-ff feature_branch</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>解释</strong>：
+<ul>
+<li><code>-no-ff</code> 表示不使用快进合并，会创建一个新的合并提交，方便查看合并历史。</li>
+</ul>
+</li>
+</ul>
+<h3 id="9-查看分支图">9. 查看分支图</h3>
+  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git log --graph --oneline --decorate --all</span><br></pre></td></tr></table></figure>
+<p>输出可能如下：</p>
+  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">*   c3d4e5f (HEAD -&gt; master) Merge branch &#x27;feature_branch&#x27;</span><br><span class="line">|\\</span><br><span class="line">| * b1c2d3e (feature_branch) Add feature.txt on feature_branch</span><br><span class="line">|/</span><br><span class="line">* a1b2c3d Initial commit: Add hello.txt</span><br></pre></td></tr></table></figure>
+<h3 id="10-回滚操作">10. 回滚操作</h3>
+<h3 id="场景一：使用-git-reset-soft-回滚最近一次提交（保留修改）">场景一：使用 <code>git reset --soft</code> 回滚最近一次提交（保留修改）</h3>
+  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git reset --soft HEAD~1</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>解释</strong>：
+<ul>
+<li>这将撤销最近的合并提交，但修改将保留在暂存区。</li>
+</ul>
+</li>
+</ul>
+<h3 id="场景二：使用-git-reset-mixed-回滚最近一次提交（默认，保留工作区修改）">场景二：使用 <code>git reset --mixed</code> 回滚最近一次提交（默认，保留工作区修改）</h3>
+  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git reset HEAD~1</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>解释</strong>：
+<ul>
+<li>这将撤销最近的合并提交，修改将保留在工作区。</li>
+</ul>
+</li>
+</ul>
+<h3 id="场景三：使用-git-reset-hard-彻底回滚最近一次提交（丢失未提交修改）">场景三：使用 <code>git reset --hard</code> 彻底回滚最近一次提交（丢失未提交修改）</h3>
+  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git reset --hard HEAD~1</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>解释</strong>：
+<ul>
+<li>这将撤销最近的合并提交，并丢弃未提交的修改，请谨慎使用。</li>
+</ul>
+</li>
+</ul>
+<h3 id="11-使用-git-revert-撤销之前的提交">11. 使用 <code>git revert</code> 撤销之前的提交</h3>
+  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git revert c3d4e5f</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>解释</strong>：
+<ul>
+<li><code>c3d4e5f</code> 是要撤销的提交的哈希值。此命令会创建一个新的提交，撤销 <code>c3d4e5f</code> 提交的修改。</li>
+</ul>
+</li>
+</ul>
+<h3 id="12-恢复文件">12. 恢复文件</h3>
+  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># 删除文件</span><br><span class="line">rm hello.txt</span><br><span class="line"># 查看状态</span><br><span class="line">git status</span><br><span class="line"># 从最近的提交中恢复文件</span><br><span class="line">git checkout HEAD -- hello.txt</span><br></pre></td></tr></table></figure>
+<h3 id="13-远程操作">13. 远程操作</h3>
+  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># 添加远程仓库</span><br><span class="line">git remote add origin &lt;https://github.com/yourusername/my_project.git&gt;</span><br><span class="line"># 推送分支到远程仓库</span><br><span class="line">git push origin master</span><br><span class="line"># 拉取远程仓库的更新</span><br><span class="line">git pull origin master</span><br></pre></td></tr></table></figure>
+<h3 id="14-标签操作">14. 标签操作</h3>
+  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># 创建一个标签</span><br><span class="line">git tag -a v1.0 -m &quot;Version 1.0 release&quot;</span><br><span class="line"># 推送标签到远程仓库</span><br><span class="line">git push origin v1.0</span><br></pre></td></tr></table></figure>
+<h3 id="15-查看历史记录和状态">15. 查看历史记录和状态</h3>
+  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git log</span><br><span class="line">git status</span><br></pre></td></tr></table></figure>
+<h3 id="总结：">总结：</h3>
+<ul>
+<li><strong>创建和初始化</strong>：使用 <code>git init</code> 创建仓库，配置用户信息。</li>
+<li><strong>添加和提交文件</strong>：使用 <code>git add</code> 和 <code>git commit</code> 进行文件的添加和提交。</li>
+<li><strong>分支操作</strong>：使用 <code>git checkout</code> 和 <code>git merge</code> 进行分支的创建、切换和合并。</li>
+<li><strong>回滚和恢复</strong>：使用 <code>git reset</code> 和 <code>git revert</code> 进行回滚操作，使用 <code>git checkout</code> 恢复文件。</li>
+<li><strong>远程操作</strong>：使用 <code>git remote</code>、<code>git push</code> 和 <code>git pull</code> 进行远程仓库的操作。</li>
+<li><strong>标签操作</strong>：使用 <code>git tag</code> 为重要的提交添加标签并推送到远程。</li>
+</ul>
+<p>这个示例涵盖了 Git 的基本操作，从开始到更高级的操作，如分支管理、回滚、恢复、远程操作和标签操作。在实际使用中，请根据自己的需求灵活调整和使用这些命令，确保遵循团队的 Git 工作流程和最佳实践。</p>
+<p>请注意，以上示例中的 <code>https://github.com/yourusername/my_project.git</code> 是一个示例的远程仓库 URL，你需要将其替换为自己的远程仓库地址。同时，<code>Your Name</code> 和 <code>your.email@example.com</code> 也需要替换为自己的用户名和邮箱。</p>
+</li>
+</ul>
+<h3 id="远程仓库常用命令">远程仓库常用命令</h3>
+<ul>
+<li>
+<p>git remote——查看远程仓库</p>
+<p>列出所有远程仓库：git remote -v</p>
+</li>
+<li>
+<p>git remote add <shortname> <url>——添加远程仓库 shortname一般是origin</p>
+</li>
+<li>
+<p>git remote set-url <remote> <newurl>——更改远程仓库的 URL</p>
+</li>
+<li>
+<p>git remote remove <remote>——删除远程仓库</p>
+</li>
+<li>
+<p>git clone——从远程仓库克隆</p>
+</li>
+<li>
+<p>git pull <shortname> <branchname>——从远程仓库拉取</p>
+</li>
+<li>
+<p>git push <remotename> <branchname>——推送到远程仓库</p>
+</li>
+</ul>
+<p>要先提交到本地仓库，再提交到远程仓库</p>
+<p>基本步骤：</p>
+<ol>
+<li>
+<p><strong>在本地进行更改</strong>：对项目中的文件进行修改或添加新文件。【文件修改之后也要先在本地add】</p>
+</li>
+<li>
+<p><strong>暂存更改</strong>：使用 <code>git add</code> 命令将更改的文件添加到暂存区</p>
+</li>
+<li>
+<p><strong>提交更改到本地仓库</strong>：使用 <code>git commit</code> 命令将暂存区的更改提交到本地仓库。</p>
+<p>若提示Fatal: cannot do a partial commit during a merge.则在最后添加-i</p>
+</li>
+<li>
+<p><strong>推送更改到远程仓库</strong>：使用 <code>git push</code> 命令将本地仓库的更改推送到远程仓库。</p>
+<p>其中 <code>&lt;branch_name&gt;</code> 是你想要推送的分支名，例如 <code>master</code> 或 <code>main</code>。</p>
+<p><code>git push origin master</code></p>
+</li>
+<li>
+<p><strong>检查远程仓库</strong>：（可选）有时你可能想要先检查远程仓库的状态，然后再推送，可以使用 <code>git fetch</code> 命令来获取远程仓库的最新状态而不自动合并。</p>
+<p>这将从远程仓库获取所有分支的最新状态，但不会自动合并到当前分支。</p>
+<p>git fetch origin</p>
+</li>
+<li>
+<p><strong>解决冲突（如果有的话）</strong>：如果在推送过程中出现冲突（比如远程分支有你本地没有的提交），Git 会要求你解决这些冲突。解决完冲突后，再次提交并推送。</p>
+</li>
+<li>
+<p><strong>拉取远程更改</strong>：如果你想要获取远程仓库的最新更改并合并到你的本地分支，可以使用 <code>git pull</code> 命令。</p>
+<p>这会拉取远程分支的最新更改并与你的本地分支合并。</p>
+<p>注意：如果当前本地仓库不是从远程仓库克隆，而是本地创建的仓库，并且仓库中存在文件，此时再从远程仓库拉取文件的时候会报错(fatal:refusing to merge unrelated histories)</p>
+<p>解决此问题可以在qit pull命令后加入参数–allow-unrelated-histories</p>
+<p>![[/Untitled 1 123.png|Untitled 1 123.png]]</p>
+</li>
+</ol>
+<h3 id="分支操作">分支操作</h3>
+<p>分支是Git 使用过程中非常重要的概念。使用分支意味着你可以把你的工作从开发主线上分离开来，以免影响开发主线。</p>
+<p>同一个仓库可以有多个<mark>分支【是一种动态概念】</mark>，各个分支相互独立，互不干扰。</p>
+<p>通过git init 命令创建本地仓库时默认会创建一个master分支。</p>
+<p>master：<code>master</code> 通常是一个默认的分支名，它代表主分支。当你首次初始化一个新的 Git 仓库时，Git 会自动创建一个名为 <code>master</code> 的分支，并且你的第一次提交将会在这个分支上。</p>
+<ul>
+<li>
+<p>git branch——列出所有本地分支</p>
+<p>git branch -r ——列出所有远程分支</p>
+<p>git branch -a——列出所有本地分支和远程分支</p>
+<p>![[/Untitled 2 108.png|Untitled 2 108.png]]</p>
+</li>
+<li>
+<p>git branch [name]——创建分支</p>
+</li>
+<li>
+<p>git checkout [name]——切换分支</p>
+</li>
+<li>
+<p>git push [shortName] [name]——推送至远程仓库分支【不推送的只在本地有】</p>
+<p><code>git push origin b2</code></p>
+</li>
+<li>
+<p>git merge [name]——合并分支</p>
+<p>![[/Untitled 3 91.png|Untitled 3 91.png]]</p>
+<p>![[/Untitled 4 85.png|Untitled 4 85.png]]</p>
+<p>想插入内容，i</p>
+<p>不想esc，:wq保存退出</p>
+<p>注：合并前要先确认目前分支指向</p>
+<p>分支合并时可能存在冲突：比如master分支和b1分支的内容都一样，只是b1.txt文件的内容不一样，这时将b1合并到master就会出现<code>冲突</code>，此时要解决冲突，打开master分之下的b1.txt文件，手动修改，保存；之后在执行一下<code>git add</code>和<code>git commit -m &quot;日志信息&quot; b1.txt -i</code>此时冲突已解决，就可以推送到远程仓库了，<code>git push origin master</code></p>
+</li>
+</ul>
+<h3 id="标签操作"><strong>标签操作</strong></h3>
+<p>指的是某个分支某个特定时间点的<mark>状态【是一种静态概念】</mark>。通过标签，可以很方便的切换到标记时的状态。</p>
+<p>比较有代表性的是人们会使用这个功能来标记发布结点（v1.0 、v1.2等）</p>
+<p>下面是mybatis-plus的标签：</p>
+<p>![[4feed5957eef483cb7d4a149ef58f1d3.png]]</p>
+<p>![[4feed5957eef483cb7d4a149ef58f1d3 1.png]]</p>
+<ul>
+<li>
+<p><code>git tag</code> 查看已有标签</p>
+</li>
+<li>
+<p><code>git tag [name]</code> 创建标签</p>
+</li>
+<li>
+<p><code>git push [shortName] [name]</code> 将标签推送至远程仓库</p>
+<p><code>git push origin v0.1</code> 记录的是当前分支的状态【全部文件】</p>
+</li>
+<li>
+<p><code>git checkout -b [branch] [name]</code>检出标签（把这个标签弄到新的分支，进而继续开发）</p>
+<p><code>git checkout -b b0.1 v0.1</code></p>
+</li>
+</ul>
+<h2 id="在idea中集成Git">在idea中集成Git</h2>
+<h3 id="获取Git仓库-2">获取Git仓库</h3>
+<p>![[/Untitled 5 81.png|Untitled 5 81.png]]</p>
+<p>获取仓库有两种方式：本地初始化仓库、从远程仓库克隆</p>
+<h3 id="本地仓库操作">本地仓库操作</h3>
+<p>【VCS】—【Create Git Repository】</p>
+<p>在弹出的【Create Git Repository】对话框中选择当前项目根目录</p>
+<p>操作完成后可以看到当前项目根目录下出现了.git隐藏目录：</p>
+<p>![[/Untitled 6 76.png|Untitled 6 76.png]]</p>
+<p>等价于直接在项目下执行 git init</p>
+<ul>
+<li>
+<p>将文件加入暂存区，本质就是执行 <mark>git add</mark> 命令</p>
+<p>![[/Untitled 7 72.png|Untitled 7 72.png]]</p>
+</li>
+<li>
+<p>将暂存区的文件提交到版本库，本质就是执行 git commit 命令</p>
+<p>![[/Untitled 8 67.png|Untitled 8 67.png]]</p>
+</li>
+<li>
+<p>查看日志，本质就是执行 git log 命令</p>
+<p>![[/Untitled 9 64.png|Untitled 9 64.png]]</p>
+</li>
+<li>
+<p>黑色：表示与Git版本库一致的文件；</p>
+</li>
+<li>
+<p>绿色：表示新增的文件；</p>
+</li>
+<li>
+<p>蓝色：表示内容有改动过的文件；</p>
+</li>
+<li>
+<p>砖红色：表示未加入到暂存区的文件；</p>
+</li>
+<li>
+<p>灰色：表示为.gitignore排除掉的文件，<a target="_blank" rel="noopener" href="http://xn--HELP-f96g.md">如HELP.md</a>，项目中的日志文件夹等等；</p>
+</li>
+</ul>
+<h3 id="远程仓库操作">远程仓库操作</h3>
+<p>本质就是执行的 git clone 命令</p>
+<p>在IDEA开始窗口中点击【Get from Version Control】</p>
+<p>![[959a8e9b206947c2b7142b371935bd47.png]]</p>
+<p>或者【VCS】——【Get from Version Control】</p>
+<p>![[/Untitled 10 60.png|Untitled 10 60.png]]</p>
+<p>在弹出的【Get from Version Control】窗口中输入远程仓库的URL地址和对应的本地仓库存放目录，点击【Clone】按钮进行仓库克隆操作</p>
+<p><strong>Git忽略文件</strong></p>
+<p>在Git工作区中有一个特殊的文件 <code>.gitignore</code>，通过此文件可以<strong>指定工作区中的哪些文件不需要Git管理</strong>。我们在码云上创建Git远程仓库时可以指定生成此文件，如下：</p>
+<p>![[9890ee1d40d549bab49d6b4af33cb389.png]]</p>
+<p>创建完成后效果如下：</p>
+<p><a target="_blank" rel="noopener" href="https://img-blog.csdnimg.cn/a8446311bee543ac8d9f90f3949149ff.png"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img-blog.csdnimg.cn/a8446311bee543ac8d9f90f3949149ff.png" alt=""></a></p>
+<p>解释说明：</p>
+<p>1）我们在使用Git管理项目代码时，并不是所有文件都需要Git管理，例如Java项目中编译的.class文件、开发工具自带的配置文件等，这些文件没有必要交给Git管理，所以也就不需要提交到Git版本库中</p>
+<p>2）注意忽略文件的名称是固定的，位置在根目录，不能修改</p>
+<p>3）添加到忽略列表中的文件后续Git工具就会忽略它、</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">.git</span><br><span class="line">logs</span><br><span class="line">rebel.xml</span><br><span class="line">target/</span><br><span class="line">!.mvn/wrapper/maven-wrapper.jar</span><br><span class="line">log.path_IS_UNDEFINED</span><br><span class="line">.DS_Store</span><br><span class="line">offline_user.md</span><br><span class="line">*.class</span><br><span class="line"></span><br><span class="line">### IntelliJ IDEA ###</span><br><span class="line">.idea</span><br><span class="line">*.iws</span><br><span class="line">*.iml</span><br><span class="line">*.ipr</span><br></pre></td></tr></table></figure>
+<p>![[/Untitled 11 55.png|Untitled 11 55.png]]</p>
+<ul>
+<li>
+<p>查看远程仓库，本质就是执行 git remote 命令</p>
+<p>![[/Untitled 12 51.png|Untitled 12 51.png]]</p>
+</li>
+<li>
+<p>添加远程仓库，本质就是执行 git remote add 命令</p>
+<p>![[/Untitled 13 49.png|Untitled 13 49.png]]</p>
+</li>
+<li>
+<p>推送至远程仓库，本质就是执行 git push 命令</p>
+<p>![[/Untitled 14 47.png|Untitled 14 47.png]]</p>
+</li>
+<li>
+<p>从远程仓库拉取，本质就是执行 git pull 命令</p>
+</li>
+</ul>
+<p>推送失败，打开项目终端</p>
+<p><mark>git push -u origin master -f</mark></p>
+<h3 id="分支操作-2">分支操作</h3>
+<ul>
+<li>查看分支，本质就是执行 git branch 命令</li>
+<li>创建分支，本质就是执行 git branch 分支名 命令</li>
+<li>切换分支，本质就是执行 git checkout 命令</li>
+<li>将分支推送到远程仓库，本质就是执行 git push 命令</li>
+<li>合并分支，本质就是执行 git merge 命令</li>
+</ul>
+<h3 id="log轨迹图">log轨迹图</h3>
+<p><strong>标签</strong>：</p>
+<p>黄色表示当前分支</p>
+<p>绿色表示本地存在这个分支</p>
+<p>紫色代表远端分支</p>
+<p>黄绿紫代表这个各分支是当前分支，在本地，远端分支。</p>
+<p><strong>小圆点</strong>：</p>
+<p>仓库是一可追溯的文件集合，该文件的任意一个历史状态就是一个单位，一个小圆点，即一个commit对象。</p>
+<p><strong>分支关系：</strong></p>
+<p>多个分支可以合并为一个新的历史节点。</p>
+<p>eg：当前分支为master，合并a到master，a节点停滞，master节点产生一个新的历史变更状态（小节点）</p>
+<p><strong>箭头：</strong></p>
+<p>折叠功能</p>
+<p>根据箭头可以找到当前节点的上一个/下一个提交</p>
+<p><strong>支线：</strong></p>
+<ul>
+<li>新建分支会出现支线。因为开发需要新的特性，但是没有测试不能在当前分支上修改，所以需要从主 分支拉取新分支在新分支上修改，修改后，合并到主分支。</li>
+<li>新分支commit差异，产生支线。</li>
+<li>同一分支，不同仓库的commit差异，产生支线。</li>
+<li>merge合并支线</li>
+</ul>
+<p><strong>分支：</strong></p>
+<p>分支是指向叶子节点的指针，每个节点都是一次历史状态变更。叶子节点可以理解为最新的历史状态变更。</p>
+<p><strong>远程分支和本地分支：</strong></p>
+<p>远程分支和本地分支对应。</p>
+<p>本地a分支push到master，a是master的子节点，master的修改a都有</p>
+<p>本地a分支pull/fetch/merage--------master分支,a是master的父节点</p>
+<p><strong>工作区、缓存区、提交记录：</strong></p>
+<p>工作区就是修改代码的地方</p>
+<p>缓存区就是git add，rollback的地方</p>
+<p>提交记录就是讲缓存区提交上去（不会通过工作区提交）</p>
+<p><strong>git提交是根据分支的hash值来计算分支有没有改变从而判定是否可以提交</strong></p>
+<p><strong>Soft、mixed、hard、keep之间的区别：</strong></p>
+<p>![[20200509071122907.png]]</p>
+<p>soft只会改变head位置，不会改变工作区和缓存区（此时可以提交），只会改变head即当前分支的位置的位置，会产生分叉。</p>
+<p>![[20210127224457801.png]]</p>
+<p>![[20210127224511558.png]]</p>
+<p>此时，再提交一次</p>
+<p>![[20210127224557113.png]]</p>
+<p>当前分支的hash值和远端不一样，产生新的分支</p>
+<p><strong>mixed会将分支回滚到修改之前：</strong></p>
+<p>![[20210127224708623.png]]</p>
+<p>![[20210127224811393.png]]</p>
+<p><a target="_blank" rel="noopener" href="https://img-blog.csdnimg.cn/20210127224708623.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mzc1OTAzOQ==,size_16,color_FFFFFF,t_70"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img-blog.csdnimg.cn/20210127224708623.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mzc1OTAzOQ==,size_16,color_FFFFFF,t_70" alt=""></a></p>
+<p><a target="_blank" rel="noopener" href="https://img-blog.csdnimg.cn/20210127224811393.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mzc1OTAzOQ==,size_16,color_FFFFFF,t_70"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img-blog.csdnimg.cn/20210127224811393.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mzc1OTAzOQ==,size_16,color_FFFFFF,t_70" alt=""></a></p>
+<p><strong>Hard和Keep</strong></p>
+<p>这两种回滚后会对工作区进行改变，回到开始的时候</p>
+<p><strong>soft和mixed修改缓存区，hard和keep修改工作区</strong></p>
+<h1>GUI</h1>
+<p>SourceTree：</p>
+<p>Local: 本地仓库</p>
+<p>Remote：远程仓库</p>
+<p>Clone：克隆远程仓库</p>
+<p>Add：添加本地已有仓库</p>
+<p>Create：创建仓库</p>
+<h2 id="使用步骤">使用步骤</h2>
+<p>![[a451db6ff84088e426bede0b9812d899.png]]</p>
+<p>![[9ebeda5438b2093fa08849db2e24ea91.png]]</p>
+<p>![[c250139969a3448b87ec5641ef9b9e81.png]]</p>
+<p>创建本地仓库成功后，本地项目文件夹中会出现一个叫.git的文件夹</p>
+<p>![[1d27349dd5015569de80770bc09def53.png]]</p>
+<p>创建本地仓库后可以看到我们当前项目中的文件都是未暂存的，点击暂存所有按钮暂存文件</p>
+<p>暂存文件后，文件提交到了暂存区，因此我们还需要提交文件到本地仓库</p>
+<p><strong>提交</strong></p>
+<p>将需要跟踪的文件加入到暂存区，最后点击提交</p>
+<p>![[2bd0b143426f349a2f945345c76e65e8.png]]</p>
+<p>主分支已记录提交内容</p>
+<p>此时我们就完成了，本地的操作，但如果要将项目推送到远程仓库，就得关联远程仓库，如下图，没有关联远程仓库会有感叹号</p>
+<p>![[2243028fdf6f416015235a0489926753.png]]</p>
+<p>关联远程仓库的方式有两种，我们这里选择SSH关联</p>
+<p>Http协议关联，这种需要关闭SSL 层协议才可，需要改动到计算机的网络配置<br>
+配置ssh公钥，利用ssh关联</p>
+<p>![[ba6946fdaf5400af33545c72471e839e.png]]</p>
+<div class="main-hero-waves-area"><div class="waves-area"><svg class="waves-svg" version="1.1" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 1440 140" preserveAspectRatio="none"><path class="parallax" d="M 0 44 C 355 167 415 0 725 44 L 725 44 L 0 44 Z"></path><use class="parallax" xlink:href="#wave1" x="48" y="3"></use><use class="parallax" xlink:href="#wave1" x="48" y="5"></use><use class="parallax" xlink:href="#wave1" x="48" y="7"></use><use class="parallax" xlink:href="#wave1" x="48" y="9"></use></svg></div></div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://labi.com">Lorinda</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://labi.com/post/reggie-deployment.html">http://labi.com/post/reggie-deployment.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="http://labi.com" target="_blank">蜡笔梦工厂</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Linux/">Linux</a><a class="post-meta__tags" href="/tags/Git/">Git</a><a class="post-meta__tags" href="/tags/%E8%87%AA%E5%8A%A8%E5%8C%96%E9%83%A8%E7%BD%B2/">自动化部署</a><a class="post-meta__tags" href="/tags/Nginx/">Nginx</a><a class="post-meta__tags" href="/tags/%E9%A1%B9%E7%9B%AE%E5%8F%91%E5%B8%83/">项目发布</a></div><div class="post-share"><div class="social-share" data-image="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112618.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://lib.baomitu.com/social-share.js/1.0.16/css/share.min.css" media="print" onload="this.media='all'"><script src="https://lib.baomitu.com/social-share.js/1.0.16/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/post/reggie-optimization.html" title="瑞吉外卖：性能优化与架构升级"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112938.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">瑞吉外卖：性能优化与架构升级</div></div><div class="info-2"><div class="info-item-1">详解瑞吉外卖优化方案，包括Redis缓存应用、数据库读写分离、系统架构升级等性能提升手段。</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/post/9ca97f19.html" title="Linux基础知识总结"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_160146.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-05-22</div><div class="info-item-2">Linux基础知识总结</div></div><div class="info-2"><div class="info-item-1">本文详细总结了Linux的基础知识，包括主要发行版、文件系统结构、常用命令（ls、cd、mkdir等）、用户与权限管理、Shell脚本及系统配置等核心内容，适合Linux初学者入门学习。</div></div></div></a></div></div><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="card-info-avatar"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_155535.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-status-box"><div class="author-status"><g-emoji class="g-emoji" alias="palm_tree" fallback-src="https://lskypro.acozycotage.net/LightPicture/2022/12/fe1dc0402e623096.jpg">🐟</g-emoji><span>认真摸鱼中</span></div></div></div><div class="author-info-name">Lorinda</div><div class="author-info-description">欢迎来到Lorinda的个人博客\^o^/</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">29</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">109</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">10</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://lr0513.github.io/"><i class="fab fa-github"></i><span>你回来了~</span><i class="faa-passing animated" style="padding-left:20px;display:inline-block;vertical-align:middle;"><svg class="icon" style="height:28px;width:28px;fill:currentColor;position:relative;top:5px"><use xlink:href="#icon-hexolabixiaoxin1"></use></svg></i></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content"></div><div id="welcome-info"></div></div><div class="xpand" style="height:200px;"><canvas class="illo" width="800" height="800" style="max-width: 200px; max-height: 200px; touch-action: none; width: 640px; height: 640px;"></canvas></div><script src="https://npm.elemecdn.com/ethan4116-blog/lib/js/other/two-people/twopeople1.js"></script><script src="https://npm.elemecdn.com/ethan4116-blog/lib/js/other/two-people/zdog.dist.js"></script><script id="rendered-js" src="https://npm.elemecdn.com/ethan4116-blog/lib/js/other/two-people/twopeople.js"></script><style>.card-widget.card-announcement {
+margin: 0;
+align-items: center;
+justify-content: center;
+text-align: center;
+}
+canvas {
+display: block;
+margin: 0 auto;
+cursor: move;
+}</style><div class="card-widget" id="newYear"><div class="item-headline"><i></i><span></span></div><div class="item-content"><div id="newYear-main"><div class="mask"></div> <p class="title"></p> <div class="newYear-time"></div> <p class="today" style="text-align: right;"></p> </div></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4"><span class="toc-number">1.</span> <span class="toc-text">常用命令</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Linux%E5%91%BD%E4%BB%A4%E6%A0%BC%E5%BC%8F"><span class="toc-number">1.1.</span> <span class="toc-text">Linux命令格式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E7%9B%AE%E5%BD%95%E5%86%85%E5%AE%B9%E6%9F%A5%E7%9C%8B"><span class="toc-number">1.2.</span> <span class="toc-text">1. 目录内容查看</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%88%87%E6%8D%A2%E7%9B%AE%E5%BD%95"><span class="toc-number">1.3.</span> <span class="toc-text">2. 切换目录</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%88%9B%E5%BB%BA%E6%96%87%E4%BB%B6"><span class="toc-number">1.4.</span> <span class="toc-text">3. 创建文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E5%88%9B%E5%BB%BA%E7%9B%AE%E5%BD%95"><span class="toc-number">1.5.</span> <span class="toc-text">4. 创建目录</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#rmdir"><span class="toc-number">1.6.</span> <span class="toc-text">rmdir</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E5%88%A0%E9%99%A4%E6%96%87%E4%BB%B6%E6%88%96%E7%9B%AE%E5%BD%95"><span class="toc-number">1.7.</span> <span class="toc-text">5. 删除文件或目录</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E6%8B%B7%E8%B4%9D%E6%96%87%E4%BB%B6%E6%88%96%E7%9B%AE%E5%BD%95"><span class="toc-number">1.8.</span> <span class="toc-text">6. 拷贝文件或目录</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-%E7%A7%BB%E5%8A%A8%E6%88%96%E9%87%8D%E5%91%BD%E5%90%8D"><span class="toc-number">1.9.</span> <span class="toc-text">7. 移动或重命名</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-%E6%89%93%E5%8C%85%E5%8E%8B%E7%BC%A9"><span class="toc-number">1.10.</span> <span class="toc-text">8. 打包压缩</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-%E6%96%87%E6%9C%AC%E7%BC%96%E8%BE%91"><span class="toc-number">1.11.</span> <span class="toc-text">9. 文本编辑</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-%E6%9F%A5%E6%89%BE%E5%91%BD%E4%BB%A4"><span class="toc-number">1.12.</span> <span class="toc-text">10. 查找命令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-%E6%9F%A5%E7%9C%8B%E5%91%BD%E4%BB%A4"><span class="toc-number">1.13.</span> <span class="toc-text">11. 查看命令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#12-%E7%BB%88%E7%AB%AF%E8%BE%93%E5%87%BA%E5%91%BD%E4%BB%A4"><span class="toc-number">1.14.</span> <span class="toc-text">12. 终端输出命令</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85"><span class="toc-number">2.</span> <span class="toc-text">软件安装</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#jdk"><span class="toc-number">2.1.</span> <span class="toc-text">jdk</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Tomcat"><span class="toc-number">2.2.</span> <span class="toc-text">Tomcat</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Tomcat%E8%BF%9B%E7%A8%8B%E6%9F%A5%E7%9C%8B"><span class="toc-number">2.3.</span> <span class="toc-text">Tomcat进程查看</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MySQL"><span class="toc-number">2.4.</span> <span class="toc-text">MySQL</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ubantu%E5%BD%BB%E5%BA%95%E5%8D%B8%E8%BD%BDmysql"><span class="toc-number">2.5.</span> <span class="toc-text">ubantu彻底卸载mysql</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#lrzsz"><span class="toc-number">2.6.</span> <span class="toc-text">lrzsz</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A1%B9%E7%9B%AE%E9%83%A8%E7%BD%B2"><span class="toc-number">3.</span> <span class="toc-text">项目部署</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%8B%E5%B7%A5%E9%83%A8%E7%BD%B2%E9%A1%B9%E7%9B%AE"><span class="toc-number">3.1.</span> <span class="toc-text">手工部署项目</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%9A%E8%BF%87shell%E8%84%9A%E6%9C%AC%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2%E9%A1%B9%E7%9B%AE"><span class="toc-number">3.2.</span> <span class="toc-text">通过shell脚本自动部署项目</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%86%E5%B8%83%E5%BC%8FVS%E9%9B%86%E4%B8%AD%E5%BC%8F"><span class="toc-number">3.3.</span> <span class="toc-text">分布式VS集中式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Git%E4%BB%A3%E7%A0%81%E6%89%98%E7%AE%A1%E6%9C%8D%E5%8A%A1"><span class="toc-number">4.</span> <span class="toc-text">Git代码托管服务</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Git%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4"><span class="toc-number">5.</span> <span class="toc-text">Git常用命令</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Git%E5%85%A8%E5%B1%80%E8%AE%BE%E7%BD%AE"><span class="toc-number">5.1.</span> <span class="toc-text">Git全局设置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96Git%E4%BB%93%E5%BA%93"><span class="toc-number">5.2.</span> <span class="toc-text">获取Git仓库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B7%A5%E4%BD%9C%E5%8C%BA%E3%80%81%E6%9A%82%E5%AD%98%E5%8C%BA%E3%80%81%E7%89%88%E6%9C%AC%E5%BA%93"><span class="toc-number">5.3.</span> <span class="toc-text">工作区、暂存区、版本库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Git%E5%B7%A5%E4%BD%9C%E5%8C%BA%E4%B8%AD%E6%96%87%E4%BB%B6%E7%9A%84%E7%8A%B6%E6%80%81"><span class="toc-number">5.4.</span> <span class="toc-text">Git工作区中文件的状态</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%AC%E5%9C%B0%E4%BB%93%E5%BA%93%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4"><span class="toc-number">5.5.</span> <span class="toc-text">本地仓库常用命令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%88%9D%E5%A7%8B%E5%8C%96%E4%B8%80%E4%B8%AA%E6%96%B0%E7%9A%84-Git-%E4%BB%93%E5%BA%93"><span class="toc-number">5.6.</span> <span class="toc-text">1. 初始化一个新的 Git 仓库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E9%85%8D%E7%BD%AE%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF%EF%BC%88%E5%A6%82%E6%9E%9C%E4%B9%8B%E5%89%8D%E6%B2%A1%E6%9C%89%E9%85%8D%E7%BD%AE%EF%BC%89"><span class="toc-number">5.7.</span> <span class="toc-text">2. 配置用户信息（如果之前没有配置）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AA%E6%96%87%E4%BB%B6%E5%B9%B6%E6%B7%BB%E5%8A%A0%E5%88%B0-Git-%E4%BB%93%E5%BA%93"><span class="toc-number">5.8.</span> <span class="toc-text">3. 创建一个文件并添加到 Git 仓库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E6%9F%A5%E7%9C%8B%E6%8F%90%E4%BA%A4%E5%8E%86%E5%8F%B2"><span class="toc-number">5.9.</span> <span class="toc-text">4. 查看提交历史</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E4%BF%AE%E6%94%B9%E6%96%87%E4%BB%B6%E5%92%8C%E6%8F%90%E4%BA%A4"><span class="toc-number">5.10.</span> <span class="toc-text">5. 修改文件和提交</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AA%E6%96%B0%E7%9A%84%E5%88%86%E6%94%AF"><span class="toc-number">5.11.</span> <span class="toc-text">6. 创建一个新的分支</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-%E5%9C%A8%E6%96%B0%E5%88%86%E6%94%AF%E4%B8%8A%E4%BF%AE%E6%94%B9%E6%96%87%E4%BB%B6%E5%B9%B6%E6%8F%90%E4%BA%A4"><span class="toc-number">5.12.</span> <span class="toc-text">7. 在新分支上修改文件并提交</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-%E5%88%87%E6%8D%A2%E5%9B%9E%E4%B8%BB%E5%88%86%E6%94%AF%E5%B9%B6%E5%90%88%E5%B9%B6%E6%96%B0%E5%88%86%E6%94%AF"><span class="toc-number">5.13.</span> <span class="toc-text">8. 切换回主分支并合并新分支</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-%E6%9F%A5%E7%9C%8B%E5%88%86%E6%94%AF%E5%9B%BE"><span class="toc-number">5.14.</span> <span class="toc-text">9. 查看分支图</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-%E5%9B%9E%E6%BB%9A%E6%93%8D%E4%BD%9C"><span class="toc-number">5.15.</span> <span class="toc-text">10. 回滚操作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9C%BA%E6%99%AF%E4%B8%80%EF%BC%9A%E4%BD%BF%E7%94%A8-git-reset-soft-%E5%9B%9E%E6%BB%9A%E6%9C%80%E8%BF%91%E4%B8%80%E6%AC%A1%E6%8F%90%E4%BA%A4%EF%BC%88%E4%BF%9D%E7%95%99%E4%BF%AE%E6%94%B9%EF%BC%89"><span class="toc-number">5.16.</span> <span class="toc-text">场景一：使用 git reset --soft 回滚最近一次提交（保留修改）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9C%BA%E6%99%AF%E4%BA%8C%EF%BC%9A%E4%BD%BF%E7%94%A8-git-reset-mixed-%E5%9B%9E%E6%BB%9A%E6%9C%80%E8%BF%91%E4%B8%80%E6%AC%A1%E6%8F%90%E4%BA%A4%EF%BC%88%E9%BB%98%E8%AE%A4%EF%BC%8C%E4%BF%9D%E7%95%99%E5%B7%A5%E4%BD%9C%E5%8C%BA%E4%BF%AE%E6%94%B9%EF%BC%89"><span class="toc-number">5.17.</span> <span class="toc-text">场景二：使用 git reset --mixed 回滚最近一次提交（默认，保留工作区修改）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9C%BA%E6%99%AF%E4%B8%89%EF%BC%9A%E4%BD%BF%E7%94%A8-git-reset-hard-%E5%BD%BB%E5%BA%95%E5%9B%9E%E6%BB%9A%E6%9C%80%E8%BF%91%E4%B8%80%E6%AC%A1%E6%8F%90%E4%BA%A4%EF%BC%88%E4%B8%A2%E5%A4%B1%E6%9C%AA%E6%8F%90%E4%BA%A4%E4%BF%AE%E6%94%B9%EF%BC%89"><span class="toc-number">5.18.</span> <span class="toc-text">场景三：使用 git reset --hard 彻底回滚最近一次提交（丢失未提交修改）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-%E4%BD%BF%E7%94%A8-git-revert-%E6%92%A4%E9%94%80%E4%B9%8B%E5%89%8D%E7%9A%84%E6%8F%90%E4%BA%A4"><span class="toc-number">5.19.</span> <span class="toc-text">11. 使用 git revert 撤销之前的提交</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#12-%E6%81%A2%E5%A4%8D%E6%96%87%E4%BB%B6"><span class="toc-number">5.20.</span> <span class="toc-text">12. 恢复文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#13-%E8%BF%9C%E7%A8%8B%E6%93%8D%E4%BD%9C"><span class="toc-number">5.21.</span> <span class="toc-text">13. 远程操作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#14-%E6%A0%87%E7%AD%BE%E6%93%8D%E4%BD%9C"><span class="toc-number">5.22.</span> <span class="toc-text">14. 标签操作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#15-%E6%9F%A5%E7%9C%8B%E5%8E%86%E5%8F%B2%E8%AE%B0%E5%BD%95%E5%92%8C%E7%8A%B6%E6%80%81"><span class="toc-number">5.23.</span> <span class="toc-text">15. 查看历史记录和状态</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93%EF%BC%9A"><span class="toc-number">5.24.</span> <span class="toc-text">总结：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9C%E7%A8%8B%E4%BB%93%E5%BA%93%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4"><span class="toc-number">5.25.</span> <span class="toc-text">远程仓库常用命令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%86%E6%94%AF%E6%93%8D%E4%BD%9C"><span class="toc-number">5.26.</span> <span class="toc-text">分支操作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%87%E7%AD%BE%E6%93%8D%E4%BD%9C"><span class="toc-number">5.27.</span> <span class="toc-text">标签操作</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9C%A8idea%E4%B8%AD%E9%9B%86%E6%88%90Git"><span class="toc-number">6.</span> <span class="toc-text">在idea中集成Git</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96Git%E4%BB%93%E5%BA%93-2"><span class="toc-number">6.1.</span> <span class="toc-text">获取Git仓库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%AC%E5%9C%B0%E4%BB%93%E5%BA%93%E6%93%8D%E4%BD%9C"><span class="toc-number">6.2.</span> <span class="toc-text">本地仓库操作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9C%E7%A8%8B%E4%BB%93%E5%BA%93%E6%93%8D%E4%BD%9C"><span class="toc-number">6.3.</span> <span class="toc-text">远程仓库操作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%86%E6%94%AF%E6%93%8D%E4%BD%9C-2"><span class="toc-number">6.4.</span> <span class="toc-text">分支操作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#log%E8%BD%A8%E8%BF%B9%E5%9B%BE"><span class="toc-number">6.5.</span> <span class="toc-text">log轨迹图</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number"></span> <span class="toc-text">GUI</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E6%AD%A5%E9%AA%A4"><span class="toc-number">1.</span> <span class="toc-text">使用步骤</span></a></li></ol></div></div><div class="card-widget card-post-series"><div class="item-headline"><i class="fa-solid fa-layer-group"></i><span>系列文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/post/reggie-deployment.html" title="瑞吉外卖：Linux环境与自动化部署"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112618.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="瑞吉外卖：Linux环境与自动化部署"></a><div class="content"><a class="title" href="/post/reggie-deployment.html" title="瑞吉外卖：Linux环境与自动化部署">瑞吉外卖：Linux环境与自动化部署</a><time datetime="2025-09-02T02:04:00.000Z" title="发表于 2025-09-02 10:04:00">2025-09-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/reggie-optimization.html" title="瑞吉外卖：性能优化与架构升级"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112938.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="瑞吉外卖：性能优化与架构升级"></a><div class="content"><a class="title" href="/post/reggie-optimization.html" title="瑞吉外卖：性能优化与架构升级">瑞吉外卖：性能优化与架构升级</a><time datetime="2025-09-02T02:03:00.000Z" title="发表于 2025-09-02 10:03:00">2025-09-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/reggie-business.html" title="瑞吉外卖：核心业务功能开发"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_160146.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="瑞吉外卖：核心业务功能开发"></a><div class="content"><a class="title" href="/post/reggie-business.html" title="瑞吉外卖：核心业务功能开发">瑞吉外卖：核心业务功能开发</a><time datetime="2025-09-02T02:01:00.000Z" title="发表于 2025-09-02 10:01:00">2025-09-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/reggie-business.html" title="瑞吉外卖：核心业务功能开发"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_160146.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="瑞吉外卖：核心业务功能开发"></a><div class="content"><a class="title" href="/post/reggie-business.html" title="瑞吉外卖：核心业务功能开发">瑞吉外卖：核心业务功能开发</a><time datetime="2025-09-02T02:01:00.000Z" title="发表于 2025-09-02 10:01:00">2025-09-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/reggie-overview.html" title="瑞吉外卖：项目概述与整体架构"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_160146.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="瑞吉外卖：项目概述与整体架构"></a><div class="content"><a class="title" href="/post/reggie-overview.html" title="瑞吉外卖：项目概述与整体架构">瑞吉外卖：项目概述与整体架构</a><time datetime="2025-09-02T02:00:00.000Z" title="发表于 2025-09-02 10:00:00">2025-09-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/ce4585c2.html" title="前端实现：界面与交互逻辑"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_155656.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="前端实现：界面与交互逻辑"></a><div class="content"><a class="title" href="/post/ce4585c2.html" title="前端实现：界面与交互逻辑">前端实现：界面与交互逻辑</a><time datetime="2025-08-30T03:03:00.000Z" title="发表于 2025-08-30 11:03:00">2025-08-30</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/d67b0a8b.html" title="核心功能开发：业务流程实现"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112626.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="核心功能开发：业务流程实现"></a><div class="content"><a class="title" href="/post/d67b0a8b.html" title="核心功能开发：业务流程实现">核心功能开发：业务流程实现</a><time datetime="2025-08-30T03:02:00.000Z" title="发表于 2025-08-30 11:02:00">2025-08-30</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/b85186f.html" title="基础开发：环境搭建与核心配置"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112938.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="基础开发：环境搭建与核心配置"></a><div class="content"><a class="title" href="/post/b85186f.html" title="基础开发：环境搭建与核心配置">基础开发：环境搭建与核心配置</a><time datetime="2025-08-30T03:01:00.000Z" title="发表于 2025-08-30 11:01:00">2025-08-30</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/25e0fe54.html" title="项目概述：架构与需求分析"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112758.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="项目概述：架构与需求分析"></a><div class="content"><a class="title" href="/post/25e0fe54.html" title="项目概述：架构与需求分析">项目概述：架构与需求分析</a><time datetime="2025-08-30T03:00:00.000Z" title="发表于 2025-08-30 11:00:00">2025-08-30</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/g86c4e7a.html" title="第 7 章 计算机系统结构"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112938.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 7 章 计算机系统结构"></a><div class="content"><a class="title" href="/post/g86c4e7a.html" title="第 7 章 计算机系统结构">第 7 章 计算机系统结构</a><time datetime="2025-08-28T21:20:00.000Z" title="发表于 2025-08-29 05:20:00">2025-08-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/f75b3d6f.html" title="第 6 章 输入输出系统"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112650.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 6 章 输入输出系统"></a><div class="content"><a class="title" href="/post/f75b3d6f.html" title="第 6 章 输入输出系统">第 6 章 输入输出系统</a><time datetime="2025-08-28T21:19:00.000Z" title="发表于 2025-08-29 05:19:00">2025-08-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/169339cb.html" title="第 5 章 输入输出管理：设备协同与优化"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112618.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 5 章 输入输出管理：设备协同与优化"></a><div class="content"><a class="title" href="/post/169339cb.html" title="第 5 章 输入输出管理：设备协同与优化">第 5 章 输入输出管理：设备协同与优化</a><time datetime="2025-08-28T21:18:00.000Z" title="发表于 2025-08-29 05:18:00">2025-08-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/d64a2c5e.html" title="第 5 章 中央处理器"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112938.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 5 章 中央处理器"></a><div class="content"><a class="title" href="/post/d64a2c5e.html" title="第 5 章 中央处理器">第 5 章 中央处理器</a><time datetime="2025-08-28T21:18:00.000Z" title="发表于 2025-08-29 05:18:00">2025-08-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/790dfc8c.html" title="第 4 章 文件管理：存储与访问机制"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_160146.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 4 章 文件管理：存储与访问机制"></a><div class="content"><a class="title" href="/post/790dfc8c.html" title="第 4 章 文件管理：存储与访问机制">第 4 章 文件管理：存储与访问机制</a><time datetime="2025-08-28T21:17:00.000Z" title="发表于 2025-08-29 05:17:00">2025-08-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/b93e5f6d.html" title="第 4 章 指令系统"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112938.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 4 章 指令系统"></a><div class="content"><a class="title" href="/post/b93e5f6d.html" title="第 4 章 指令系统">第 4 章 指令系统</a><time datetime="2025-08-28T21:17:00.000Z" title="发表于 2025-08-29 05:17:00">2025-08-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/ce20e5e9.html" title="第 3 章 内存管理：地址映射与虚拟内存"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112813.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 3 章 内存管理：地址映射与虚拟内存"></a><div class="content"><a class="title" href="/post/ce20e5e9.html" title="第 3 章 内存管理：地址映射与虚拟内存">第 3 章 内存管理：地址映射与虚拟内存</a><time datetime="2025-08-28T21:16:00.000Z" title="发表于 2025-08-29 05:16:00">2025-08-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/a81d4c7b.html" title="第 3 章 存储系统"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112618.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 3 章 存储系统"></a><div class="content"><a class="title" href="/post/a81d4c7b.html" title="第 3 章 存储系统">第 3 章 存储系统</a><time datetime="2025-08-28T21:16:00.000Z" title="发表于 2025-08-29 05:16:00">2025-08-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/833e46bb.html" title="第 2 章 进程与线程：并发管理核心"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112650.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 2 章 进程与线程：并发管理核心"></a><div class="content"><a class="title" href="/post/833e46bb.html" title="第 2 章 进程与线程：并发管理核心">第 2 章 进程与线程：并发管理核心</a><time datetime="2025-08-28T21:15:00.000Z" title="发表于 2025-08-29 05:15:00">2025-08-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/e72f3b9c.html" title="第 2 章 数据的表示与计算"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112938.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 2 章 数据的表示与计算"></a><div class="content"><a class="title" href="/post/e72f3b9c.html" title="第 2 章 数据的表示与计算">第 2 章 数据的表示与计算</a><time datetime="2025-08-28T21:15:00.000Z" title="发表于 2025-08-29 05:15:00">2025-08-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/b328aa63.html" title="第 1 章 操作系统概述：计算机系统基础"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112618.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 1 章 操作系统概述：计算机系统基础"></a><div class="content"><a class="title" href="/post/b328aa63.html" title="第 1 章 操作系统概述：计算机系统基础">第 1 章 操作系统概述：计算机系统基础</a><time datetime="2025-08-28T21:14:00.000Z" title="发表于 2025-08-29 05:14:00">2025-08-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/c45d1e8a.html" title="第 1 章 计算机系统概述"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112938.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 1 章 计算机系统概述"></a><div class="content"><a class="title" href="/post/c45d1e8a.html" title="第 1 章 计算机系统概述">第 1 章 计算机系统概述</a><time datetime="2025-08-28T21:14:00.000Z" title="发表于 2025-08-29 05:14:00">2025-08-29</time></div></div></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/post/reggie-deployment.html" title="瑞吉外卖：Linux环境与自动化部署"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112618.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="瑞吉外卖：Linux环境与自动化部署"/></a><div class="content"><a class="title" href="/post/reggie-deployment.html" title="瑞吉外卖：Linux环境与自动化部署">瑞吉外卖：Linux环境与自动化部署</a><time datetime="2025-09-02T02:04:00.000Z" title="发表于 2025-09-02 10:04:00">2025-09-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/reggie-optimization.html" title="瑞吉外卖：性能优化与架构升级"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112938.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="瑞吉外卖：性能优化与架构升级"/></a><div class="content"><a class="title" href="/post/reggie-optimization.html" title="瑞吉外卖：性能优化与架构升级">瑞吉外卖：性能优化与架构升级</a><time datetime="2025-09-02T02:03:00.000Z" title="发表于 2025-09-02 10:03:00">2025-09-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/reggie-business.html" title="瑞吉外卖：核心业务功能开发"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_160146.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="瑞吉外卖：核心业务功能开发"/></a><div class="content"><a class="title" href="/post/reggie-business.html" title="瑞吉外卖：核心业务功能开发">瑞吉外卖：核心业务功能开发</a><time datetime="2025-09-02T02:01:00.000Z" title="发表于 2025-09-02 10:01:00">2025-09-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/reggie-business.html" title="瑞吉外卖：核心业务功能开发"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_160146.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="瑞吉外卖：核心业务功能开发"/></a><div class="content"><a class="title" href="/post/reggie-business.html" title="瑞吉外卖：核心业务功能开发">瑞吉外卖：核心业务功能开发</a><time datetime="2025-09-02T02:01:00.000Z" title="发表于 2025-09-02 10:01:00">2025-09-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/reggie-overview.html" title="瑞吉外卖：项目概述与整体架构"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_160146.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="瑞吉外卖：项目概述与整体架构"/></a><div class="content"><a class="title" href="/post/reggie-overview.html" title="瑞吉外卖：项目概述与整体架构">瑞吉外卖：项目概述与整体架构</a><time datetime="2025-09-02T02:00:00.000Z" title="发表于 2025-09-02 10:00:00">2025-09-02</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2025  <i id="heartbeat" class="fa fas fa-heartbeat"></i> By Lorinda</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">I wish you to become your own sun, no need to rely on who's light.<p><a target="_blank" href="https://hexo.io/"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img.shields.io/badge/Frame-Hexo-blue?style=flat&logo=hexo" title="博客框架为Hexo"></a>&nbsp;<a target="_blank" href="https://butterfly.js.org/"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img.shields.io/badge/Theme-Butterfly-6513df?style=flat&logo=bitdefender" title="主题采用butterfly"></a>&nbsp;<a target="_blank" href="https://www.jsdelivr.com/"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img.shields.io/badge/CDN-jsDelivr-orange?style=flat&logo=jsDelivr" title="本站使用JsDelivr为静态资源提供CDN加速"></a> &nbsp;<a target="_blank" href="https://vercel.com/ "><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img.shields.io/badge/Hosted-Vervel-brightgreen?style=flat&logo=Vercel" title="本站采用双线部署，默认线路托管于Vercel"></a>&nbsp;<a target="_blank" href="https://vercel.com/ "><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img.shields.io/badge/Hosted-Coding-0cedbe?style=flat&logo=Codio" title="本站采用双线部署，联通线路托管于Coding"></a>&nbsp;<a target="_blank" href="https://github.com/"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img.shields.io/badge/Source-Github-d021d6?style=flat&logo=GitHub" title="本站项目由Gtihub托管"></a>&nbsp;<a target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img.shields.io/badge/Copyright-BY--NC--SA%204.0-d42328?style=flat&logo=Claris" title="本站采用知识共享署名-非商业性使用-相同方式共享4.0国际许可协议进行许可"></a></p></div></div><div class="js-pjax" id="rightMenu"><div class="rightMenu-group rightMenu-small"><a class="rightMenu-item" href="javascript:window.history.back();"><i class="fa fa-arrow-left"></i></a><a class="rightMenu-item" href="javascript:window.history.forward();"><i class="fa fa-arrow-right"></i></a><a class="rightMenu-item" href="javascript:window.location.reload();"><i class="fa fa-refresh"></i></a><a class="rightMenu-item" href="javascript:rmf.scrollToTop();"><i class="fa fa-arrow-up"></i></a></div><div class="rightMenu-group rightMenu-line hide" id="menu-text"><a class="rightMenu-item" href="javascript:rmf.copySelect();"><i class="fa fa-copy"></i><span>复制</span></a><a class="rightMenu-item" href="javascript:window.open(&quot;https://www.baidu.com/s?wd=&quot;+window.getSelection().toString());window.location.reload();"><i class="fa fa-search"></i><span>百度搜索</span></a></div><div class="rightMenu-group rightMenu-line hide" id="menu-too"><a class="rightMenu-item" href="javascript:window.open(window.getSelection().toString());window.location.reload();"><i class="fa fa-link"></i><span>转到链接</span></a></div><div class="rightMenu-group rightMenu-line hide" id="menu-paste"><a class="rightMenu-item" href="javascript:rmf.paste()"><i class="fa fa-copy"></i><span>粘贴</span></a></div><div class="rightMenu-group rightMenu-line hide" id="menu-post"><a class="rightMenu-item" href="javascript:rmf.copyWordsLink()"><i class="fa fa-link"></i><span>复制本文地址</span></a></div><div class="rightMenu-group rightMenu-line hide" id="menu-to"><a class="rightMenu-item" href="javascript:rmf.openWithNewTab()"><i class="fa fa-window-restore"></i><span>新窗口打开</span></a><a class="rightMenu-item" id="menu-too" href="javascript:rmf.open()"><i class="fa fa-link"></i><span>转到链接</span></a><a class="rightMenu-item" href="javascript:rmf.copyLink()"><i class="fa fa-copy"></i><span>复制链接</span></a></div><div class="rightMenu-group rightMenu-line hide" id="menu-img"><a class="rightMenu-item" href="javascript:rmf.saveAs()"><i class="fa fa-download"></i><span>保存图片</span></a><a class="rightMenu-item" href="javascript:rmf.openWithNewTab()"><i class="fa fa-window-restore"></i><span>在新窗口打开</span></a><a class="rightMenu-item" href="javascript:rmf.copyLink()"><i class="fa fa-copy"></i><span>复制图片链接</span></a></div><div class="rightMenu-group rightMenu-line"><a class="rightMenu-item" href="javascript:randomPost()"><i class="fa fa-paper-plane"></i><span>随便逛逛</span></a><a class="rightMenu-item" href="javascript:switchNightMode();"><i class="fa fa-moon"></i><span>昼夜切换</span></a><a class="rightMenu-item" href="javascript:rmf.switchReadMode();"><i class="fa fa-book"></i><span>阅读模式</span></a><a class="rightMenu-item" href="/about/"><i class="fa fa-info-circle"></i><span>关于博客</span></a><a class="rightMenu-item" href="javascript:rmf.fullScreen();"><i class="fas fa-expand"></i><span>切换全屏</span></a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><a class="icon-V hidden" onclick="switchNightMode()" title="日间和夜间模式切换"><svg width="25" height="25" viewBox="0 0 1024 1024"><use id="modeicon" xlink:href="#icon-moon"></use></svg></a><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="to_comment" type="button" title="前往评论" onclick="FixedCommentBtn();"><i class="fas fa-comments"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i><span id="percent">0<span>%</span></span></button><button id="go-down" type="button" title="直达底部" onclick="btf.scrollToDest(document.body.scrollHeight, 500)"><i class="fas fa-arrow-down"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page@5.1.0/instantpage.min.js" type="module"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-lazyload/19.1.3/lazyload.iife.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/node-snackbar/0.1.16/snackbar.min.js"></script><script>(() => {
+  const panguFn = () => {
+    if (typeof pangu === 'object') pangu.autoSpacingPage()
+    else {
+      btf.getScript('https://cdnjs.cloudflare.com/ajax/libs/pangu/4.0.7/pangu.min.js')
+        .then(() => {
+          pangu.autoSpacingPage()
+        })
+    }
+  }
+
+  const panguInit = () => {
+    if (false){
+      GLOBAL_CONFIG_SITE.isPost && panguFn()
+    } else {
+      panguFn()
+    }
+  }
+
+  btf.addGlobalFn('pjaxComplete', panguInit, 'pangu')
+  document.addEventListener('DOMContentLoaded', panguInit)
+})()</script><div class="js-pjax"><script>(() => {
+  const runMermaid = ele => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    ele.forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = `%%{init:{ 'theme':'${theme}'}}%%\n`
+      const mermaidID = `mermaid-${index}`
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+      const renderMermaid = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      // mermaid v9 and v10 compatibility
+      typeof renderFn === 'string' ? renderMermaid(renderFn) : renderFn.then(({ svg }) => renderMermaid(svg))
+    })
+  }
+
+  const codeToMermaid = () => {
+    const codeMermaidEle = document.querySelectorAll('pre > code.mermaid')
+    if (codeMermaidEle.length === 0) return
+
+    codeMermaidEle.forEach(ele => {
+      const preEle = document.createElement('pre')
+      preEle.className = 'mermaid-src'
+      preEle.hidden = true
+      preEle.textContent = ele.textContent
+      const newEle = document.createElement('div')
+      newEle.className = 'mermaid-wrap'
+      newEle.appendChild(preEle)
+      ele.parentNode.replaceWith(newEle)
+    })
+  }
+
+  const loadMermaid = () => {
+    if (true) codeToMermaid()
+    const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+    if ($mermaid.length === 0) return
+
+    const runMermaidFn = () => runMermaid($mermaid)
+    btf.addGlobalFn('themeChange', runMermaidFn, 'mermaid')
+    window.loadMermaid ? runMermaidFn() : btf.getScript('https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.4.0/mermaid.min.js').then(runMermaidFn)
+  }
+
+  btf.addGlobalFn('encrypt', loadMermaid, 'mermaid')
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script><script>(() => {
+  const isShuoshuo = GLOBAL_CONFIG_SITE.isShuoshuo
+  const option = null
+
+  const getCount = () => {
+    const countELement = document.getElementById('twikoo-count')
+    if(!countELement) return
+    twikoo.getCommentsCount({
+      envId: 'https://twikoo-api-three-beta.vercel.app/',
+      region: 'ap-beijing',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(res => {
+      countELement.textContent = res[0].count
+    }).catch(err => {
+      console.error(err)
+    })
+  }
+
+  const init = (el = document, path = location.pathname) => {
+    twikoo.init({
+      el: el.querySelector('#twikoo-wrap'),
+      envId: 'https://twikoo-api-three-beta.vercel.app/',
+      region: 'ap-beijing',
+      onCommentLoaded: () => {
+        btf.loadLightbox(document.querySelectorAll('#twikoo .tk-content img:not(.tk-owo-emotion)'))
+      },
+      ...option,
+      path: isShuoshuo ? path : (option && option.path) || path
+    })
+
+    
+
+    isShuoshuo && (window.shuoshuoComment.destroyTwikoo = () => {
+      if (el.children.length) {
+        el.innerHTML = ''
+        el.classList.add('no-comment')
+      }
+    })
+  }
+
+  const loadTwikoo = (el, path) => {
+    if (typeof twikoo === 'object') setTimeout(() => init(el, path), 0)
+    else btf.getScript('https://cdn.staticfile.org/twikoo/1.6.8/twikoo.all.min.js').then(() => init(el, path))
+  }
+
+  if (isShuoshuo) {
+    'Twikoo' === 'Twikoo'
+      ? window.shuoshuoComment = { loadComment: loadTwikoo }
+      : window.loadOtherComment = loadTwikoo
+    return
+  }
+
+  if ('Twikoo' === 'Twikoo' || !false) {
+    if (false) btf.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else loadTwikoo()
+  } else {
+    window.loadOtherComment = loadTwikoo
+  }
+})()</script></div><script async src="//at.alicdn.com/t/c/font_4860073_9duzoqyl2cn.js"></script><script defer data-pjax src="/js/readPercent.js"></script><script src="/js/pagination-jump.js"></script><script async src="/js/fps.js"></script><script async data-pjax src="/js/txmap.js"></script><script defer type="text/javascript" src="https://cdn1.tianli0.top/npm/sweetalert2@8.19.0/dist/sweetalert2.all.js"></script><script async data-pjax src="/js/music.js"></script><script defer src="/js/lunar.js"></script><script async src="https://cdn1.tianli0.top/npm/vue@2.6.14/dist/vue.min.js"></script><script async src="https://cdn1.tianli0.top/npm/element-ui@2.15.6/lib/index.js"></script><script type="text/javascript" src="https://cdn1.tianli0.top/npm/jquery@latest/dist/jquery.min.js"></script><script> let backimg =["url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/d42bcc24810cda2c22eaed769b79a93.jpg)","url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/2f5e89ae13329dd89bdcdbfc68c5fde.jpg)","url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/48b137c38cc79ad960ecf2a9a12fc20.jpg)","url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/4474312751631fedb37381e37cdb9c0.jpg)","url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/be978bd80f41d2781455513ba1676a2.jpg)","url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/a01223e0819746191dd135670a2d7da.jpg)","url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/af380cb8a5ed3f047e66dbfe731f488.jpg)"];let index = Math.floor(Math.random() * backimg.length);;document.getElementById("web_bg").style.backgroundImage = backimg[index]</script><script type="text/javascript" src="/js/rightmenu.js"></script><script src="/js/history.js"></script><script src="/js/historyroll.js"></script><script async src="//at.alicdn.com/t/font_2264842_3izu8i5eoc2.js"></script><script defer src="/js/day.js"></script><script async src="/js/title.js"></script><script defer src="/js/random.js"></script><canvas id="universe"></canvas><script defer src="/js/universe.js"></script><script async src="//npm.elemecdn.com/pace-js@1.2.4/pace.min.js"></script><script src="/js/sun_moon.js" async></script><script>
+  document.addEventListener('copy', function(e) {
+    const selection = window.getSelection().toString()
+    if (selection.length > 30) {
+      const notice = document.createElement('div')
+      notice.className = 'copy-notification'
+      notice.textContent = '内容已复制到剪贴板'
+
+      document.body.appendChild(notice)
+      setTimeout(() => notice.classList.add('show'), 10)
+
+      setTimeout(() => {
+        notice.classList.remove('show')
+        setTimeout(() => notice.remove(), 300)
+      }, 2000)
+    }
+  })
+</script>
+<div class="aplayer no-destroy" data-id="7338633309" data-server="netease" data-type="playlist" data-fixed="true" data-mini="true" data-listFolded="false" data-order="random" data-lrctype="1" data-preload="none" data-autoplay="true" muted></div><script src="https://cdn.staticfile.org/jquery/3.6.3/jquery.min.js"></script><script async data-pjax src="https://cdn.wpon.cn/2022-sucai/Gold-ingot.js"></script><script async data-pjax src="/js/newYear.js"></script><script id="canvas_nest" defer="defer" color="0,0,255" opacity="0.7" zIndex="-1" count="30" mobile="false" src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/canvas-nest.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = false;
+POWERMODE.mobile = true;
+document.body.addEventListener('input', POWERMODE);
+</script><script id="click-show-text" src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/click-show-text.min.js" data-mobile="false" data-text="Ha,Ha,Ha" data-fontsize="15px" data-random="false" async="async"></script><script>(() => {
+  const isChatBtn = true
+  const isChatHideShow = true
+
+  if (isChatBtn) {
+    const close = () => {
+      Chatra('minimizeWidget')
+      Chatra('hide')
+    }
+
+    const open = () => {
+      Chatra('openChat', true)
+      Chatra('show')
+    }
+
+    window.ChatraSetup = { startHidden: true }
+  
+    window.chatBtnFn = () => {
+      document.getElementById('chatra').classList.contains('chatra--expanded') ? close() : open()
+    }
+  } else if (isChatHideShow) {
+    window.chatBtn = {
+      hide: () => Chatra('hide'),
+      show: () => Chatra('show')
+    }
+  }
+
+  (function(d, w, c) {
+    w.ChatraID = 'E3NZpK6rk4cR7jmwK'
+    var s = d.createElement('script')
+    w[c] = w[c] || function() {
+      (w[c].q = w[c].q || []).push(arguments)
+    }
+    s.async = true
+    s.src = 'https://call.chatra.io/chatra.js'
+    if (d.head) d.head.appendChild(s)
+  })(document, window, 'Chatra')
+})()</script><link rel="stylesheet" href="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/aplayer/1.10.1/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/aplayer/1.10.1/APlayer.min.js"></script><script src="https://npm.elemecdn.com/hexo-anzhiyu-music@1.0.1/assets/js/Meting2.min.js"></script><script>(() => {
+  const destroyAplayer = () => {
+    if (window.aplayers) {
+      for (let i = 0; i < window.aplayers.length; i++) {
+        if (!window.aplayers[i].options.fixed) {
+          window.aplayers[i].destroy()
+        }
+      }
+    }
+  }
+
+  const runMetingJS = () => {
+    typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+  }
+
+  btf.addGlobalFn('pjaxSend', destroyAplayer, 'destroyAplayer')
+  btf.addGlobalFn('pjaxComplete', loadMeting, 'runMetingJS')
+})()</script><script src="https://lib.baomitu.com/pjax/0.2.8/pjax.min.js"></script><script>(() => {
+  const pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+  window.pjax = new Pjax({
+    elements: 'a:not([target="_blank"]):not([href="/music/"]):not([href="/no-pjax/"])',
+    selectors: pjaxSelectors,
+    cacheBust: false,
+    analytics: false,
+    scrollRestoration: false
+  })
+
+  const triggerPjaxFn = (val) => {
+    if (!val) return
+    Object.values(val).forEach(fn => fn())
+  }
+
+  document.addEventListener('pjax:send', () => {
+    // removeEventListener
+    btf.removeGlobalFnEvent('pjaxSendOnce')
+    btf.removeGlobalFnEvent('themeChange')
+
+    // reset readmode
+    const $bodyClassList = document.body.classList
+    if ($bodyClassList.contains('read-mode')) $bodyClassList.remove('read-mode')
+
+    triggerPjaxFn(window.globalFn.pjaxSend)
+  })
+
+  document.addEventListener('pjax:complete', () => {
+    btf.removeGlobalFnEvent('pjaxCompleteOnce')
+    document.querySelectorAll('script[data-pjax]').forEach(item => {
+      const newScript = document.createElement('script')
+      const content = item.text || item.textContent || item.innerHTML || ""
+      Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+      newScript.appendChild(document.createTextNode(content))
+      item.parentNode.replaceChild(newScript, item)
+    })
+
+    triggerPjaxFn(window.globalFn.pjaxComplete)
+  })
+
+  document.addEventListener('pjax:error', e => {
+    if (e.request.status === 404) {
+      pjax.loadUrl('/404.html')
+    }
+  })
+})()</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div><!-- hexo injector body_end start --><script data-pjax>
+    function butterfly_categories_card_injector_config(){
+      var parent_div_git = document.getElementsByClassName('recent-posts')[0];
+      var item_html = '<div class="recent-post-item" style="height:auto;width:100%;padding:0px;"><div id="categoryBar"><ul class="categoryBar-list"><li class="categoryBar-list-item" style="background:url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_155818.png);"> <a class="categoryBar-list-link" onclick="pjax.loadUrl(&quot;categories/操作系统/&quot;);" href="javascript:void(0);">操作系统</a><span class="categoryBar-list-count">6</span><span class="categoryBar-list-descr">java指南</span></li><li class="categoryBar-list-item" style="background:url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112813.png);"> <a class="categoryBar-list-link" onclick="pjax.loadUrl(&quot;categories/技术栈/&quot;);" href="javascript:void(0);">技术栈</a><span class="categoryBar-list-count">1</span><span class="categoryBar-list-descr">java技术栈</span></li><li class="categoryBar-list-item" style="background:url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112758.png);"> <a class="categoryBar-list-link" onclick="pjax.loadUrl(&quot;categories/编程语言/&quot;);" href="javascript:void(0);">编程语言</a><span class="categoryBar-list-count">2</span><span class="categoryBar-list-descr">计算机基础指南</span></li><li class="categoryBar-list-item" style="background:url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/4e357962b00044466380f6850a120ec.jpg);"> <a class="categoryBar-list-link" onclick="pjax.loadUrl(&quot;categories/大数据技术-实操/&quot;);" href="javascript:void(0);">大数据技术-实操</a><span class="categoryBar-list-count">1</span><span class="categoryBar-list-descr">专业课</span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" onclick="pjax.loadUrl(&quot;categories/大数据技术/&quot;);" href="javascript:void(0);">大数据技术</a><span class="categoryBar-list-count">1</span><span class="categoryBar-list-descr"></span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" onclick="pjax.loadUrl(&quot;categories/瑞吉外卖项目/&quot;);" href="javascript:void(0);">瑞吉外卖项目</a><span class="categoryBar-list-count">5</span><span class="categoryBar-list-descr"></span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" onclick="pjax.loadUrl(&quot;categories/计算机基础/&quot;);" href="javascript:void(0);">计算机基础</a><span class="categoryBar-list-count">2</span><span class="categoryBar-list-descr"></span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" onclick="pjax.loadUrl(&quot;categories/苍穹外卖项目/&quot;);" href="javascript:void(0);">苍穹外卖项目</a><span class="categoryBar-list-count">4</span><span class="categoryBar-list-descr"></span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" onclick="pjax.loadUrl(&quot;categories/计算机基础/专业课/&quot;);" href="javascript:void(0);">专业课</a><span class="categoryBar-list-count">1</span><span class="categoryBar-list-descr"></span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" onclick="pjax.loadUrl(&quot;categories/计算机组成原理/&quot;);" href="javascript:void(0);">计算机组成原理</a><span class="categoryBar-list-count">7</span><span class="categoryBar-list-descr"></span></li></ul></div></div>';
+      console.log('已挂载butterfly_categories_card')
+      parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+      }
+    if( document.getElementsByClassName('recent-posts')[0] && (location.pathname ==='/'|| '/' ==='all')){
+    butterfly_categories_card_injector_config()
+    }
+  </script><script data-pjax>
+  function butterfly_clock_anzhiyu_injector_config(){
+    var parent_div_git = document.getElementsByClassName('sticky_layout')[0];
+    var item_html = '<div class="card-widget card-clock"><div class="card-glass"><div class="card-background"><div class="card-content"><div id="hexo_electric_clock"><img class="entered loading" id="card-clock-loading" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://cdn.cbd.int/hexo-butterfly-clock-anzhiyu/lib/loading.gif" style="height: 120px; width: 100%;" data-ll-status="loading"/></div></div></div></div></div>';
+    console.log('已挂载butterfly_clock_anzhiyu')
+    if(parent_div_git) {
+      parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+    }
+  }
+  var elist = 'null'.split(',');
+  var cpage = location.pathname;
+  var epage = '/';
+  var qweather_key = '9aac1b5db191491a8993c445d664de8f';
+  var gaud_map_key = '3cc01a5a19f500daa0e9e680ef0f6db2';
+  var baidu_ak_key = 'undefined';
+  var flag = 0;
+  var clock_rectangle = '120.780172,40.624088';
+  var clock_default_rectangle_enable = 'false';
+
+  for (var i=0;i<elist.length;i++){
+    if (cpage.includes(elist[i])){
+      flag++;
+    }
+  }
+
+  if ((epage ==='all')&&(flag == 0)){
+    butterfly_clock_anzhiyu_injector_config();
+  }
+  else if (epage === cpage){
+    butterfly_clock_anzhiyu_injector_config();
+  }
+  </script><script src="https://widget.qweather.net/simple/static/js/he-simple-common.js?v=2.0"></script><script data-pjax src="https://cdn.cbd.int/hexo-butterfly-clock-anzhiyu/lib/clock.min.js"></script><div class="js-pjax"><script async="async">var arr = document.getElementsByClassName('recent-post-item');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '2s');
+    arr[i].setAttribute('data-wow-delay', '1s');
+    arr[i].setAttribute('data-wow-offset', '100');
+    arr[i].setAttribute('data-wow-iteration', '1');
+  }</script><script async="async">var arr = document.getElementsByClassName('card-widget');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '');
+    arr[i].setAttribute('data-wow-delay', '');
+    arr[i].setAttribute('data-wow-offset', '');
+    arr[i].setAttribute('data-wow-iteration', '');
+  }</script></div><script defer src="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/wow.min.js"></script><script defer src="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/wow_init.js"></script><script data-pjax>
+  function butterfly_swiper_injector_config(){
+    var parent_div_git = document.getElementById('recent-posts');
+    var item_html = '<div class="recent-post-item" style="height: auto;width: 100%"><div class="blog-slider swiper-container-fade swiper-container-horizontal" id="swiper_container"><div class="blog-slider__wrp swiper-wrapper" style="transition-duration: 0ms;"><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/g86c4e7a.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112938.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-08-29</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/g86c4e7a.html&quot;);" href="javascript:void(0);" alt="">第 7 章 计算机系统结构</a><div class="blog-slider__text">阐述计算机系统结构的基本概念，分析并行处理技术的实现方式，详解存储层次的优化策略，介绍系统性能的评价指标与方法。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/g86c4e7a.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/f75b3d6f.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112650.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-08-29</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/f75b3d6f.html&quot;);" href="javascript:void(0);" alt="">第 6 章 输入输出系统</a><div class="blog-slider__text">介绍I/O设备的分类与特性，详解程序查询、中断与DMA三种控制方式，分析中断系统的处理机制，理解设备与主机的信息交换过程。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/f75b3d6f.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/d64a2c5e.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112938.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-08-29</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/d64a2c5e.html&quot;);" href="javascript:void(0);" alt="">第 5 章 中央处理器</a><div class="blog-slider__text">详解CPU的功能组成与工作原理，分析时序系统的作用，对比微程序与硬布线控制方式，介绍流水线技术的性能优化机制。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/d64a2c5e.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/reggie-deployment.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112618.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-09-02</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/reggie-deployment.html&quot;);" href="javascript:void(0);" alt="">瑞吉外卖：Linux环境与自动化部署</a><div class="blog-slider__text">详解瑞吉外卖部署流程，包括Linux环境配置、Git版本管理、自动化脚本与项目发布实践。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/reggie-deployment.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/b93e5f6d.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112938.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-08-29</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/b93e5f6d.html&quot;);" href="javascript:void(0);" alt="">第 4 章 指令系统</a><div class="blog-slider__text">详解指令的基本格式与寻址方式，对比CISC与RISC体系结构特点，分析指令的执行流程，理解指令系统对硬件的适配关系。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/b93e5f6d.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/ce4585c2.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_155656.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-08-30</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/ce4585c2.html&quot;);" href="javascript:void(0);" alt="">前端实现：界面与交互逻辑</a><div class="blog-slider__text">详解苍穹外卖前端开发实现，包括Vue组件架构设计、核心页面（登录、首页、订单页）开发，接口交互封装与状态管理，确保前端界面与后端服务高效协同。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/ce4585c2.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/reggie-optimization.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112938.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-09-02</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/reggie-optimization.html&quot;);" href="javascript:void(0);" alt="">瑞吉外卖：性能优化与架构升级</a><div class="blog-slider__text">详解瑞吉外卖优化方案，包括Redis缓存应用、数据库读写分离、系统架构升级等性能提升手段。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/reggie-optimization.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/a81d4c7b.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112618.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-08-29</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/a81d4c7b.html&quot;);" href="javascript:void(0);" alt="">第 3 章 存储系统</a><div class="blog-slider__text">分析存储系统的层次结构设计，详解主存储器的组成与工作流程，阐述Cache的映射方式与替换策略，介绍存储器性能优化方法。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/a81d4c7b.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/d67b0a8b.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112626.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-08-30</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/d67b0a8b.html&quot;);" href="javascript:void(0);" alt="">核心功能开发：业务流程实现</a><div class="blog-slider__text">聚焦苍穹外卖核心业务功能开发，详解用户管理、菜品管理、订单全流程及购物车交互逻辑，结合数据统计功能实现业务闭环，覆盖项目核心场景。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/d67b0a8b.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/e72f3b9c.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112938.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-08-29</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/e72f3b9c.html&quot;);" href="javascript:void(0);" alt="">第 2 章 数据的表示与计算</a><div class="blog-slider__text">详解数制转换规则，阐述定点数与浮点数的表示方法，分析补码运算机制，介绍ALU的功能与实现，掌握数据在计算机中的处理方式。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/e72f3b9c.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/b85186f.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112938.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-08-30</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/b85186f.html&quot;);" href="javascript:void(0);" alt="">基础开发：环境搭建与核心配置</a><div class="blog-slider__text">详解苍穹外卖项目基础开发流程，包括本地开发环境搭建、数据库表结构设计与初始化，核心配置（跨域、日志等）及基础工具类实现，构建项目开发基石。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/b85186f.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/reggie-business.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_160146.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-09-02</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/reggie-business.html&quot;);" href="javascript:void(0);" alt="">瑞吉外卖：核心业务功能开发</a><div class="blog-slider__text">详解瑞吉外卖后端核心业务实现，包括员工管理、菜品分类、订单流程等功能的接口与逻辑开发。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/reggie-business.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/reggie-business.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_160146.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-09-02</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/reggie-business.html&quot;);" href="javascript:void(0);" alt="">瑞吉外卖：核心业务功能开发</a><div class="blog-slider__text">详解瑞吉外卖后端核心业务实现，包括员工管理、菜品分类、订单流程等功能的接口与逻辑开发。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/reggie-business.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/bae4ff13.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_160146.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-03-12</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/bae4ff13.html&quot;);" href="javascript:void(0);" alt="">Redis</a><div class="blog-slider__text">Redis 作为内存 NoSQL 数据库的定位，支持 String/Hash 等多数据结构，具备 RDB/AOF 持久化与主从高可用，核心用于缓存、分布式锁，性能高效。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/bae4ff13.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/c45d1e8a.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112938.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-08-29</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/c45d1e8a.html&quot;);" href="javascript:void(0);" alt="">第 1 章 计算机系统概述</a><div class="blog-slider__text">介绍计算机系统的硬件与软件组成，详解五大功能部件及总线工作机制，阐述指令集体系结构的核心作用，建立计算机系统的整体认知。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/c45d1e8a.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/25e0fe54.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112758.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-08-30</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/25e0fe54.html&quot;);" href="javascript:void(0);" alt="">项目概述：架构与需求分析</a><div class="blog-slider__text">全面解析苍穹外卖项目的整体规划，包括项目背景、核心需求、技术栈选型依据，详解系统架构设计与开发规范，为项目开发提供整体指导。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/25e0fe54.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/77666db.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112626.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-04-07</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/77666db.html&quot;);" href="javascript:void(0);" alt="">王道计组pdf</a><div class="blog-slider__text">计算机组成原理</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/77666db.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/833e46bb.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112650.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-08-29</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/833e46bb.html&quot;);" href="javascript:void(0);" alt="">第 2 章 进程与线程：并发管理核心</a><div class="blog-slider__text">讲解进程与线程的定义、状态转换及控制逻辑，分析进程调度策略，阐述进程同步互斥（PV 操作）与死锁的处理机制，是操作系统并发管理的核心。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/833e46bb.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/790dfc8c.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_160146.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-08-29</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/790dfc8c.html&quot;);" href="javascript:void(0);" alt="">第 4 章 文件管理：存储与访问机制</a><div class="blog-slider__text">介绍文件的逻辑与物理结构，讲解目录管理（按名存取）、索引节点功能及外存空闲空间分配策略，实现文件的安全存储与高效共享。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/790dfc8c.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/ce20e5e9.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112813.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-08-29</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/ce20e5e9.html&quot;);" href="javascript:void(0);" alt="">第 3 章 内存管理：地址映射与虚拟内存</a><div class="blog-slider__text">覆盖内存分配方式（连续/分页/分段）与地址转换机制，详解虚拟内存技术、请求分页流程及页面置换策略，解决多道程序下内存利用率与地址映射问题。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/ce20e5e9.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/169339cb.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112618.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-08-29</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/169339cb.html&quot;);" href="javascript:void(0);" alt="">第 5 章 输入输出管理：设备协同与优化</a><div class="blog-slider__text">详解I/O设备分类与控制方式（程序直接控制/DMA/通道），分析磁盘结构与调度策略，介绍SPOOLing等I/O优化技术，保障设备与CPU、内存的高效协同。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/169339cb.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/b328aa63.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112618.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-08-29</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/b328aa63.html&quot;);" href="javascript:void(0);" alt="">第 1 章 操作系统概述：计算机系统基础</a><div class="blog-slider__text">阐述操作系统的定义与核心功能，详解四大特征（并发 / 共享 / 虚拟 / 异步）、处理器运行模式及系统结构分类，介绍 OS 引导流程，奠定操作系统认知基础。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/b328aa63.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/79666db.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112855.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-03-12</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/79666db.html&quot;);" href="javascript:void(0);" alt="">数据结构</a><div class="blog-slider__text">数据结构的核心是高效组织数据，区分逻辑结构（线性 / 非线性）与物理结构（顺序 / 链式），覆盖数组、树、图等核心类型，为优化算法效率、支撑工程应用奠定基础。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/79666db.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/reggie-overview.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_160146.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-09-02</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/reggie-overview.html&quot;);" href="javascript:void(0);" alt="">瑞吉外卖：项目概述与整体架构</a><div class="blog-slider__text">全面解析瑞吉外卖项目背景、技术选型、整体架构设计及核心业务流程，建立项目全局认知。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/reggie-overview.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/b8b0eacd.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112758.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-03-12</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/b8b0eacd.html&quot;);" href="javascript:void(0);" alt="">java基础</a><div class="blog-slider__text">Java基础</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/b8b0eacd.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div></div><div class="blog-slider__pagination swiper-pagination-clickable swiper-pagination-bullets"></div></div></div>';
+    console.log('已挂载butterfly_swiper')
+    parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+    }
+  var elist = 'undefined'.split(',');
+  var cpage = location.pathname;
+  var epage = '/';
+  var flag = 0;
+
+  for (var i=0;i<elist.length;i++){
+    if (cpage.includes(elist[i])){
+      flag++;
+    }
+  }
+
+  if ((epage ==='all')&&(flag == 0)){
+    butterfly_swiper_injector_config();
+  }
+  else if (epage === cpage){
+    butterfly_swiper_injector_config();
+  }
+  </script><script defer src="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiper.min.js"></script><script defer data-pjax src="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiper_init.js"></script><!-- hexo injector body_end end --><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"log":false});</script></body></html>

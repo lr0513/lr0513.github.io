@@ -2078,3 +2078,87 @@ figure.highlight pre .addition {
     color: #FF5722 !important;
 }
 
+/* 系列导航整体容器 */
+.series-navigation {
+    margin: 1.5em 0;
+    padding: 1em;
+    background: #f8f9fa;
+    /* 浅背景，区分内容区 */
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* 系列标题 */
+.series-title {
+    font-size: 1.2em;
+    font-weight: 600;
+    color: #fff;
+    margin: 0 0 1em 0;
+    border-bottom: 1px solid #333;
+    padding-bottom: 0.5em;
+}
+
+/* 有序列表（自定义序号） */
+.series-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    counter-reset: series-counter;
+    /* 重置计数器 */
+}
+
+/* 列表项 + 自定义序号 */
+.series-item {
+    margin: 0.8em 0;
+    line-height: 1.6;
+    counter-increment: series-counter;
+    /* 计数器递增 */
+    display: flex;
+    align-items: center;
+}
+
+/* 自定义序号样式 */
+.series-item::before {
+    content: counter(series-counter) ".";
+    margin-right: 0.5em;
+    color: #888;
+    width: 1.2em;
+    /* 固定宽度确保序号对齐 */
+    text-align: right;
+}
+
+/* 图标样式 */
+.series-icon {
+    margin-right: 0.5em;
+    color: #ff7e7e;
+    /* 图标高亮色 */
+}
+
+/* 文字链接基础样式 */
+.series-link {
+    color: #b0b0ff;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+}
+
+/* 链接 hover 效果 */
+.series-link:hover {
+    color: #fff;
+    text-decoration: underline;
+}
+
+/* 当前页标记样式 */
+.series-current-tag {
+    margin-left: 0.5em;
+    color: #ffcc66;
+    font-weight: bold;
+    font-size: 0.9em;
+}
+
+/* 当前页文字高亮 */
+.series-current .series-text {
+    color: #fff;
+    font-weight: 600;
+}
