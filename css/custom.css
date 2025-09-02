@@ -1943,6 +1943,70 @@ figure.highlight pre .addition {
     }
 }
 
+/* 系列导航容器 */
+.series-nav {
+    background: var(--card-bg);
+    /* 继承主题卡片背景色 */
+    padding: 1.2rem;
+    /* 内边距 */
+    margin: 1.5rem 0;
+    /* 上下间距 */
+    border-radius: 8px;
+    /* 圆角 */
+    border: 1px solid var(--border-color);
+    /* 继承主题边框色 */
+}
+
+/* 系列标题 */
+.series-nav h4 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin-bottom: 0.8rem;
+    color: var(--text-color);
+    /* 继承主题文字色 */
+}
+
+/* 有序列表 */
+.series-list {
+    list-style: decimal;
+    /* 数字编号 */
+    margin-left: 1.5rem;
+    /* 缩进 */
+}
+
+/* 列表项 */
+.series-item {
+    margin: 0.5rem 0;
+    /* 上下间距 */
+    line-height: 1.6;
+    /* 行高 */
+}
+
+/* 链接样式 */
+.series-link {
+    color: var(--primary-color);
+    /* 主题主色（如蓝色） */
+    text-decoration: none;
+    /* 去除下划线 */
+    transition: color 0.3s;
+    /* 颜色过渡动画 */
+}
+
+.series-link:hover {
+    color: var(--primary-color-hover);
+    /* 主色 hover 效果 */
+    text-decoration: underline;
+    /* 下划线提示 */
+}
+
+/* 当前文章标记 */
+.series-current {
+    color: var(--text-color-secondary);
+    /* 次级文字色（突出当前项） */
+    font-weight: 500;
+    /* 加粗 */
+}
+
 /* 随机标签颜色 */
 .card-tag-cloud a {
     /* 取消默认颜色 */
@@ -2013,3 +2077,4 @@ figure.highlight pre .addition {
 .card-tag-cloud a:nth-child(16n+16) {
     color: #FF5722 !important;
 }
+

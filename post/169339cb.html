@@ -1,0 +1,1556 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>第 5 章 输入输出管理：设备协同与优化 | 蜡笔梦工厂</title><meta name="author" content="Lorinda"><meta name="copyright" content="Lorinda"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="详解I&#x2F;O设备分类与控制方式（程序直接控制&#x2F;DMA&#x2F;通道），分析磁盘结构与调度策略，介绍SPOOLing等I&#x2F;O优化技术，保障设备与CPU、内存的高效协同。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="第 5 章 输入输出管理：设备协同与优化">
+<meta property="og:url" content="http://labi.com/post/169339cb.html">
+<meta property="og:site_name" content="蜡笔梦工厂">
+<meta property="og:description" content="详解I&#x2F;O设备分类与控制方式（程序直接控制&#x2F;DMA&#x2F;通道），分析磁盘结构与调度策略，介绍SPOOLing等I&#x2F;O优化技术，保障设备与CPU、内存的高效协同。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112844.png">
+<meta property="article:published_time" content="2025-08-28T21:18:00.000Z">
+<meta property="article:modified_time" content="2025-08-28T22:10:26.317Z">
+<meta property="article:author" content="Lorinda">
+<meta property="article:tag" content="I&#x2F;O 设备分类（块设备 &#x2F; 字符设备）">
+<meta property="article:tag" content="I&#x2F;O 控制方式（DMA &#x2F; 通道）">
+<meta property="article:tag" content="磁盘调度算法（FCFS&#x2F;SSTF&#x2F;SCAN）">
+<meta property="article:tag" content="SPOOLing 技术">
+<meta property="article:tag" content="设备分配与回收">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112844.png"><link rel="shortcut icon" href="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_155552.png"><link rel="canonical" href="http://labi.com/post/169339cb.html"><link rel="preconnect" href="//cdnjs.cloudflare.com"/><link rel="preconnect" href="//hm.baidu.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/node-snackbar/0.1.16/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!true && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?bf06f078fafddfd82b474ce179303666";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+btf.addGlobalFn('pjaxComplete', () => {
+  _hmt.push(['_trackPageview',window.location.pathname])
+}, 'baidu_analytics')
+</script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":{"enable":true},"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: true,
+    post: true
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"已切换为繁体中文","cht_to_chs":"已切换为简体中文","day_to_night":"已切换为深色模式","night_to_day":"已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"bottom-left"},
+  infinitegrid: {
+    js: 'https://cdnjs.cloudflare.com/ajax/libs/egjs-infinitegrid/4.12.0/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isAnchor: true,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '第 5 章 输入输出管理：设备协同与优化',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  isShuoshuo: false
+}</script><link rel="stylesheet" href="/css/wave.css"><link rel="stylesheet" href="/css/readPercent.css"><link rel="stylesheet" href="//at.alicdn.com/t/font_2264842_b004iy0kk2b.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/loading.css"><link rel="stylesheet" href="/css/about.css"><link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script><link rel="stylesheet" href="https://fastly.jsdelivr.net/gh/HCLonely/images@master/others/heartbeat.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/l-lin/font-awesome-animation/dist/font-awesome-animation.min.css"  media="defer" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/ethan4116-blog/lib/css/plane_v2.css"><link rel="stylesheet" href="/css/universe.css"><link rel="stylesheet" href="/css/progress_bar.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="https://cdn1.tianli0.top/npm/element-ui@2.15.6/packages/theme-chalk/lib/index.css"><span id="fps"></span><svg aria-hidden="true" style="position:absolute; overflow:hidden; width:0; height:0"><symbol id="icon-sun" viewBox="0 0 1024 1024"><path d="M960 512l-128 128v192h-192l-128 128-128-128H192v-192l-128-128 128-128V192h192l128-128 128 128h192v192z" fill="#FFD878" p-id="8420"></path><path d="M736 512a224 224 0 1 0-448 0 224 224 0 1 0 448 0z" fill="#FFE4A9" p-id="8421"></path><path d="M512 109.248L626.752 224H800v173.248L914.752 512 800 626.752V800h-173.248L512 914.752 397.248 800H224v-173.248L109.248 512 224 397.248V224h173.248L512 109.248M512 64l-128 128H192v192l-128 128 128 128v192h192l128 128 128-128h192v-192l128-128-128-128V192h-192l-128-128z" fill="#4D5152" p-id="8422"></path><path d="M512 320c105.888 0 192 86.112 192 192s-86.112 192-192 192-192-86.112-192-192 86.112-192 192-192m0-32a224 224 0 1 0 0 448 224 224 0 0 0 0-448z" fill="#4D5152" p-id="8423"></path></symbol><symbol id="icon-moon" viewBox="0 0 1024 1024"><path d="M611.370667 167.082667a445.013333 445.013333 0 0 1-38.4 161.834666 477.824 477.824 0 0 1-244.736 244.394667 445.141333 445.141333 0 0 1-161.109334 38.058667 85.077333 85.077333 0 0 0-65.066666 135.722666A462.08 462.08 0 1 0 747.093333 102.058667a85.077333 85.077333 0 0 0-135.722666 65.024z" fill="#FFB531" p-id="11345"></path><path d="M329.728 274.133333l35.157333-35.157333a21.333333 21.333333 0 1 0-30.165333-30.165333l-35.157333 35.157333-35.114667-35.157333a21.333333 21.333333 0 0 0-30.165333 30.165333l35.114666 35.157333-35.114666 35.157334a21.333333 21.333333 0 1 0 30.165333 30.165333l35.114667-35.157333 35.157333 35.157333a21.333333 21.333333 0 1 0 30.165333-30.165333z" fill="#030835" p-id="11346"></path></symbol></svg><!-- hexo injector head_end start --><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-categories-card@1.0.0/lib/categorybar.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-double-row-display@1.00/cardlistpost.min.css"/>
+<style>#recent-posts > .recent-post-item >.recent-post-info > .article-meta-wrap > .tags:before {content:"\A";
+  white-space: pre;}#recent-posts > .recent-post-item >.recent-post-info > .article-meta-wrap > .tags > .article-meta__separator{display:none}</style>
+<link rel="stylesheet" href="https://cdn.cbd.int/hexo-butterfly-clock-anzhiyu/lib/clock.min.css" /><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiper.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiperstyle.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/animate.min.css" media="print" onload="this.media='all'"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body><div id="loading-box" onclick="document.getElementById(&quot;loading-box&quot;).classList.add(&quot;loaded&quot;)"><div class="loading-bg"><div class="loading-img"></div><div class="loading-image-dot"></div></div></div><script>const preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',()=> { preloader.endLoading() })
+
+if (true) {
+  document.addEventListener('pjax:send', () => { preloader.initLoading() })
+  document.addEventListener('pjax:complete', () => { preloader.endLoading() })
+}</script><script>window.paceOptions = {
+  restartOnPushState: false
+}
+
+btf.addGlobalFn('pjaxSend', () => {
+  Pace.restart()
+}, 'pace_restart')
+
+</script><link rel="stylesheet" href="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_160015.png"/><script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js"></script><div id="web_bg" style="background-image: url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/af380cb8a5ed3f047e66dbfe731f488.jpg);"></div><div id="an_music_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_155535.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">17</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">71</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">6</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/"><i class="fa-fw icon-hexoa-homezhuyefangzijia"></i><svg class="icon fas fa-home" aria-hidden="true"><use xlink:href="#icon-hexoa-homezhuyefangzijia"></use></svg><span> 首页</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/comments/"><i class="fa-fw icon-hexoshouhuiban"></i><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexoshouhuiban"></use></svg><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group faa-parent animated-hover" href="javascript:void(0);"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexohuanjiaowenzhang"></use></svg><span> 文章</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/categories/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexofenlei"></use></svg><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexobiaoqian"></use></svg><span> 标签</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/archives/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexoguidang"></use></svg><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page group faa-parent animated-hover" href="javascript:void(0);"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexoicon_liebiao"></use></svg><span> 娱乐</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/music/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexoyinle"></use></svg><span> 音乐</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/gallery/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexotubiaozhizuomoban"></use></svg><span> 相册</span></a></li></ul></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/link/"><i class="fa-fw icon-hexopengyou"></i><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexopengyou"></use></svg><span> 友链</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/about/"><i class="fa-fw icon-hexowode"></i><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexowode"></use></svg><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112844.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><img class="site-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_155552.png" alt="Logo"><span class="site-name">蜡笔梦工厂</span></a><a class="nav-page-title" href="/"><span class="site-name">第 5 章 输入输出管理：设备协同与优化</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i></span></div><div class="menus_items"><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/"><i class="fa-fw icon-hexoa-homezhuyefangzijia"></i><svg class="icon fas fa-home" aria-hidden="true"><use xlink:href="#icon-hexoa-homezhuyefangzijia"></use></svg><span> 首页</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/comments/"><i class="fa-fw icon-hexoshouhuiban"></i><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexoshouhuiban"></use></svg><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group faa-parent animated-hover" href="javascript:void(0);"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexohuanjiaowenzhang"></use></svg><span> 文章</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/categories/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexofenlei"></use></svg><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexobiaoqian"></use></svg><span> 标签</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/archives/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexoguidang"></use></svg><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page group faa-parent animated-hover" href="javascript:void(0);"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexoicon_liebiao"></use></svg><span> 娱乐</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/music/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexoyinle"></use></svg><span> 音乐</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/gallery/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexotubiaozhizuomoban"></use></svg><span> 相册</span></a></li></ul></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/link/"><i class="fa-fw icon-hexopengyou"></i><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexopengyou"></use></svg><span> 友链</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/about/"><i class="fa-fw icon-hexowode"></i><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexowode"></use></svg><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div><div id="randomPost"><a class="site-page social-icon search" href="javascript:;" onclick="randomPost()" title="随机访问一篇文章"><i class="fas fa-circle-notch fa-fw"></i></a></div></nav><div id="post-info"><h1 class="post-title">第 5 章 输入输出管理：设备协同与优化</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-08-28T21:18:00.000Z" title="发表于 2025-08-29 05:18:00">2025-08-29</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-08-28T22:10:26.317Z" title="更新于 2025-08-29 06:10:26">2025-08-29</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">10k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>30分钟</span></span><span class="post-meta-separator">|</span><span id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="twikoo_visitors"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><section class="main-hero-waves-area waves-area"><svg class="waves-svg" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto"><defs><path id="gentle-wave" d="M -160 44 c 30 0 58 -18 88 -18 s 58 18 88 18 s 58 -18 88 -18 s 58 18 88 18 v 44 h -352 Z"></path></defs><g class="parallax"><use href="#gentle-wave" x="48" y="0"></use><use href="#gentle-wave" x="48" y="3"></use><use href="#gentle-wave" x="48" y="5"></use><use href="#gentle-wave" x="48" y="7"></use></g></svg></section></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h2 id="I-O-管理概述">I/O 管理概述</h2>
+<h3 id="I-O-设备">I/O 设备</h3>
+<h4 id="设备的分类">设备的分类</h4>
+<h5 id="按信息交换的单位">按信息交换的单位</h5>
+<ul>
+<li><strong>块设备</strong>：
+<ul>
+<li>信息交换以数据块为单位，如磁盘、磁带</li>
+<li>基本特征：传输速率较高、可寻址，即对它可随意地读/写任意一块</li>
+<li>属于有结构设备</li>
+</ul>
+</li>
+<li><strong>字符设备</strong>：
+<ul>
+<li>信息交换以字符为单位，如交互式终端机、打印机</li>
+<li>基本特征：传输速率低、不可寻址，常采用中断 I/O 方式</li>
+<li>属于无结构设备</li>
+</ul>
+</li>
+</ul>
+<h5 id="按设备的传输速率">按设备的传输速率</h5>
+<ul>
+<li><strong>低速设备</strong>：键盘、鼠标</li>
+<li><strong>中速设备</strong>：激光打印机</li>
+<li><strong>高速设备</strong>：磁盘机、光盘机</li>
+</ul>
+<h5 id="按设备的共享属性">按设备的共享属性</h5>
+<ul>
+<li><strong>独占设备</strong>：
+<ul>
+<li>一个时刻只能由一个进程占用</li>
+<li>所有字符设备都是独占设备</li>
+<li>速度慢，利用率低</li>
+<li>如输入机、打印机、磁带机</li>
+</ul>
+</li>
+<li><strong>共享设备</strong>：
+<ul>
+<li>同一时间段内允许多个进程同时访问的设备</li>
+<li>共享设备必须是可寻址和可随机访问的设备</li>
+<li>如软硬盘、磁盘、光盘</li>
+</ul>
+</li>
+<li><strong>虚拟设备</strong>：
+<ul>
+<li>通过 SPOOLing 技术将独占设备改造为共享设备</li>
+<li>将一个物理设备变为多个逻辑设备，从而可将设备同时分配给多个进程</li>
+<li>实质上还是独占设备</li>
+</ul>
+</li>
+</ul>
+<h5 id="按设备的使用特性">按设备的使用特性</h5>
+<ul>
+<li><strong>存储设备</strong>：
+<ul>
+<li>存储信息的外部设备</li>
+<li>如磁盘、磁带、光盘</li>
+</ul>
+</li>
+<li><strong>输入/输出设备</strong>：
+<ul>
+<li>输入设备：向计算机输入外部信息，如键盘、鼠标、扫描仪</li>
+<li>输出设备：计算机向外输出数据信息，如打印机</li>
+<li>交互式设备：集成两种功能，如触控显示器</li>
+</ul>
+</li>
+</ul>
+<h4 id="设备控制器（I-O-接口）">设备控制器（I/O 接口）</h4>
+<h5 id="主要功能">主要功能</h5>
+<ul>
+<li>接受和识别 CPU 发出的命令</li>
+<li>向 CPU 报告设备的状态</li>
+<li>数据交换</li>
+<li>地址识别</li>
+<li>数据缓冲</li>
+<li>差错控制</li>
+</ul>
+<h5 id="组成">组成</h5>
+<ul>
+<li><strong>设备控制器与 CPU 的接口</strong>：
+<ul>
+<li>用于实现 CPU 与控制器之间的通信，有三类信号线</li>
+<li>数据线：传送的是读/写数据、控制信息和状态信息</li>
+<li>地址线：传送的是要访问 I/O 接口中的寄存器编号</li>
+<li>控制线：传送的是读/写等控制信号</li>
+</ul>
+</li>
+<li><strong>设备控制器与设备的接口</strong>：
+<ul>
+<li>用于实现控制器和设备之间的通信</li>
+<li>控制器中有一个或多个设备接口</li>
+<li>每个接口都可传输数据、控制和状态三种类型的信号</li>
+</ul>
+</li>
+<li><strong>I/O 逻辑</strong>：
+<ul>
+<li>用于实现对设备的控制</li>
+<li>通过一组控制线与 CPU 交互，对从 CPU 收到的 I/O 命令进行译码</li>
+<li>CPU 启动设备时，将启动命令发送给控制器，同时通过地址线将地址发送给控制器，由控制器的 I/O 逻辑对地址进行译码，并对所选设备进行控制<br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://qingwu-oss.oss-cn-heyuan.aliyuncs.com/lian/img/20240602152701.png" alt="image.png"></li>
+</ul>
+</li>
+</ul>
+<h5 id="类型">类型</h5>
+<ul>
+<li><strong>按数据传送方式</strong>：
+<ul>
+<li>并行接口</li>
+<li>串行接口</li>
+</ul>
+</li>
+<li><strong>按主机访问 I/O 设备的控制方式</strong>：
+<ul>
+<li>程序查询接口</li>
+<li>中断接口</li>
+<li>DMA 接口</li>
+</ul>
+</li>
+<li><strong>按功能选择的灵活性</strong>：
+<ul>
+<li>可编程接口</li>
+<li>不可编程接口</li>
+</ul>
+</li>
+</ul>
+<h4 id="I-O-端口">I/O 端口</h4>
+<h5 id="基本概念">基本概念</h5>
+<ul>
+<li><strong>I/O 端口</strong>：指设备控制器中可被 CPU 直接访问的寄存器，有三种类型
+<ul>
+<li><strong>数据寄存器</strong>：用于缓存从设备送来的输入数据，或从 CPU 送来的传输数据</li>
+<li><strong>状态寄存器</strong>：保存设备的执行结果或状态信息，以供 CPU 读取</li>
+<li><strong>控制寄存器</strong>：由 CPU 写入，以便启动命令或更改设备模式</li>
+</ul>
+</li>
+<li>I/O 端口要想能够被 CPU 访问，就要对各个端口进行编制，每个端口对应一个端口地址</li>
+</ul>
+<h5 id="寄存器编址方式">寄存器编址方式</h5>
+<ul>
+<li>
+<p><strong>独立编址</strong>：</p>
+<ul>
+<li>指为每个端口分配一个 I/O 端口号</li>
+<li>I/O 端口的地址空间与主存地址空间<strong>独立</strong></li>
+<li>两者范围可以重叠，相同地址可能属于不同的地址空间</li>
+<li>只有 OS 使用特殊的 I/O 指令才能访问端口【普通用户程序不能访问端口】</li>
+<li><strong>优点</strong>：
+<ul>
+<li>I/O 端口数比主存单元少得多，只需少量地址线，使得 <strong>I/O 端口译码简单，寻址速度更快</strong></li>
+<li>使用专用 I/O 指令，可使<strong>程序更加清晰</strong>，便于理解和检查</li>
+</ul>
+</li>
+<li><strong>缺点</strong>：
+<ul>
+<li>I/O 指令少，只提供简单的传输操作，所以程序<strong>设计的灵活性较差</strong></li>
+<li>CPU 需要提供两组独立的存储器和设备的读/写控制信号，<strong>增加了控制的复杂性</strong></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>统一编址</strong>：</p>
+<ul>
+<li>又称<strong>内存映射 I/O</strong></li>
+<li>指将主存地址空间分出一部分给 I/O 端口进行编址，I/O 端口和主存单元在同一地址空间的<strong>不同分段</strong>中</li>
+<li><strong>根据地址范围</strong>就能区分访问的是 I/O 端口还是主存单元</li>
+<li>用<strong>统一的访存指令</strong>就可访问 I/O 端口</li>
+<li><strong>优点</strong>：
+<ul>
+<li>不须专门的 I/O 指令，使得 CPU 访问 I/O 的操作<strong>更加灵活方便</strong></li>
+<li>使端口有较大的编址空间</li>
+</ul>
+</li>
+<li><strong>缺点</strong>：
+<ul>
+<li>端口地址占用了部分主存地址空间，使<strong>主存的可用容量变小</strong></li>
+<li>识别 I/O 端口时全部地址线都需参加译码，使<strong>译码电路更加复杂</strong>，降低寻址速度</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="I-O-控制方式">I/O 控制方式</h3>
+<ul>
+<li><strong>I/O 控制</strong>：指控制设备和主机之间的数据传送<br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://qingwu-oss.oss-cn-heyuan.aliyuncs.com/lian/img/20240602171054.png" alt="image.png"></li>
+</ul>
+<h4 id="程序直接控制方式">程序直接控制方式</h4>
+<ul>
+<li>CPU 对 I/O 设备的控制采用轮询的 I/O 方式，又称<strong>程序轮询方式</strong></li>
+<li><strong>CPU 干预的频率</strong>：
+<ul>
+<li>很频繁，I/O 操作开始之前、完成之后需要 CPU 介入</li>
+<li>在<strong>等待 I/O 完成的过程中 CPU 需要不断地轮询检查</strong></li>
+</ul>
+</li>
+<li>数据的传送单位：每次读/写<strong>一个字</strong></li>
+<li>数据的流向：
+<ul>
+<li>读操作（数据输入）：I/O 设备 —&gt; CPU 寄存器 —&gt; 内存</li>
+<li>写操作（数据输出）：内存 —&gt; CPU 寄存器 —&gt; I/O 设备</li>
+</ul>
+</li>
+<li><strong>优点</strong>：实现简单</li>
+<li><strong>缺点</strong>：
+<ul>
+<li><strong>CPU 和 I/O 设备只能串行工作</strong></li>
+<li>CPU 需要一直轮询检查，<strong>长期处于“忙等”状态</strong>，CPU 利用率低<br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://qingwu-oss.oss-cn-heyuan.aliyuncs.com/lian/img/20240602163906.png" alt="image.png"></li>
+</ul>
+</li>
+</ul>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://qingwu-oss.oss-cn-heyuan.aliyuncs.com/lian/img/20240602163731.png" alt="image.png"></p>
+<h4 id="中断驱动方式">中断驱动方式</h4>
+<ul>
+<li><strong>基本思想</strong>：允许 I/O 设备主动打断 CPU 的运行并请求服务，从而“解放”CPU，使得其向 I/O 控制器发送读命令后可以继续做其他有用的工作</li>
+<li><strong>CPU 干预的频率</strong>：
+<ul>
+<li>每次 I/O 操作开始之前、完成之后需要 CPU 介入</li>
+<li>等待 I/O 完成的过程中 CPU 可以切换到别的进程执行</li>
+</ul>
+</li>
+<li>数据的传送单位：每次读/写<strong>一个字</strong></li>
+<li>数据的流向：
+<ul>
+<li>读操作（数据输入）：I/O 设备 —&gt; CPU 寄存器 —&gt; 内存</li>
+<li>写操作（数据输出）：内存 —&gt; CPU 寄存器 —&gt; I/O 设备</li>
+</ul>
+</li>
+<li><strong>优点</strong>：
+<ul>
+<li>I/O 控制器会通过中断信号主动报告 I/O 已完成，CPU 不再需要不停地轮询</li>
+<li><strong>CPU 和 I/O 设备可并行工作</strong>，CPU 利用率明显提升</li>
+</ul>
+</li>
+<li><strong>缺点</strong>：
+<ul>
+<li>每个字在 I/O 设备与内存之间的传输，都需要经过 CPU</li>
+<li>频繁的中断处理会消耗较多的 CPU 时间<br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://qingwu-oss.oss-cn-heyuan.aliyuncs.com/lian/img/20240602164525.png" alt="image.png"></li>
+</ul>
+</li>
+</ul>
+<h4 id="DMA-方式">DMA 方式</h4>
+<ul>
+<li><strong>基本思想</strong>：是在 I/O 设备和内存之间开辟直接的数据交换通路，彻底&quot;解放” CPU</li>
+<li><strong>CPU 干预的频率</strong>：
+<ul>
+<li>仅在传送一个或多个数据块的<strong>开始和结束时</strong>，才需 CPU 干预</li>
+<li>整块数据的传送是在 DMA 控制器的控制下完成的</li>
+</ul>
+</li>
+<li>数据的传送单位：每次读/写<strong>一个或多个块</strong>【连续的】</li>
+<li>数据的流向：
+<ul>
+<li>读操作（数据输入）：I/O 设备 —&gt; 内存</li>
+<li>写操作（数据输出）：内存  —&gt; I/O 设备</li>
+</ul>
+</li>
+<li><strong>优点</strong>：
+<ul>
+<li>数据传输以“块”为单位，CPU 介入频率进一步降低</li>
+<li>数据的传输不再需要先经过 CPU 再写入内存，数据传输效率进一步增加</li>
+<li>CPU 和 I/O 设备的并行性得到提升</li>
+</ul>
+</li>
+<li><strong>缺点</strong>：
+<ul>
+<li>CPU 每发出一条 I/O 指令，只能读/写一个或多个连续的数据块</li>
+<li>如果要读/写多个离散存储的数据块，或者要将数据分别写到不同的内存区域时，CPU 要分别发出多条I/O 指令，进行多次中断处理才能完成<br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://qingwu-oss.oss-cn-heyuan.aliyuncs.com/lian/img/20240602165701.png" alt="image.png"></li>
+</ul>
+</li>
+</ul>
+<h4 id="通道控制方式">通道控制方式</h4>
+<ul>
+<li>I/O 通道是一种特殊的处理机，可执行一系列通道指令</li>
+<li>与 CPU 相比，通道可以执行的指令很单一，并且通道程序是放在主机内存中的，也就是说通道与 CPU 共享内存</li>
+<li><strong>CPU 干预的频率</strong>：
+<ul>
+<li>极低</li>
+<li>通道会根据 CPU 的指示执行相应的通道程序，只有完成一组数据块的读/写后才需要发出中断信号，请求 CPU 干预</li>
+</ul>
+</li>
+<li>数据的传送单位：每次读/写<strong>一组数据块</strong></li>
+<li>数据的流向【<strong>在通道的控制下进行</strong>】：
+<ul>
+<li>读操作（数据输入）：I/O 设备 —&gt; 内存</li>
+<li>写操作（数据输出）：内存  —&gt; I/O 设备</li>
+</ul>
+</li>
+<li><strong>优点</strong>：
+<ul>
+<li><strong>CPU、通道、I/O 设备可并行工作</strong>，资源利用率很高</li>
+<li>一个通道可以控制<strong>多台设备与内存</strong>的数据交换</li>
+</ul>
+</li>
+<li><strong>缺点</strong>：实现复杂，需要专门的通道硬件支持<br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://qingwu-oss.oss-cn-heyuan.aliyuncs.com/lian/img/20240602170531.png" alt="image.png"></li>
+</ul>
+<h3 id="I-O-软件层次结构">I/O 软件层次结构</h3>
+<ul>
+<li>将系统中的设备管理模块分为若干个层次，<strong>每层都利用其下层提供的服务</strong>，完成输入/输功能中的某些子功能，并<strong>屏蔽这些功能的实现细节</strong>，向高层提供服务<br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://qingwu-oss.oss-cn-heyuan.aliyuncs.com/lian/img/20240604145317.png" alt="image.png"></li>
+</ul>
+<h4 id="用户层软件">用户层软件</h4>
+<ul>
+<li>用户层软件<strong>实现了与用户交互的接口</strong></li>
+<li>用户可直接使用该层提供的、与 I/O 操作相关的<strong>库函数</strong>对设备进行操作</li>
+<li>用户层软件将用户请求翻译成格式化的 I/O 请求，并通过<strong>系统调用</strong>请求操作系统内核【下三层】的服务</li>
+</ul>
+<h4 id="设备独立性软件">设备独立性软件</h4>
+<ul>
+<li><strong>设备独立性</strong>：又称<strong>设备无关性</strong>，使得应用程序独立于具体使用的物理设备</li>
+<li>为实现设备独立性，引入了<strong>逻辑设备</strong>和<strong>物理设备</strong>两个概念</li>
+<li>使用逻辑设备名的<strong>好处</strong>：
+<ul>
+<li>增加设备分配的灵活性</li>
+<li>易于实现 I/O 重定向，用于 I/O 操作的设备可以更换 ，而不必改变应用程序</li>
+</ul>
+</li>
+<li>为实现设备独立性，必须在驱动程序之上设置一层<strong>设备独立性软件</strong>，主要功能：
+<ul>
+<li>向上层提供统一的调用接口（如 read/write 系统调用）</li>
+<li>设备的保护</li>
+<li>差错处理</li>
+<li>设备的分配与回收</li>
+<li>数据缓冲区管理</li>
+<li>建立逻辑设备名到物理设备名的映射关系，根据设备类型选择调用相应的驱动程序</li>
+</ul>
+</li>
+</ul>
+<h4 id="设备驱动程序">设备驱动程序</h4>
+<ul>
+<li><strong>与硬件直接相关</strong>，负责<strong>具体实现系统对设备发出的操作命令</strong>，驱动 I/O 设备工作的驱动程序</li>
+<li>每类设备设置一个设备驱动程序，它是 I/O 进程与设备控制器之间的通信程序，通常<strong>以进程的形式存在</strong></li>
+<li>设备具体的差别被设备驱动程序所封装，设备驱动程序向上层用户程序提供一组标准接口，用于接收上层软件发来的抽象 I/O 要求（如 read /write 命令），转换为具体要求后，<strong>发送给设备控制器，控制 I/O 设备工作</strong></li>
+<li>它也将由设备控制器发来的信号传送给上层软件，从而为 I/O 内核子系统隐藏设备控制器之间的差异</li>
+</ul>
+<h4 id="中断处理程序">中断处理程序</h4>
+<ul>
+<li>保存被中断进程的 CPU 环境，转入相应的中断处理程序进行处理，处理完毕再恢复被中断进程的现场后，返回到被中断进程<br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://qingwu-oss.oss-cn-heyuan.aliyuncs.com/lian/img/20240604152911.png" alt="image.png"></li>
+</ul>
+<h3 id="应用程序-I-O-接口">应用程序 I/O 接口</h3>
+<h4 id="I-O-接口的分类">I/O 接口的分类</h4>
+<ul>
+<li><strong>字符设备接口</strong>：
+<ul>
+<li>字符设备：指数据的存取和传输是<strong>以字符为单位</strong>的设备（如键盘、打印机等）</li>
+<li>基本特征：
+<ul>
+<li>传输速率较低、不可寻址</li>
+<li>I/O 通常采用中断驱动方式</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>块设备接口</strong>：
+<ul>
+<li>块设备：指数据的存取和传输是<strong>以数据块为单位</strong>的设备（如磁盘）</li>
+<li>基本特征：
+<ul>
+<li>传输速率高、可寻址</li>
+<li>I/O 通常采用 DMA 方式</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>网络设备接口</strong>：
+<ul>
+<li>又称网络套接字（socket）接口</li>
+<li>套接字接口的系统调用使应用程序创建的本地套接字连接到远程应用程序创建的创建的套接字，通过此连接发送和接收数据</li>
+</ul>
+</li>
+</ul>
+<h4 id="阻塞-I-O-和非阻塞-I-O">阻塞 I/O 和非阻塞 I/O</h4>
+<ul>
+<li><strong>阻塞 I/O</strong> ：
+<ul>
+<li>指当用户进程调用 I/O 操作时，进程就被阻塞，需要等待 I/O 操作完成，进程才被唤醒继续执行</li>
+<li>大多数 OS 提供的 I/O 接口都是采用阻塞 I/O</li>
+<li><strong>优点</strong>：操作简单，实现难度低，适合并发量小的应用开发</li>
+<li><strong>缺点</strong>：I/O 执行阶段进程会一直阻塞下去</li>
+</ul>
+</li>
+<li><strong>非阻塞 I/O</strong> ：
+<ul>
+<li>指用户进程调用 I/O 操作时，不阻塞该进程，但进程需要通过轮询的方式来查询 I/O 操作是否完成</li>
+<li><strong>优点</strong>：进程在等待 I/O 期间不会被阻塞，可以做其他事情，适合并发量大的应用开发</li>
+<li><strong>缺点</strong>：轮询方式询问 I/O 结果，会占用 CPU 的时间</li>
+</ul>
+</li>
+</ul>
+<h2 id="设备独立性软件-2">设备独立性软件</h2>
+<h3 id="设备独立性软件-3">设备独立性软件</h3>
+<ul>
+<li>与设备无关的软件是 I/O 系统的最高层软件，它的下层是设备驱动程序，其间的界限因操作系统和设备的不同而有所差异</li>
+</ul>
+<h3 id="高速缓存与缓冲区">高速缓存与缓冲区</h3>
+<h4 id="磁盘高速缓存">磁盘高速缓存</h4>
+<ul>
+<li>操作系统中使用磁盘高速缓存技术来提高磁盘的 I/O 速度，对访问高速缓存要比访问原始磁盘数据更为高效</li>
+<li>磁盘高速缓存<strong>逻辑上属于磁盘</strong>，<strong>物理上是驻留在内存中的盘块</strong></li>
+<li>磁盘高速缓存在内存中分为两种形式：
+<ol>
+<li>在内存中开辟一个独立的空间作为磁盘高速缓存。大小固定</li>
+<li>把未利用内存空间作为一个缓冲池，仅供请求分页系统和磁盘 I/O 时共享</li>
+</ol>
+</li>
+</ul>
+<h4 id="缓冲区">缓冲区</h4>
+<ul>
+<li><strong>引入缓冲区的目的</strong>：
+<ul>
+<li>缓和 CPU 与 I/O 设备间速度不匹配的矛盾</li>
+<li>减少对 CPU 的中断频率，放宽对 CPU 中断响应时间的限制</li>
+<li>解决基本数据单元大小（即数据粒度）不匹配的问题</li>
+<li>提高 CPU 和 I/O 设备之间的并行性</li>
+</ul>
+</li>
+<li><strong>实现方法</strong>：
+<ul>
+<li>采用硬件缓冲器，但由于成本太高，除一些关键部位外，一般不采用硬件缓冲器</li>
+<li>采用缓冲区（位于内存区域）</li>
+</ul>
+</li>
+<li>根据系统设置<strong>缓冲区的个数</strong>，缓冲技术可以分为：</li>
+</ul>
+<h5 id="单缓冲">单缓冲</h5>
+<ul>
+<li>T时间：数据从磁盘 —&gt; 缓冲区</li>
+<li>M时间：数据从缓冲区 —&gt; 用户</li>
+<li>C 时间：CPU 对一块数据处理的时间<br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://qingwu-oss.oss-cn-heyuan.aliyuncs.com/lian/img/20240604162046.png" alt="image.png"></li>
+<li><strong>注意</strong>：
+<ul>
+<li>当缓冲区数据非空时，不能往缓冲区冲入数据，只能从缓冲区把数据传出</li>
+<li>当缓冲区为空时，可以往缓冲区冲入数据，但必须把缓冲区充满以后，才能从缓冲区把数据传出<br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://qingwu-oss.oss-cn-heyuan.aliyuncs.com/lian/img/20240604162941.png" alt="image.png"></li>
+</ul>
+</li>
+<li><strong>结论</strong>：采用单缓冲策略，处理一块数据平均耗时 <strong>Max (C, T)+M</strong></li>
+</ul>
+<h5 id="双缓冲">双缓冲</h5>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://qingwu-oss.oss-cn-heyuan.aliyuncs.com/lian/img/20240604163543.png" alt="image.png"></p>
+<ul>
+<li>假设初始状态为：工作区空，其中一个缓冲区满，另一个缓冲区空<br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://qingwu-oss.oss-cn-heyuan.aliyuncs.com/lian/img/20240604163708.png" alt="image.png"></li>
+<li><strong>结论</strong>：采用双缓冲策略，处理一个数据块的平均耗时为 <strong>Max (T, C+M)</strong></li>
+</ul>
+<h5 id="循环缓冲">循环缓冲</h5>
+<ul>
+<li>将多个<strong>大小相等</strong>的缓冲区连接成一个<strong>循环队列</strong></li>
+<li>下图中橙色表示已充满数据的缓冲区，绿色表示空缓冲区</li>
+<li>当需要向缓冲区中冲入数据时，只要找到in指针指向的空缓冲区，向其中冲入数据，然后再把in指针指向下一个空缓冲区</li>
+<li>当需要取出满缓冲区的内容时，找到 out 指针执行的满缓冲，读完数据后，将指针指向下一个满缓冲区。<br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://qingwu-oss.oss-cn-heyuan.aliyuncs.com/lian/img/20240604164039.png" alt="image.png"></li>
+</ul>
+<h5 id="缓冲池">缓冲池</h5>
+<ul>
+<li>缓冲池由系统中共用的缓冲区组成</li>
+<li>缓冲区<strong>按使用状况</strong>可以分为：
+<ul>
+<li><strong>空缓冲队列</strong></li>
+<li><strong>输入队列</strong>：存储的是从设备发送给内存的数据</li>
+<li><strong>输出队列</strong>：存储的是从内存发送给设备的数据</li>
+</ul>
+</li>
+<li>根据一个缓冲区<strong>在实际运算中扮演的功能</strong>不同分为四种工作缓冲区：
+<ul>
+<li>用于<strong>收容输入数据</strong>的工作缓冲区（hin）</li>
+<li>用于<strong>提取输入数据</strong>的工作缓冲区（sin）</li>
+<li>用于<strong>收容输出数据</strong>的工作缓冲区（hout）</li>
+<li>用于<strong>提取输出数据</strong>的工作缓冲区（sout）<br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://qingwu-oss.oss-cn-heyuan.aliyuncs.com/lian/img/20240604164403.png" alt="image.png"></li>
+</ul>
+</li>
+<li><strong>收容输入</strong>：
+<ul>
+<li>输入进程需要输入数据时，从空缓冲队列的队首摘下一个空缓冲区，作为收容输入工作缓冲区，然后将数据输入其中，装满后再将它挂到输入队列的队尾</li>
+</ul>
+</li>
+<li><strong>提取输入</strong>：
+<ul>
+<li>计算进程需要输入数据时，从输入队列的队首取得一个缓冲区，作为提取输入工作缓冲区，从中提取数据，用完该数据后将它挂到空缓冲队列的队尾</li>
+</ul>
+</li>
+<li><strong>收容输出</strong>：
+<ul>
+<li>计算进程需要输出数据时，从空缓冲队列的队首取得一个空缓冲区，作为收容输出工作缓冲区，当其中装满数据后，再将它挂到输出队列的队尾</li>
+</ul>
+</li>
+<li><strong>提取输出</strong>：
+<ul>
+<li>输出进程需要输出数据时，从输出队列的队首取得一个装满输出数据的缓冲区，作为提取输出工作缓冲区，当数据提取完后，再将它挂到空缓冲队列的队尾</li>
+</ul>
+</li>
+</ul>
+<h4 id="高速缓存与缓冲区的对比">高速缓存与缓冲区的对比</h4>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://qingwu-oss.oss-cn-heyuan.aliyuncs.com/lian/img/20240604165750.png" alt="image.png"></p>
+<h3 id="设备分配与回收">设备分配与回收</h3>
+<ul>
+<li><strong>设备分配</strong>：指根据用户的 I/O 请求分配所需的设备</li>
+</ul>
+<h4 id="设备分配的策略">设备分配的策略</h4>
+<h5 id="设备分配原则">设备分配原则</h5>
+<ul>
+<li><strong>设备固有属性</strong>决定了设备的使用方式（充分发挥设备的使用效率，尽可能让设备忙碌）</li>
+<li><strong>设备独立性</strong>可以提高设备分配的灵活性和设备的利用率（设备独立性是指用户使用设备的透明性，即用户程序与实际使用的物理设备无关）</li>
+<li><strong>设备安全性</strong>可以保证分配设备时不会导致永久阻塞（要避免造成进程死锁）</li>
+</ul>
+<h5 id="设备的固有属性">设备的固有属性</h5>
+<ul>
+<li><strong>独占设备</strong>：将它分配给某个进程后，便由该进程独占，直至进程完成或释放该设备</li>
+<li><strong>共享设备</strong>：可将它同时分配给多个进程，需要合理调度各个进程访问该设备的先后次序</li>
+<li><strong>虚拟设备</strong>：属于可共享设备，可将它同时分配给多个进程使用</li>
+</ul>
+<h5 id="设备分配算法">设备分配算法</h5>
+<ul>
+<li><strong>FCFS 算法</strong>：根据设备提出请求的先后次序</li>
+<li><strong>最高优先级算法</strong>：根据设备的优先级</li>
+</ul>
+<h5 id="设备分配的方式">设备分配的方式</h5>
+<ul>
+<li><strong>静态分配</strong>：
+<ul>
+<li>主要用于对<strong>独占设备</strong>的分配</li>
+<li>进程运行前为其分配全部所需资源，运行结束后归还资源</li>
+<li>一旦分配，这些设备、控制器就一直为该作业所占用，直到该作业被撤销</li>
+<li><strong>特点</strong>：不会出现死锁，但设备的使用效率低</li>
+</ul>
+</li>
+<li><strong>动态分配</strong>：
+<ul>
+<li>进程运行过程中通过系统调用命令动态申请设备资源</li>
+<li>一旦用完，便立即释放</li>
+<li><strong>特点</strong>：有利于提高设备利用率，但若分配算法使用不当，则有可能造成进程死锁</li>
+</ul>
+</li>
+</ul>
+<h5 id="设备分配中的安全性">设备分配中的安全性</h5>
+<ul>
+<li>
+<p>设备分配安全性是指设备分配中应防止发生进程死锁</p>
+</li>
+<li>
+<p><strong>安全分配方式</strong>：</p>
+<ul>
+<li>每当进程发出 I/O 请求后，便进入阻塞态，本次 I/O 完成后才将进程唤醒</li>
+<li>在一个时间段内每个进程只能使用一个设备</li>
+<li><strong>优点</strong>：破坏了请求等待条件，不会死锁，设备分配安全</li>
+<li><strong>缺点</strong>：对于一个进程来说，CPU 和 I/O 设备只能串行工作，系统资源利用率低</li>
+</ul>
+</li>
+<li>
+<p><strong>不安全分配方式</strong>：</p>
+<ul>
+<li>进程发出 I/O 请求后，系统为其分配 I/O 设备，进程可继续执行，之后还可以发出新的 I/O 请求，只有某个 I/O 请求得不到满足时才将进程阻塞</li>
+<li>一个进程可以同时使用多个设备</li>
+<li><strong>优点</strong>：进程的计算任务和 I/O 任务可以并行处理，使进程推进</li>
+<li><strong>缺点</strong>：有可能发生死锁</li>
+</ul>
+</li>
+</ul>
+<h4 id="设备分配的数据结构">设备分配的数据结构</h4>
+<ul>
+<li>“设备、控制器、通道”之间的关系：一个通道可控制多个设备控制器，每个设备控制器可控制多个设备<br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://qingwu-oss.oss-cn-heyuan.aliyuncs.com/lian/img/20240605151539.png" alt="image.png"></li>
+</ul>
+<h5 id="设备控制表（DCT）">设备控制表（DCT）</h5>
+<ul>
+<li>系统为每个设备配置一张 DCT，用于记录设备情况<br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://qingwu-oss.oss-cn-heyuan.aliyuncs.com/lian/img/20240605151817.png" alt="image.png"></li>
+</ul>
+<h5 id="控制器控制表（COCT）">控制器控制表（COCT）</h5>
+<ul>
+<li>每个设备控制器对应一张 COCT</li>
+<li>OS 根据 COCT 的信息对控制器进行操作和管理<br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://qingwu-oss.oss-cn-heyuan.aliyuncs.com/lian/img/20240605151934.png" alt="image.png"></li>
+</ul>
+<h5 id="通道控制表（CHCT）">通道控制表（CHCT）</h5>
+<ul>
+<li>每个通道对应一张 CHCT</li>
+<li>OS 根据 CHCT 的信息对通道进行操作和管理<br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://qingwu-oss.oss-cn-heyuan.aliyuncs.com/lian/img/20240605152039.png" alt="image.png"></li>
+</ul>
+<h5 id="系统设备表（SDT）">系统设备表（SDT）</h5>
+<ul>
+<li>记录了<strong>系统中全部设备</strong>的情况</li>
+<li>每个设备对应一个表目<br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://qingwu-oss.oss-cn-heyuan.aliyuncs.com/lian/img/20240605152145.png" alt="image.png"></li>
+</ul>
+<h4 id="设备分配的步骤">设备分配的步骤</h4>
+<ul>
+<li>以独占设备为例：</li>
+</ul>
+<ol>
+<li><strong>分配设备</strong>：
+<ul>
+<li>首先根据 I/O 请求中的<strong>物理设备名</strong>，查找 SDT，从中找出该设备的 DCT</li>
+<li>再根据 DCT 中的设备状态字段，可知该设备的状态：
+<ul>
+<li>若忙，则将该进程 PCB 挂到设备等待队列</li>
+<li>若不忙，则根据一定的策略将该设备分配给该进程</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>分配控制器</strong>：
+<ul>
+<li>根据 DCT 找到 COCT，查询控制器的状态：
+<ul>
+<li>若忙，则将该进程 PCB 挂到控制器等待队列</li>
+<li>若不忙，则将控制器分配给该进程</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>分配通道</strong>：
+<ul>
+<li>根据 COCT 找到 CHCT，查询通道的状态：
+<ul>
+<li>若忙，则将进程 PCB 挂到通道等待队列</li>
+<li>若不忙，则将通道分配给该进程</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<ul>
+<li><strong>注意</strong>：只有设备、控制器、通道三者都分配成功时，这次设备分配才算成功，之后便可启动 I/O设备进行数据传送</li>
+</ul>
+<h4 id="逻辑设备名到物理设备名的映射">逻辑设备名到物理设备名的映射</h4>
+<ul>
+<li><strong>目的</strong>：为了实现设备的独立性，进程中使用逻辑设备名来请求某类设备</li>
+<li><strong>逻辑设备表（LUT）</strong>：
+<ul>
+<li>用于将逻辑设备名映射为物理设备名</li>
+<li>每个表项包含 3 项内容：
+<ul>
+<li>逻辑设备名</li>
+<li>物理设备名</li>
+<li>设备驱动程序的入口地址</li>
+</ul>
+</li>
+<li>两种方式：
+<ol>
+<li><strong>整个系统只设置一张 LUT</strong>：
+<ul>
+<li>所有进程的设备分配情况都记录在同一张 LUT 中</li>
+<li>要求所有用户不能使用相同的逻辑设备名</li>
+<li>主要适用于单用户系统</li>
+</ul>
+</li>
+<li><strong>为每个用户设置一张 LUT</strong>：
+<ul>
+<li>同时在多用户系统中都配置系统设备表</li>
+<li>不同用户可以使用相同的逻辑设备名<br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://qingwu-oss.oss-cn-heyuan.aliyuncs.com/lian/img/20240606152840.png" alt="image.png"></li>
+</ul>
+</li>
+</ol>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="4-、SPOOLing-技术（假脱机技术）">4 、SPOOLing 技术（假脱机技术）</h3>
+<h4 id="脱机技术">脱机技术</h4>
+<ul>
+<li>批处理阶段引入了<strong>脱机输入/输出</strong>技术（用磁带完成）</li>
+<li><strong>引入目的</strong>：
+<ul>
+<li>缓解了 CPU 与慢速 I/O 设备的速度矛盾</li>
+<li>实现预输入、缓输出</li>
+</ul>
+</li>
+<li><strong>组成</strong>：外围控制机 + 更高速的设备（磁带）<br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://qingwu-oss.oss-cn-heyuan.aliyuncs.com/lian/img/20240606154710.png" alt="image.png"></li>
+</ul>
+<h4 id="假脱机技术的实现">假脱机技术的实现</h4>
+<ul>
+<li><strong>假脱机技术</strong>：又叫 SPOOLing 技术，用<strong>软件</strong>的方式模拟脱机技术，不需要外围机，是一项将<strong>独占设备改造成共享设备</strong>的软件技术<br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://qingwu-oss.oss-cn-heyuan.aliyuncs.com/lian/img/20240606154731.png" alt="image.png"></li>
+</ul>
+<h5 id="输入井和输出井">输入井和输出井</h5>
+<ul>
+<li>在磁盘上开辟出的两个存储区域</li>
+<li><strong>输入井</strong>：模拟脱机输入时的磁盘，用于收容 I/O 设备输入的数据</li>
+<li><strong>输出井</strong>：模拟脱机输出时的磁盘，用于收容用户程序的输出数据</li>
+<li>一个进程的输入（或输出）数据保存为一个文件</li>
+<li>所有进程的数据输入（或输出）文件链接成一个输入（或输出）队列</li>
+</ul>
+<h5 id="输入缓冲区和输出缓冲区">输入缓冲区和输出缓冲区</h5>
+<ul>
+<li>在内存中开辟的两个缓冲区</li>
+<li><strong>输入缓冲区</strong>：暂存由输入设备送来的数据，以后早传送到输入井</li>
+<li><strong>输出缓冲区</strong>：暂存从输出井送来的数据，以后再传送到输出设备</li>
+</ul>
+<h5 id="输入进程和输出进程">输入进程和输出进程</h5>
+<ul>
+<li>用于模拟脱机技术的外围控制机</li>
+<li><strong>输入进程</strong>：
+<ul>
+<li>将用户要求的数据从输入设备传送到输入缓冲区，再存放到输入井中</li>
+<li>CPU 需要输入数据时，直接从输入井中读入内存</li>
+</ul>
+</li>
+<li><strong>输出进程</strong>：
+<ul>
+<li>将用户要求输入的数据从内存传送到输出井</li>
+<li>待输出设备空闲时，再将输出井中的数据经输出缓冲区输出至输出设备。</li>
+</ul>
+</li>
+</ul>
+<h5 id="井管理程序">井管理程序</h5>
+<ul>
+<li>用于控制作业与磁盘井之间信息的交换</li>
+</ul>
+<h5 id="SPOOLing-系统的特点">SPOOLing 系统的特点</h5>
+<ul>
+<li><strong>提高了IO速度</strong>，将对低速IO设备执行的IO操作演变为对磁盘缓冲区中数据的存取</li>
+<li><strong>将独占设备变为共享设备</strong>，且实际上没有为任何进程分配设备</li>
+<li><strong>提高了独占设备的利用率</strong>，缓和了CPU和低速IO设备之间的速度不匹配的矛盾</li>
+<li><strong>实现了虚拟设备功能</strong>，对每个进程而言，都认为自己独占了一个设备</li>
+<li><strong>以空间换时间</strong>，需要磁盘空间（输入输出井）和内存空间（输入输出缓冲区）</li>
+</ul>
+<h4 id="共享打印机的实现">共享打印机的实现</h4>
+<ul>
+<li><strong>打印机是独占设备</strong>，只允许各个进程串行使用设备，一段时间内只能满足一个进程的请求</li>
+<li>利用用 SPOOLing 技术将其<strong>改造成“共享设备”</strong>，实现原理：
+<ul>
+<li>当用户进程请求打印输出时，SPOOLing 系统同意打印，但是并不真正立即把打印机分配给该进程，而由假脱机管理进程完成两项任务：
+<ol>
+<li>在<strong>磁盘缓冲区</strong>中为之申请一个空闲盘块，并将要打印的数据送入其中暂存</li>
+<li>为用户进程申请一张空白的<strong>用户请求打印表</strong>，并将用户的打印要求填入其中，再将该表挂到假脱机文件队列上</li>
+</ol>
+</li>
+<li><strong>当打印机空闲时</strong>，输出进程会从文件队列的队头取出一张打印请求表，并根据表中的要求打印数据从输出井传送到输出缓冲区，再输出到打印机打印</li>
+</ul>
+</li>
+<li>虽然系统中只有一台打印机，但每个进程提出打印请求时，系统都会为在输出井中为其分配一个存储区（相当于一个逻辑设备）使每个用户进程都觉得自己在独占一台打印机，从而实现对打印机的共享<br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://qingwu-oss.oss-cn-heyuan.aliyuncs.com/lian/img/20240606161932.png" alt="image.png"></li>
+</ul>
+<h3 id="设备驱动程序接口">设备驱动程序接口</h3>
+<ul>
+<li>设备驱动程序：是 I/O 系统的上层与设备控制器之间的通信程序</li>
+<li><strong>具有的功能</strong>：
+<ul>
+<li>接收由上层软件发来的命令和参数，并将抽象要求转换为与设备相关的具体要求【例如，将抽象要求中的盘块号转换为磁盘的盘面号、磁道号及扇区号】</li>
+<li>检查用户 IO 请求的合法性，了解设备的工作状态，传递与设备操作有关的参数，设置设备的工作方式</li>
+<li>发出 I/O 命令，若设备空闲，则立即启动它，完成指定的 I/O 操作；若设备忙，则将请求者的 PCB 挂到设备队列上等待</li>
+<li>及时响应由设备控制器发来的中断请求，并根据其中断类型，调用相应的中断处理程序进行处理</li>
+</ul>
+</li>
+<li>与普通应用/系统程序的<strong>差异</strong>：
+<ul>
+<li>设备驱动程序将抽象的I/O 请求转换成具体的 I/O 操作后，传送给设备控制器，并将设备控制器中记录的设备状态和 I/O操作的完成情况及时地反馈给请求进程</li>
+<li>设备驱动程序与设备采用的 I/O 控制方式紧密相关，常用的 I/O 控制方式是<strong>中断驱动方式和 DMA 方式</strong></li>
+<li>设备驱动程序与硬件密切相关，对于不同类型的设备，应配置不同的设备驱动程序</li>
+<li>由于设备驱动程序与硬件紧密相关，目前很多设<strong>备驱动程序的基本部分已固化在 ROM</strong></li>
+<li>设备驱动程序应<strong>允许同时多次调用执行</strong></li>
+</ul>
+</li>
+<li>如何使所有的设备驱动程序都有统一的接口：
+<ul>
+<li>要求每个设备驱动程序与操作系统之间都有相同或相近的接口，便于添加新的设备驱动程序和编制设备驱动程序</li>
+<li>要将抽象的设备名转换为具体的物理设备名，并且进一步找到相应的设备驱动程序入口</li>
+<li>对设备进行保护<br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://qingwu-oss.oss-cn-heyuan.aliyuncs.com/lian/img/20240608154956.png" alt="image.png"></li>
+</ul>
+</li>
+<li>对于每种设备类型，例如磁盘，OS 都要定义一组驱动程序必须支持的函数（读、写、格式化等）</li>
+<li>驱动程序包含一张表格，具有针对这些函数指向驱动程序自身的指针</li>
+<li>装载驱动程序时，OS 记录这个函数指针表的地址，当 OS 调用一个函数时，可通过这张表格发出间接调用</li>
+<li>函数指针表定义了驱动程序与操作系统其余部分之间的接口</li>
+</ul>
+<h2 id="磁盘与固态硬盘">磁盘与固态硬盘</h2>
+<h3 id="磁盘">磁盘</h3>
+<h4 id="磁盘、磁道、扇区">磁盘、磁道、扇区</h4>
+<ul>
+<li>磁盘的表面是由一些磁性物质组成，可以用这些磁性物理记录二进制数据</li>
+<li>磁盘表面被划分成多个磁道</li>
+<li>每个磁道被划分为多个扇区，每个扇区就是一个“磁盘块”</li>
+<li>每个扇区的数据量相同（如 1 KB）<br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://qingwu-oss.oss-cn-heyuan.aliyuncs.com/lian/img/20240608162835.png" alt="image.png"></li>
+</ul>
+<h4 id="盘面、盘柱">盘面、盘柱</h4>
+<ul>
+<li>磁盘是由多个盘片摞起来的，每个盘片有两个盘面</li>
+<li>每个盘面都对应一个磁头，所有的磁头都连在同一个磁臂上</li>
+<li>磁臂可以沿着盘面作径向运动，从而带动磁头到达不同的磁道来对不同扇区的读写操作</li>
+<li>所有盘面中的相对位置相同的磁道组成了柱面<br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://qingwu-oss.oss-cn-heyuan.aliyuncs.com/lian/img/20240608165227.png" alt="image.png"></li>
+</ul>
+<h4 id="在磁盘中读-写数据">在磁盘中读/写数据</h4>
+<ul>
+<li>在磁盘中读写数据，需要借助磁头
+<ul>
+<li>step 1：<strong>将磁头移动</strong>到想要读/写的<strong>扇区所在的磁道</strong></li>
+<li>step 2：<strong>磁盘会转动</strong>，让<strong>目标扇区从磁头下面划过</strong>，才能完成对扇区的读/写操作</li>
+</ul>
+</li>
+</ul>
+<h4 id="磁盘的物理地址">磁盘的物理地址</h4>
+<ul>
+<li>使用 <strong>（柱面号，盘面号，扇区号）</strong> 来定位任意一个磁盘块</li>
+<li>文件数据存放在外存中的几号块，这里的块号就可以转换为（柱面号，盘面号，扇区号）的地址形式</li>
+<li>根据物理地址读取一个“块”：
+<ol>
+<li>根据柱面号移动磁臂，让<strong>磁头指向指定柱面</strong></li>
+<li>激活<strong>指定盘面对应的磁头</strong></li>
+<li>磁盘旋转的过程，<strong>指定的扇区</strong>会从磁头下面划过，这样就完成了对指定扇区的读写</li>
+</ol>
+</li>
+</ul>
+<h4 id="磁盘的分类">磁盘的分类</h4>
+<ul>
+<li>根据<strong>磁头是否可以活动</strong>划分：
+<ul>
+<li>活动头磁盘</li>
+<li>固定头磁盘</li>
+</ul>
+</li>
+<li>根据<strong>盘面是否可以更换</strong>划分：
+<ul>
+<li>可换磁盘</li>
+<li>固定盘磁盘</li>
+</ul>
+</li>
+</ul>
+<h3 id="磁盘的管理">磁盘的管理</h3>
+<h4 id="磁盘初始化">磁盘初始化</h4>
+<ul>
+<li><strong>低级格式化</strong>【物理格式化】：
+<ul>
+<li>在磁盘可以存储数据之前，<strong>将它分为扇区</strong>，以便磁盘控制器能够进行读写操作</li>
+<li>每个扇区通常由头部、数据区域（通常为 512 B 大小）和尾部组成</li>
+<li>头部和尾部包含了一些磁盘控制器的使用信息：
+<ul>
+<li>利用磁道号、磁头号和扇区号标志一个扇区</li>
+<li>利用 CRC 字段对扇区进行校验</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="分区">分区</h4>
+<ul>
+<li>将磁盘<strong>分为由一个或多个柱面组成的分区</strong> (如 C 区，D 区)，每个分区的起始扇区和大小都记在磁盘主引导记录的分区表</li>
+<li><strong>对物理分区进行逻辑格式化</strong>【创建文件系统】，操作系统将初始的文件系统数据结构存储到磁盘上，这些数据结构包括空闲空间和己分配的空间以及一个初始为空的目录</li>
+<li><strong>簇</strong>：
+<ul>
+<li>将多个相邻的扇区组合在一起，提高效率</li>
+<li>一簇只能存放一个文件的内容</li>
+<li>文件所占用的空间只能是<strong>簇的整数倍</strong></li>
+<li>文件大小小于一簇（甚至是 0 字节），也要占用一簇的空间</li>
+</ul>
+</li>
+</ul>
+<h4 id="引导块">引导块</h4>
+<ul>
+<li>计算机启动时需要运行<strong>初始化程序（自举程序）</strong> 来初始化 CPU、寄存器、设备控制器和内存等，接着启动 OS</li>
+<li><strong>ROM 中存放很小的自举装入程序</strong>：避免改变自举代码而需改变 ROM 硬件</li>
+<li>完整的自举程序存放在磁盘的启动块（引导块/启动分区）上，启动块位于磁盘的固定位置</li>
+<li>拥有启动分区的磁盘称为<strong>启动磁盘</strong>或<strong>系统磁盘</strong>（C: 盘）</li>
+<li>计算机开机工作：先运行“自举装入程序”，通过执行该程序就可找到引导块，并将完整的“自举程序”读入内存，完成初始化</li>
+</ul>
+<h4 id="坏块的管理">坏块的管理</h4>
+<ul>
+<li>简单的磁盘：逻辑格式化时将坏块标记出来</li>
+<li>复杂的磁盘：磁盘控制器维护一个坏块链，并管理备用扇区</li>
+</ul>
+<h3 id="磁盘调度算法">磁盘调度算法</h3>
+<ul>
+<li><strong>磁盘调度算法的目的</strong>：为了提高磁盘的访问性能，一般是通过优化磁盘的访问请求顺序来做到的</li>
+<li><strong>寻道的时间是磁盘访问最耗时的部分</strong>，如果请求顺序优化的得当，可以节省一些不必要的寻道时间，从而提高磁盘的访问性能</li>
+<li>绝大数 OS 为改善磁盘访问时间，以簇（一组块）为单位进行空间划分</li>
+</ul>
+<h4 id="一次磁盘读-写操作需要的时间">一次磁盘读/写操作需要的时间</h4>
+<h5 id="寻道时间-Ts">寻道时间 Ts</h5>
+<ul>
+<li>在读/写数据前，需要将磁头移动到指定磁道所花费的时间</li>
+<li>分两步：
+<ol>
+<li><strong>启动磁头臂</strong>消耗的时间 s</li>
+<li><strong>移动磁头</strong>消耗的时间：假设磁头匀速移动，每跨越一个磁道消耗时间为 m，共跨越 n 条磁道</li>
+</ol>
+</li>
+<li><strong>Ts=s+m×n</strong></li>
+</ul>
+<h5 id="延迟时间-Tr">延迟时间 Tr</h5>
+<ul>
+<li>通过旋转磁盘，使磁头定位到目标扇区所需要的时间</li>
+<li>设磁盘转速 r（单位：转/秒）</li>
+<li><strong>Tr= $\frac{1}{2}*\frac{1}{r}=\frac{1}{2r}$</strong></li>
+<li>1/r 就是转一圈所需的时间，找到目标扇区平均需要转半圈，因此再乘以 1/2</li>
+</ul>
+<h5 id="传输时间-Tt">传输时间 Tt</h5>
+<ul>
+<li>从磁盘读出或向磁盘写入数据所经历的时间</li>
+<li>设磁盘转速 r，此次读/写的字节数为 b，每个磁道上的字节数为 N</li>
+<li><strong>Tt=</strong>$\frac{1}{r}*\frac{b}{N}=\frac{b}{rN}$</li>
+<li>每个磁道可存 N 字节数据，因此 b 字节数据需要 b/N 个磁道【扇区】才能存储</li>
+<li><strong>平均传输时间等于一个扇区划过磁头下方所需要的时间</strong>【2022 大题】</li>
+<li>读/写一个磁道所需的时间刚好是转一圈的时间 1/r</li>
+</ul>
+<h5 id="总的平均时间">总的平均时间</h5>
+<ul>
+<li>T= $T_s+\frac{1}{2r}+\frac{b}{rN}$</li>
+<li>无法通过操作系统优化延迟时间和传输时间，所以只能优化寻道时间</li>
+</ul>
+<h4 id="调度算法">调度算法</h4>
+<ul>
+<li>假设有一个请求序列，每个数字代表磁道的位置：98，183，37，122，14，124，65，67，初始磁头当前的位置是在第 53 磁道</li>
+</ul>
+<h5 id="先来先服务算法-FCFS">先来先服务算法 FCFS</h5>
+<ul>
+<li><strong>思想</strong>：先到来的请求，先被服务</li>
+<li><strong>优点</strong>：
+<ul>
+<li>公平，简单</li>
+<li>请求访问的磁道比较集中的话算法性能还算可以</li>
+</ul>
+</li>
+<li><strong>缺点</strong>：
+<ul>
+<li>比较简单粗暴</li>
+<li>如果大量进程竞争使用磁盘，请求访问的磁道可能会很分散</li>
+<li>算法在性能上就会显得很差，因为寻道时间过长</li>
+</ul>
+</li>
+<li><strong>处理顺序</strong>：98，183，37，122，14，124，65，67<br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://qingwu-oss.oss-cn-heyuan.aliyuncs.com/lian/img/20240608200246.png" alt="image.png"></li>
+</ul>
+<h5 id="最短寻找时间算法-SSTF">最短寻找时间算法 SSTF</h5>
+<ul>
+<li><strong>思想</strong>：优先选择从当前磁头位置所需寻道时间最短的请求</li>
+<li><strong>优点</strong>：
+<ul>
+<li>是贪心算法的思想，只是选择眼前最优，但是总体未必最优</li>
+<li>比 FCFS 效果好</li>
+</ul>
+</li>
+<li><strong>缺点</strong>：
+<ul>
+<li>存在饥饿现象</li>
+<li>产生饥饿的原因是<strong>磁头在一小块区域来回移动</strong></li>
+</ul>
+</li>
+<li><strong>处理顺序</strong>：65，67，37，14，98，122，124，183<br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://qingwu-oss.oss-cn-heyuan.aliyuncs.com/lian/img/20240608200246.png" alt=""></li>
+</ul>
+<h5 id="扫描-电梯算法-SCAN">扫描/电梯算法 SCAN</h5>
+<ul>
+<li><strong>思想</strong>：磁头在一个方向上移动，访问所有未完成的请求，直到磁头到达该方向上的最后的磁道，才调换方向</li>
+<li><strong>优点</strong>：
+<ul>
+<li>性能较好，寻道时间较短</li>
+<li>不会产生饥饿现象</li>
+</ul>
+</li>
+<li><strong>缺点</strong>：
+<ul>
+<li>中间部分的磁道会比较占便宜</li>
+<li>中间部分相比其他部分响应的频率会比较多</li>
+<li>也就是说每个磁道的响应频率存在差异</li>
+</ul>
+</li>
+<li><strong>处理顺序</strong>：
+<ul>
+<li>假设扫描调度算先朝磁道号减少的方向移动</li>
+<li>磁头先响应左边的请求</li>
+<li>直到到达最左端后，才开始反向移动，响应右边的请求</li>
+<li>7，14，0，65，67，98，122，124，183</li>
+</ul>
+</li>
+<li><strong>改进 LOOK 算法</strong>：只要在磁头移动方向上不再有请求，就立即改变磁头方向<br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://qingwu-oss.oss-cn-heyuan.aliyuncs.com/lian/img/20240608200254.png" alt="image.png"></li>
+</ul>
+<h5 id="循环扫描算法-C-SCAN">循环扫描算法 C-SCAN</h5>
+<ul>
+<li><strong>思想</strong>：
+<ul>
+<li>只有磁头朝某个特定方向移动时，才处理磁道访问请求</li>
+<li>而返回时直接快速移动至最靠边缘的磁道，也就是复位磁头</li>
+<li>这个过程是很快的，并且返回中途不处理任何请求</li>
+<li><strong>特点：磁道只响应一个方向上的请求</strong></li>
+</ul>
+</li>
+<li><strong>优点</strong>：对于各个位置磁道响应频率很平均</li>
+<li><strong>缺点</strong>：相比于 SCAN 算法，平均寻道时间更长</li>
+<li><strong>处理顺序</strong>：
+<ul>
+<li>假设循环扫描调度算先朝磁道增加的方向移动</li>
+<li>磁头先响应了右边的请求</li>
+<li>直到碰到了最右端的磁道 199，就立即回到磁盘的开始处</li>
+<li>但这个返回的途中是不响应任何请求的</li>
+<li>直到到达最开始的磁道后，才继续顺序响应右边的请求</li>
+<li>65，67，98，122，124，183，199，0，14，37</li>
+</ul>
+</li>
+<li><strong>改进 C-LOOK 算法</strong>：只要在磁头移动方向上不再有请求，就立即改变磁头方向<br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://qingwu-oss.oss-cn-heyuan.aliyuncs.com/lian/img/20240608200301.png" alt="image.png"></li>
+</ul>
+<h4 id="减少磁盘延迟时间的方法">减少磁盘延迟时间的方法</h4>
+<ul>
+<li>磁头读入一个扇区数据后需要一小段时间处理</li>
+<li>如果逻辑上相邻的扇区在物理上也相邻，则读入几个连续的逻辑扇区，可能需要很长的“延迟时间”</li>
+</ul>
+<h5 id="交替编号">交替编号</h5>
+<ul>
+<li><strong>思想</strong>：让逻辑上相邻的扇区在物理上有一定的间隔，可以使读取连续的逻辑扇区所需要的延迟时间更小<br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://qingwu-oss.oss-cn-heyuan.aliyuncs.com/lian/img/20240608201651.png" alt="image.png"></li>
+<li><strong>思考</strong>：磁盘的物理地址是（柱面号，盘面号，扇区号）而不是（盘面号，柱面号，扇区号）</li>
+<li>读取地址连续的磁盘块时，采用（柱面号，盘面号，扇区号）的地址结构可以<strong>减少磁头移动消耗的时间</strong><br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://qingwu-oss.oss-cn-heyuan.aliyuncs.com/lian/img/20240608201940.png" alt="image.png"></li>
+</ul>
+<h5 id="错位命名">错位命名</h5>
+<ul>
+<li><strong>思想</strong>：让相邻盘面的扇区编号错位<br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://qingwu-oss.oss-cn-heyuan.aliyuncs.com/lian/img/20240608202223.png" alt="image.png"></li>
+</ul>
+<h4 id="固态硬盘">固态硬盘</h4>
+<div class="main-hero-waves-area"><div class="waves-area"><svg class="waves-svg" version="1.1" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 1440 140" preserveAspectRatio="none"><path class="parallax" d="M 0 44 C 355 167 415 0 725 44 L 725 44 L 0 44 Z"></path><use class="parallax" xlink:href="#wave1" x="48" y="3"></use><use class="parallax" xlink:href="#wave1" x="48" y="5"></use><use class="parallax" xlink:href="#wave1" x="48" y="7"></use><use class="parallax" xlink:href="#wave1" x="48" y="9"></use></svg></div></div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://labi.com">Lorinda</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://labi.com/post/169339cb.html">http://labi.com/post/169339cb.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="http://labi.com" target="_blank">蜡笔梦工厂</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/I-O-%E8%AE%BE%E5%A4%87%E5%88%86%E7%B1%BB%EF%BC%88%E5%9D%97%E8%AE%BE%E5%A4%87-%E5%AD%97%E7%AC%A6%E8%AE%BE%E5%A4%87%EF%BC%89/">I/O 设备分类（块设备 / 字符设备）</a><a class="post-meta__tags" href="/tags/I-O-%E6%8E%A7%E5%88%B6%E6%96%B9%E5%BC%8F%EF%BC%88DMA-%E9%80%9A%E9%81%93%EF%BC%89/">I/O 控制方式（DMA / 通道）</a><a class="post-meta__tags" href="/tags/%E7%A3%81%E7%9B%98%E8%B0%83%E5%BA%A6%E7%AE%97%E6%B3%95%EF%BC%88FCFS-SSTF-SCAN%EF%BC%89/">磁盘调度算法（FCFS/SSTF/SCAN）</a><a class="post-meta__tags" href="/tags/SPOOLing-%E6%8A%80%E6%9C%AF/">SPOOLing 技术</a><a class="post-meta__tags" href="/tags/%E8%AE%BE%E5%A4%87%E5%88%86%E9%85%8D%E4%B8%8E%E5%9B%9E%E6%94%B6/">设备分配与回收</a></div><div class="post-share"><div class="social-share" data-image="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112844.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://lib.baomitu.com/social-share.js/1.0.16/css/share.min.css" media="print" onload="this.media='all'"><script src="https://lib.baomitu.com/social-share.js/1.0.16/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/post/d64a2c5e.html" title="第 5 章 中央处理器"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_155656.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">第 5 章 中央处理器</div></div><div class="info-2"><div class="info-item-1">详解CPU的功能组成与工作原理，分析时序系统的作用，对比微程序与硬布线控制方式，介绍流水线技术的性能优化机制。</div></div></div></a><a class="pagination-related" href="/post/f75b3d6f.html" title="第 6 章 输入输出系统"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112844.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">第 6 章 输入输出系统</div></div><div class="info-2"><div class="info-item-1">介绍I/O设备的分类与特性，详解程序查询、中断与DMA三种控制方式，分析中断系统的处理机制，理解设备与主机的信息交换过程。</div></div></div></a></nav><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="card-info-avatar"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_155535.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-status-box"><div class="author-status"><g-emoji class="g-emoji" alias="palm_tree" fallback-src="https://lskypro.acozycotage.net/LightPicture/2022/12/fe1dc0402e623096.jpg">🐟</g-emoji><span>认真摸鱼中</span></div></div></div><div class="author-info-name">Lorinda</div><div class="author-info-description">欢迎来到Lorinda的个人博客\^o^/</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">17</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">71</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">6</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://lr0513.github.io/"><i class="fab fa-github"></i><span>你回来了~</span><i class="faa-passing animated" style="padding-left:20px;display:inline-block;vertical-align:middle;"><svg class="icon" style="height:28px;width:28px;fill:currentColor;position:relative;top:5px"><use xlink:href="#icon-hexolabixiaoxin1"></use></svg></i></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content"></div><div id="welcome-info"></div></div><div class="xpand" style="height:200px;"><canvas class="illo" width="800" height="800" style="max-width: 200px; max-height: 200px; touch-action: none; width: 640px; height: 640px;"></canvas></div><script src="https://npm.elemecdn.com/ethan4116-blog/lib/js/other/two-people/twopeople1.js"></script><script src="https://npm.elemecdn.com/ethan4116-blog/lib/js/other/two-people/zdog.dist.js"></script><script id="rendered-js" src="https://npm.elemecdn.com/ethan4116-blog/lib/js/other/two-people/twopeople.js"></script><style>.card-widget.card-announcement {
+margin: 0;
+align-items: center;
+justify-content: center;
+text-align: center;
+}
+canvas {
+display: block;
+margin: 0 auto;
+cursor: move;
+}</style><div class="card-widget" id="newYear"><div class="item-headline"><i></i><span></span></div><div class="item-content"><div id="newYear-main"><div class="mask"></div> <p class="title"></p> <div class="newYear-time"></div> <p class="today" style="text-align: right;"></p> </div></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#I-O-%E7%AE%A1%E7%90%86%E6%A6%82%E8%BF%B0"><span class="toc-number">1.</span> <span class="toc-text">I&#x2F;O 管理概述</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#I-O-%E8%AE%BE%E5%A4%87"><span class="toc-number">1.1.</span> <span class="toc-text">I&#x2F;O 设备</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AE%BE%E5%A4%87%E7%9A%84%E5%88%86%E7%B1%BB"><span class="toc-number">1.1.1.</span> <span class="toc-text">设备的分类</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%8C%89%E4%BF%A1%E6%81%AF%E4%BA%A4%E6%8D%A2%E7%9A%84%E5%8D%95%E4%BD%8D"><span class="toc-number">1.1.1.1.</span> <span class="toc-text">按信息交换的单位</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%8C%89%E8%AE%BE%E5%A4%87%E7%9A%84%E4%BC%A0%E8%BE%93%E9%80%9F%E7%8E%87"><span class="toc-number">1.1.1.2.</span> <span class="toc-text">按设备的传输速率</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%8C%89%E8%AE%BE%E5%A4%87%E7%9A%84%E5%85%B1%E4%BA%AB%E5%B1%9E%E6%80%A7"><span class="toc-number">1.1.1.3.</span> <span class="toc-text">按设备的共享属性</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%8C%89%E8%AE%BE%E5%A4%87%E7%9A%84%E4%BD%BF%E7%94%A8%E7%89%B9%E6%80%A7"><span class="toc-number">1.1.1.4.</span> <span class="toc-text">按设备的使用特性</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AE%BE%E5%A4%87%E6%8E%A7%E5%88%B6%E5%99%A8%EF%BC%88I-O-%E6%8E%A5%E5%8F%A3%EF%BC%89"><span class="toc-number">1.1.2.</span> <span class="toc-text">设备控制器（I&#x2F;O 接口）</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%B8%BB%E8%A6%81%E5%8A%9F%E8%83%BD"><span class="toc-number">1.1.2.1.</span> <span class="toc-text">主要功能</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%BB%84%E6%88%90"><span class="toc-number">1.1.2.2.</span> <span class="toc-text">组成</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%B1%BB%E5%9E%8B"><span class="toc-number">1.1.2.3.</span> <span class="toc-text">类型</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#I-O-%E7%AB%AF%E5%8F%A3"><span class="toc-number">1.1.3.</span> <span class="toc-text">I&#x2F;O 端口</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="toc-number">1.1.3.1.</span> <span class="toc-text">基本概念</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%AF%84%E5%AD%98%E5%99%A8%E7%BC%96%E5%9D%80%E6%96%B9%E5%BC%8F"><span class="toc-number">1.1.3.2.</span> <span class="toc-text">寄存器编址方式</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#I-O-%E6%8E%A7%E5%88%B6%E6%96%B9%E5%BC%8F"><span class="toc-number">1.2.</span> <span class="toc-text">I&#x2F;O 控制方式</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A8%8B%E5%BA%8F%E7%9B%B4%E6%8E%A5%E6%8E%A7%E5%88%B6%E6%96%B9%E5%BC%8F"><span class="toc-number">1.2.1.</span> <span class="toc-text">程序直接控制方式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%AD%E6%96%AD%E9%A9%B1%E5%8A%A8%E6%96%B9%E5%BC%8F"><span class="toc-number">1.2.2.</span> <span class="toc-text">中断驱动方式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#DMA-%E6%96%B9%E5%BC%8F"><span class="toc-number">1.2.3.</span> <span class="toc-text">DMA 方式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%80%9A%E9%81%93%E6%8E%A7%E5%88%B6%E6%96%B9%E5%BC%8F"><span class="toc-number">1.2.4.</span> <span class="toc-text">通道控制方式</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#I-O-%E8%BD%AF%E4%BB%B6%E5%B1%82%E6%AC%A1%E7%BB%93%E6%9E%84"><span class="toc-number">1.3.</span> <span class="toc-text">I&#x2F;O 软件层次结构</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%94%A8%E6%88%B7%E5%B1%82%E8%BD%AF%E4%BB%B6"><span class="toc-number">1.3.1.</span> <span class="toc-text">用户层软件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AE%BE%E5%A4%87%E7%8B%AC%E7%AB%8B%E6%80%A7%E8%BD%AF%E4%BB%B6"><span class="toc-number">1.3.2.</span> <span class="toc-text">设备独立性软件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F"><span class="toc-number">1.3.3.</span> <span class="toc-text">设备驱动程序</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%AD%E6%96%AD%E5%A4%84%E7%90%86%E7%A8%8B%E5%BA%8F"><span class="toc-number">1.3.4.</span> <span class="toc-text">中断处理程序</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F-I-O-%E6%8E%A5%E5%8F%A3"><span class="toc-number">1.4.</span> <span class="toc-text">应用程序 I&#x2F;O 接口</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#I-O-%E6%8E%A5%E5%8F%A3%E7%9A%84%E5%88%86%E7%B1%BB"><span class="toc-number">1.4.1.</span> <span class="toc-text">I&#x2F;O 接口的分类</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%98%BB%E5%A1%9E-I-O-%E5%92%8C%E9%9D%9E%E9%98%BB%E5%A1%9E-I-O"><span class="toc-number">1.4.2.</span> <span class="toc-text">阻塞 I&#x2F;O 和非阻塞 I&#x2F;O</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AE%BE%E5%A4%87%E7%8B%AC%E7%AB%8B%E6%80%A7%E8%BD%AF%E4%BB%B6-2"><span class="toc-number">2.</span> <span class="toc-text">设备独立性软件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AE%BE%E5%A4%87%E7%8B%AC%E7%AB%8B%E6%80%A7%E8%BD%AF%E4%BB%B6-3"><span class="toc-number">2.1.</span> <span class="toc-text">设备独立性软件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%AB%98%E9%80%9F%E7%BC%93%E5%AD%98%E4%B8%8E%E7%BC%93%E5%86%B2%E5%8C%BA"><span class="toc-number">2.2.</span> <span class="toc-text">高速缓存与缓冲区</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A3%81%E7%9B%98%E9%AB%98%E9%80%9F%E7%BC%93%E5%AD%98"><span class="toc-number">2.2.1.</span> <span class="toc-text">磁盘高速缓存</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BC%93%E5%86%B2%E5%8C%BA"><span class="toc-number">2.2.2.</span> <span class="toc-text">缓冲区</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%8D%95%E7%BC%93%E5%86%B2"><span class="toc-number">2.2.2.1.</span> <span class="toc-text">单缓冲</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%8F%8C%E7%BC%93%E5%86%B2"><span class="toc-number">2.2.2.2.</span> <span class="toc-text">双缓冲</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%BE%AA%E7%8E%AF%E7%BC%93%E5%86%B2"><span class="toc-number">2.2.2.3.</span> <span class="toc-text">循环缓冲</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%BC%93%E5%86%B2%E6%B1%A0"><span class="toc-number">2.2.2.4.</span> <span class="toc-text">缓冲池</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%AB%98%E9%80%9F%E7%BC%93%E5%AD%98%E4%B8%8E%E7%BC%93%E5%86%B2%E5%8C%BA%E7%9A%84%E5%AF%B9%E6%AF%94"><span class="toc-number">2.2.3.</span> <span class="toc-text">高速缓存与缓冲区的对比</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AE%BE%E5%A4%87%E5%88%86%E9%85%8D%E4%B8%8E%E5%9B%9E%E6%94%B6"><span class="toc-number">2.3.</span> <span class="toc-text">设备分配与回收</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AE%BE%E5%A4%87%E5%88%86%E9%85%8D%E7%9A%84%E7%AD%96%E7%95%A5"><span class="toc-number">2.3.1.</span> <span class="toc-text">设备分配的策略</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%AE%BE%E5%A4%87%E5%88%86%E9%85%8D%E5%8E%9F%E5%88%99"><span class="toc-number">2.3.1.1.</span> <span class="toc-text">设备分配原则</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%AE%BE%E5%A4%87%E7%9A%84%E5%9B%BA%E6%9C%89%E5%B1%9E%E6%80%A7"><span class="toc-number">2.3.1.2.</span> <span class="toc-text">设备的固有属性</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%AE%BE%E5%A4%87%E5%88%86%E9%85%8D%E7%AE%97%E6%B3%95"><span class="toc-number">2.3.1.3.</span> <span class="toc-text">设备分配算法</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%AE%BE%E5%A4%87%E5%88%86%E9%85%8D%E7%9A%84%E6%96%B9%E5%BC%8F"><span class="toc-number">2.3.1.4.</span> <span class="toc-text">设备分配的方式</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%AE%BE%E5%A4%87%E5%88%86%E9%85%8D%E4%B8%AD%E7%9A%84%E5%AE%89%E5%85%A8%E6%80%A7"><span class="toc-number">2.3.1.5.</span> <span class="toc-text">设备分配中的安全性</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AE%BE%E5%A4%87%E5%88%86%E9%85%8D%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="toc-number">2.3.2.</span> <span class="toc-text">设备分配的数据结构</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%AE%BE%E5%A4%87%E6%8E%A7%E5%88%B6%E8%A1%A8%EF%BC%88DCT%EF%BC%89"><span class="toc-number">2.3.2.1.</span> <span class="toc-text">设备控制表（DCT）</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%8E%A7%E5%88%B6%E5%99%A8%E6%8E%A7%E5%88%B6%E8%A1%A8%EF%BC%88COCT%EF%BC%89"><span class="toc-number">2.3.2.2.</span> <span class="toc-text">控制器控制表（COCT）</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E9%80%9A%E9%81%93%E6%8E%A7%E5%88%B6%E8%A1%A8%EF%BC%88CHCT%EF%BC%89"><span class="toc-number">2.3.2.3.</span> <span class="toc-text">通道控制表（CHCT）</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%B3%BB%E7%BB%9F%E8%AE%BE%E5%A4%87%E8%A1%A8%EF%BC%88SDT%EF%BC%89"><span class="toc-number">2.3.2.4.</span> <span class="toc-text">系统设备表（SDT）</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AE%BE%E5%A4%87%E5%88%86%E9%85%8D%E7%9A%84%E6%AD%A5%E9%AA%A4"><span class="toc-number">2.3.3.</span> <span class="toc-text">设备分配的步骤</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%80%BB%E8%BE%91%E8%AE%BE%E5%A4%87%E5%90%8D%E5%88%B0%E7%89%A9%E7%90%86%E8%AE%BE%E5%A4%87%E5%90%8D%E7%9A%84%E6%98%A0%E5%B0%84"><span class="toc-number">2.3.4.</span> <span class="toc-text">逻辑设备名到物理设备名的映射</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E3%80%81SPOOLing-%E6%8A%80%E6%9C%AF%EF%BC%88%E5%81%87%E8%84%B1%E6%9C%BA%E6%8A%80%E6%9C%AF%EF%BC%89"><span class="toc-number">2.4.</span> <span class="toc-text">4 、SPOOLing 技术（假脱机技术）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%84%B1%E6%9C%BA%E6%8A%80%E6%9C%AF"><span class="toc-number">2.4.1.</span> <span class="toc-text">脱机技术</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%81%87%E8%84%B1%E6%9C%BA%E6%8A%80%E6%9C%AF%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="toc-number">2.4.2.</span> <span class="toc-text">假脱机技术的实现</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%BE%93%E5%85%A5%E4%BA%95%E5%92%8C%E8%BE%93%E5%87%BA%E4%BA%95"><span class="toc-number">2.4.2.1.</span> <span class="toc-text">输入井和输出井</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%BE%93%E5%85%A5%E7%BC%93%E5%86%B2%E5%8C%BA%E5%92%8C%E8%BE%93%E5%87%BA%E7%BC%93%E5%86%B2%E5%8C%BA"><span class="toc-number">2.4.2.2.</span> <span class="toc-text">输入缓冲区和输出缓冲区</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%BE%93%E5%85%A5%E8%BF%9B%E7%A8%8B%E5%92%8C%E8%BE%93%E5%87%BA%E8%BF%9B%E7%A8%8B"><span class="toc-number">2.4.2.3.</span> <span class="toc-text">输入进程和输出进程</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BA%95%E7%AE%A1%E7%90%86%E7%A8%8B%E5%BA%8F"><span class="toc-number">2.4.2.4.</span> <span class="toc-text">井管理程序</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#SPOOLing-%E7%B3%BB%E7%BB%9F%E7%9A%84%E7%89%B9%E7%82%B9"><span class="toc-number">2.4.2.5.</span> <span class="toc-text">SPOOLing 系统的特点</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%B1%E4%BA%AB%E6%89%93%E5%8D%B0%E6%9C%BA%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="toc-number">2.4.3.</span> <span class="toc-text">共享打印机的实现</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F%E6%8E%A5%E5%8F%A3"><span class="toc-number">2.5.</span> <span class="toc-text">设备驱动程序接口</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A3%81%E7%9B%98%E4%B8%8E%E5%9B%BA%E6%80%81%E7%A1%AC%E7%9B%98"><span class="toc-number">3.</span> <span class="toc-text">磁盘与固态硬盘</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A3%81%E7%9B%98"><span class="toc-number">3.1.</span> <span class="toc-text">磁盘</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A3%81%E7%9B%98%E3%80%81%E7%A3%81%E9%81%93%E3%80%81%E6%89%87%E5%8C%BA"><span class="toc-number">3.1.1.</span> <span class="toc-text">磁盘、磁道、扇区</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%9B%98%E9%9D%A2%E3%80%81%E7%9B%98%E6%9F%B1"><span class="toc-number">3.1.2.</span> <span class="toc-text">盘面、盘柱</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9C%A8%E7%A3%81%E7%9B%98%E4%B8%AD%E8%AF%BB-%E5%86%99%E6%95%B0%E6%8D%AE"><span class="toc-number">3.1.3.</span> <span class="toc-text">在磁盘中读&#x2F;写数据</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A3%81%E7%9B%98%E7%9A%84%E7%89%A9%E7%90%86%E5%9C%B0%E5%9D%80"><span class="toc-number">3.1.4.</span> <span class="toc-text">磁盘的物理地址</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A3%81%E7%9B%98%E7%9A%84%E5%88%86%E7%B1%BB"><span class="toc-number">3.1.5.</span> <span class="toc-text">磁盘的分类</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A3%81%E7%9B%98%E7%9A%84%E7%AE%A1%E7%90%86"><span class="toc-number">3.2.</span> <span class="toc-text">磁盘的管理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A3%81%E7%9B%98%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="toc-number">3.2.1.</span> <span class="toc-text">磁盘初始化</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%86%E5%8C%BA"><span class="toc-number">3.2.2.</span> <span class="toc-text">分区</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%BC%95%E5%AF%BC%E5%9D%97"><span class="toc-number">3.2.3.</span> <span class="toc-text">引导块</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9D%8F%E5%9D%97%E7%9A%84%E7%AE%A1%E7%90%86"><span class="toc-number">3.2.4.</span> <span class="toc-text">坏块的管理</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A3%81%E7%9B%98%E8%B0%83%E5%BA%A6%E7%AE%97%E6%B3%95"><span class="toc-number">3.3.</span> <span class="toc-text">磁盘调度算法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%80%E6%AC%A1%E7%A3%81%E7%9B%98%E8%AF%BB-%E5%86%99%E6%93%8D%E4%BD%9C%E9%9C%80%E8%A6%81%E7%9A%84%E6%97%B6%E9%97%B4"><span class="toc-number">3.3.1.</span> <span class="toc-text">一次磁盘读&#x2F;写操作需要的时间</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%AF%BB%E9%81%93%E6%97%B6%E9%97%B4-Ts"><span class="toc-number">3.3.1.1.</span> <span class="toc-text">寻道时间 Ts</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%BB%B6%E8%BF%9F%E6%97%B6%E9%97%B4-Tr"><span class="toc-number">3.3.1.2.</span> <span class="toc-text">延迟时间 Tr</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BC%A0%E8%BE%93%E6%97%B6%E9%97%B4-Tt"><span class="toc-number">3.3.1.3.</span> <span class="toc-text">传输时间 Tt</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%80%BB%E7%9A%84%E5%B9%B3%E5%9D%87%E6%97%B6%E9%97%B4"><span class="toc-number">3.3.1.4.</span> <span class="toc-text">总的平均时间</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%B0%83%E5%BA%A6%E7%AE%97%E6%B3%95"><span class="toc-number">3.3.2.</span> <span class="toc-text">调度算法</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%85%88%E6%9D%A5%E5%85%88%E6%9C%8D%E5%8A%A1%E7%AE%97%E6%B3%95-FCFS"><span class="toc-number">3.3.2.1.</span> <span class="toc-text">先来先服务算法 FCFS</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%9C%80%E7%9F%AD%E5%AF%BB%E6%89%BE%E6%97%B6%E9%97%B4%E7%AE%97%E6%B3%95-SSTF"><span class="toc-number">3.3.2.2.</span> <span class="toc-text">最短寻找时间算法 SSTF</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%89%AB%E6%8F%8F-%E7%94%B5%E6%A2%AF%E7%AE%97%E6%B3%95-SCAN"><span class="toc-number">3.3.2.3.</span> <span class="toc-text">扫描&#x2F;电梯算法 SCAN</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%BE%AA%E7%8E%AF%E6%89%AB%E6%8F%8F%E7%AE%97%E6%B3%95-C-SCAN"><span class="toc-number">3.3.2.4.</span> <span class="toc-text">循环扫描算法 C-SCAN</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%87%8F%E5%B0%91%E7%A3%81%E7%9B%98%E5%BB%B6%E8%BF%9F%E6%97%B6%E9%97%B4%E7%9A%84%E6%96%B9%E6%B3%95"><span class="toc-number">3.3.3.</span> <span class="toc-text">减少磁盘延迟时间的方法</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BA%A4%E6%9B%BF%E7%BC%96%E5%8F%B7"><span class="toc-number">3.3.3.1.</span> <span class="toc-text">交替编号</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E9%94%99%E4%BD%8D%E5%91%BD%E5%90%8D"><span class="toc-number">3.3.3.2.</span> <span class="toc-text">错位命名</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9B%BA%E6%80%81%E7%A1%AC%E7%9B%98"><span class="toc-number">3.3.4.</span> <span class="toc-text">固态硬盘</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-post-series"><div class="item-headline"><i class="fa-solid fa-layer-group"></i><span>系列文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/post/g86c4e7a.html" title="第 7 章 计算机系统结构"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112650.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 7 章 计算机系统结构"></a><div class="content"><a class="title" href="/post/g86c4e7a.html" title="第 7 章 计算机系统结构">第 7 章 计算机系统结构</a><time datetime="2025-08-28T21:20:00.000Z" title="发表于 2025-08-29 05:20:00">2025-08-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/f75b3d6f.html" title="第 6 章 输入输出系统"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112844.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 6 章 输入输出系统"></a><div class="content"><a class="title" href="/post/f75b3d6f.html" title="第 6 章 输入输出系统">第 6 章 输入输出系统</a><time datetime="2025-08-28T21:19:00.000Z" title="发表于 2025-08-29 05:19:00">2025-08-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/169339cb.html" title="第 5 章 输入输出管理：设备协同与优化"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112844.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 5 章 输入输出管理：设备协同与优化"></a><div class="content"><a class="title" href="/post/169339cb.html" title="第 5 章 输入输出管理：设备协同与优化">第 5 章 输入输出管理：设备协同与优化</a><time datetime="2025-08-28T21:18:00.000Z" title="发表于 2025-08-29 05:18:00">2025-08-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/d64a2c5e.html" title="第 5 章 中央处理器"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_155656.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 5 章 中央处理器"></a><div class="content"><a class="title" href="/post/d64a2c5e.html" title="第 5 章 中央处理器">第 5 章 中央处理器</a><time datetime="2025-08-28T21:18:00.000Z" title="发表于 2025-08-29 05:18:00">2025-08-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/790dfc8c.html" title="第 4 章 文件管理：存储与访问机制"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112650.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 4 章 文件管理：存储与访问机制"></a><div class="content"><a class="title" href="/post/790dfc8c.html" title="第 4 章 文件管理：存储与访问机制">第 4 章 文件管理：存储与访问机制</a><time datetime="2025-08-28T21:17:00.000Z" title="发表于 2025-08-29 05:17:00">2025-08-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/b93e5f6d.html" title="第 4 章 指令系统"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112758.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 4 章 指令系统"></a><div class="content"><a class="title" href="/post/b93e5f6d.html" title="第 4 章 指令系统">第 4 章 指令系统</a><time datetime="2025-08-28T21:17:00.000Z" title="发表于 2025-08-29 05:17:00">2025-08-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/ce20e5e9.html" title="第 3 章 内存管理：地址映射与虚拟内存"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112813.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 3 章 内存管理：地址映射与虚拟内存"></a><div class="content"><a class="title" href="/post/ce20e5e9.html" title="第 3 章 内存管理：地址映射与虚拟内存">第 3 章 内存管理：地址映射与虚拟内存</a><time datetime="2025-08-28T21:16:00.000Z" title="发表于 2025-08-29 05:16:00">2025-08-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/a81d4c7b.html" title="第 3 章 存储系统"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112813.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 3 章 存储系统"></a><div class="content"><a class="title" href="/post/a81d4c7b.html" title="第 3 章 存储系统">第 3 章 存储系统</a><time datetime="2025-08-28T21:16:00.000Z" title="发表于 2025-08-29 05:16:00">2025-08-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/e72f3b9c.html" title="第 2 章 数据的表示与计算"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112855.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 2 章 数据的表示与计算"></a><div class="content"><a class="title" href="/post/e72f3b9c.html" title="第 2 章 数据的表示与计算">第 2 章 数据的表示与计算</a><time datetime="2025-08-28T21:15:00.000Z" title="发表于 2025-08-29 05:15:00">2025-08-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/833e46bb.html" title="第 2 章 进程与线程：并发管理核心"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112844.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 2 章 进程与线程：并发管理核心"></a><div class="content"><a class="title" href="/post/833e46bb.html" title="第 2 章 进程与线程：并发管理核心">第 2 章 进程与线程：并发管理核心</a><time datetime="2025-08-28T21:15:00.000Z" title="发表于 2025-08-29 05:15:00">2025-08-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/c45d1e8a.html" title="第 1 章 计算机系统概述"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112813.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 1 章 计算机系统概述"></a><div class="content"><a class="title" href="/post/c45d1e8a.html" title="第 1 章 计算机系统概述">第 1 章 计算机系统概述</a><time datetime="2025-08-28T21:14:00.000Z" title="发表于 2025-08-29 05:14:00">2025-08-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/b328aa63.html" title="第 1 章 操作系统概述：计算机系统基础"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112844.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 1 章 操作系统概述：计算机系统基础"></a><div class="content"><a class="title" href="/post/b328aa63.html" title="第 1 章 操作系统概述：计算机系统基础">第 1 章 操作系统概述：计算机系统基础</a><time datetime="2025-08-28T21:14:00.000Z" title="发表于 2025-08-29 05:14:00">2025-08-29</time></div></div></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/post/g86c4e7a.html" title="第 7 章 计算机系统结构"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112650.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 7 章 计算机系统结构"/></a><div class="content"><a class="title" href="/post/g86c4e7a.html" title="第 7 章 计算机系统结构">第 7 章 计算机系统结构</a><time datetime="2025-08-28T21:20:00.000Z" title="发表于 2025-08-29 05:20:00">2025-08-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/f75b3d6f.html" title="第 6 章 输入输出系统"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112844.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 6 章 输入输出系统"/></a><div class="content"><a class="title" href="/post/f75b3d6f.html" title="第 6 章 输入输出系统">第 6 章 输入输出系统</a><time datetime="2025-08-28T21:19:00.000Z" title="发表于 2025-08-29 05:19:00">2025-08-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/169339cb.html" title="第 5 章 输入输出管理：设备协同与优化"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112844.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 5 章 输入输出管理：设备协同与优化"/></a><div class="content"><a class="title" href="/post/169339cb.html" title="第 5 章 输入输出管理：设备协同与优化">第 5 章 输入输出管理：设备协同与优化</a><time datetime="2025-08-28T21:18:00.000Z" title="发表于 2025-08-29 05:18:00">2025-08-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/d64a2c5e.html" title="第 5 章 中央处理器"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_155656.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 5 章 中央处理器"/></a><div class="content"><a class="title" href="/post/d64a2c5e.html" title="第 5 章 中央处理器">第 5 章 中央处理器</a><time datetime="2025-08-28T21:18:00.000Z" title="发表于 2025-08-29 05:18:00">2025-08-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/790dfc8c.html" title="第 4 章 文件管理：存储与访问机制"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112650.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 4 章 文件管理：存储与访问机制"/></a><div class="content"><a class="title" href="/post/790dfc8c.html" title="第 4 章 文件管理：存储与访问机制">第 4 章 文件管理：存储与访问机制</a><time datetime="2025-08-28T21:17:00.000Z" title="发表于 2025-08-29 05:17:00">2025-08-29</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2025  <i id="heartbeat" class="fa fas fa-heartbeat"></i> By Lorinda</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">I wish you to become your own sun, no need to rely on who's light.<p><a target="_blank" href="https://hexo.io/"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img.shields.io/badge/Frame-Hexo-blue?style=flat&logo=hexo" title="博客框架为Hexo"></a>&nbsp;<a target="_blank" href="https://butterfly.js.org/"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img.shields.io/badge/Theme-Butterfly-6513df?style=flat&logo=bitdefender" title="主题采用butterfly"></a>&nbsp;<a target="_blank" href="https://www.jsdelivr.com/"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img.shields.io/badge/CDN-jsDelivr-orange?style=flat&logo=jsDelivr" title="本站使用JsDelivr为静态资源提供CDN加速"></a> &nbsp;<a target="_blank" href="https://vercel.com/ "><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img.shields.io/badge/Hosted-Vervel-brightgreen?style=flat&logo=Vercel" title="本站采用双线部署，默认线路托管于Vercel"></a>&nbsp;<a target="_blank" href="https://vercel.com/ "><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img.shields.io/badge/Hosted-Coding-0cedbe?style=flat&logo=Codio" title="本站采用双线部署，联通线路托管于Coding"></a>&nbsp;<a target="_blank" href="https://github.com/"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img.shields.io/badge/Source-Github-d021d6?style=flat&logo=GitHub" title="本站项目由Gtihub托管"></a>&nbsp;<a target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img.shields.io/badge/Copyright-BY--NC--SA%204.0-d42328?style=flat&logo=Claris" title="本站采用知识共享署名-非商业性使用-相同方式共享4.0国际许可协议进行许可"></a></p></div></div><div class="js-pjax" id="rightMenu"><div class="rightMenu-group rightMenu-small"><a class="rightMenu-item" href="javascript:window.history.back();"><i class="fa fa-arrow-left"></i></a><a class="rightMenu-item" href="javascript:window.history.forward();"><i class="fa fa-arrow-right"></i></a><a class="rightMenu-item" href="javascript:window.location.reload();"><i class="fa fa-refresh"></i></a><a class="rightMenu-item" href="javascript:rmf.scrollToTop();"><i class="fa fa-arrow-up"></i></a></div><div class="rightMenu-group rightMenu-line hide" id="menu-text"><a class="rightMenu-item" href="javascript:rmf.copySelect();"><i class="fa fa-copy"></i><span>复制</span></a><a class="rightMenu-item" href="javascript:window.open(&quot;https://www.baidu.com/s?wd=&quot;+window.getSelection().toString());window.location.reload();"><i class="fa fa-search"></i><span>百度搜索</span></a></div><div class="rightMenu-group rightMenu-line hide" id="menu-too"><a class="rightMenu-item" href="javascript:window.open(window.getSelection().toString());window.location.reload();"><i class="fa fa-link"></i><span>转到链接</span></a></div><div class="rightMenu-group rightMenu-line hide" id="menu-paste"><a class="rightMenu-item" href="javascript:rmf.paste()"><i class="fa fa-copy"></i><span>粘贴</span></a></div><div class="rightMenu-group rightMenu-line hide" id="menu-post"><a class="rightMenu-item" href="javascript:rmf.copyWordsLink()"><i class="fa fa-link"></i><span>复制本文地址</span></a></div><div class="rightMenu-group rightMenu-line hide" id="menu-to"><a class="rightMenu-item" href="javascript:rmf.openWithNewTab()"><i class="fa fa-window-restore"></i><span>新窗口打开</span></a><a class="rightMenu-item" id="menu-too" href="javascript:rmf.open()"><i class="fa fa-link"></i><span>转到链接</span></a><a class="rightMenu-item" href="javascript:rmf.copyLink()"><i class="fa fa-copy"></i><span>复制链接</span></a></div><div class="rightMenu-group rightMenu-line hide" id="menu-img"><a class="rightMenu-item" href="javascript:rmf.saveAs()"><i class="fa fa-download"></i><span>保存图片</span></a><a class="rightMenu-item" href="javascript:rmf.openWithNewTab()"><i class="fa fa-window-restore"></i><span>在新窗口打开</span></a><a class="rightMenu-item" href="javascript:rmf.copyLink()"><i class="fa fa-copy"></i><span>复制图片链接</span></a></div><div class="rightMenu-group rightMenu-line"><a class="rightMenu-item" href="javascript:randomPost()"><i class="fa fa-paper-plane"></i><span>随便逛逛</span></a><a class="rightMenu-item" href="javascript:switchNightMode();"><i class="fa fa-moon"></i><span>昼夜切换</span></a><a class="rightMenu-item" href="javascript:rmf.switchReadMode();"><i class="fa fa-book"></i><span>阅读模式</span></a><a class="rightMenu-item" href="/about/"><i class="fa fa-info-circle"></i><span>关于博客</span></a><a class="rightMenu-item" href="javascript:rmf.fullScreen();"><i class="fas fa-expand"></i><span>切换全屏</span></a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><a class="icon-V hidden" onclick="switchNightMode()" title="日间和夜间模式切换"><svg width="25" height="25" viewBox="0 0 1024 1024"><use id="modeicon" xlink:href="#icon-moon"></use></svg></a><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="to_comment" type="button" title="前往评论" onclick="FixedCommentBtn();"><i class="fas fa-comments"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i><span id="percent">0<span>%</span></span></button><button id="go-down" type="button" title="直达底部" onclick="btf.scrollToDest(document.body.scrollHeight, 500)"><i class="fas fa-arrow-down"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page@5.1.0/instantpage.min.js" type="module"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-lazyload/19.1.3/lazyload.iife.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/node-snackbar/0.1.16/snackbar.min.js"></script><script>(() => {
+  const panguFn = () => {
+    if (typeof pangu === 'object') pangu.autoSpacingPage()
+    else {
+      btf.getScript('https://cdnjs.cloudflare.com/ajax/libs/pangu/4.0.7/pangu.min.js')
+        .then(() => {
+          pangu.autoSpacingPage()
+        })
+    }
+  }
+
+  const panguInit = () => {
+    if (false){
+      GLOBAL_CONFIG_SITE.isPost && panguFn()
+    } else {
+      panguFn()
+    }
+  }
+
+  btf.addGlobalFn('pjaxComplete', panguInit, 'pangu')
+  document.addEventListener('DOMContentLoaded', panguInit)
+})()</script><div class="js-pjax"><script>(() => {
+  const runMermaid = ele => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    ele.forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = `%%{init:{ 'theme':'${theme}'}}%%\n`
+      const mermaidID = `mermaid-${index}`
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+      const renderMermaid = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      // mermaid v9 and v10 compatibility
+      typeof renderFn === 'string' ? renderMermaid(renderFn) : renderFn.then(({ svg }) => renderMermaid(svg))
+    })
+  }
+
+  const codeToMermaid = () => {
+    const codeMermaidEle = document.querySelectorAll('pre > code.mermaid')
+    if (codeMermaidEle.length === 0) return
+
+    codeMermaidEle.forEach(ele => {
+      const preEle = document.createElement('pre')
+      preEle.className = 'mermaid-src'
+      preEle.hidden = true
+      preEle.textContent = ele.textContent
+      const newEle = document.createElement('div')
+      newEle.className = 'mermaid-wrap'
+      newEle.appendChild(preEle)
+      ele.parentNode.replaceWith(newEle)
+    })
+  }
+
+  const loadMermaid = () => {
+    if (true) codeToMermaid()
+    const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+    if ($mermaid.length === 0) return
+
+    const runMermaidFn = () => runMermaid($mermaid)
+    btf.addGlobalFn('themeChange', runMermaidFn, 'mermaid')
+    window.loadMermaid ? runMermaidFn() : btf.getScript('https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.4.0/mermaid.min.js').then(runMermaidFn)
+  }
+
+  btf.addGlobalFn('encrypt', loadMermaid, 'mermaid')
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script><script>(() => {
+  const isShuoshuo = GLOBAL_CONFIG_SITE.isShuoshuo
+  const option = null
+
+  const getCount = () => {
+    const countELement = document.getElementById('twikoo-count')
+    if(!countELement) return
+    twikoo.getCommentsCount({
+      envId: 'https://twikoo-api-three-beta.vercel.app/',
+      region: 'ap-beijing',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(res => {
+      countELement.textContent = res[0].count
+    }).catch(err => {
+      console.error(err)
+    })
+  }
+
+  const init = (el = document, path = location.pathname) => {
+    twikoo.init({
+      el: el.querySelector('#twikoo-wrap'),
+      envId: 'https://twikoo-api-three-beta.vercel.app/',
+      region: 'ap-beijing',
+      onCommentLoaded: () => {
+        btf.loadLightbox(document.querySelectorAll('#twikoo .tk-content img:not(.tk-owo-emotion)'))
+      },
+      ...option,
+      path: isShuoshuo ? path : (option && option.path) || path
+    })
+
+    
+
+    isShuoshuo && (window.shuoshuoComment.destroyTwikoo = () => {
+      if (el.children.length) {
+        el.innerHTML = ''
+        el.classList.add('no-comment')
+      }
+    })
+  }
+
+  const loadTwikoo = (el, path) => {
+    if (typeof twikoo === 'object') setTimeout(() => init(el, path), 0)
+    else btf.getScript('https://cdn.staticfile.org/twikoo/1.6.8/twikoo.all.min.js').then(() => init(el, path))
+  }
+
+  if (isShuoshuo) {
+    'Twikoo' === 'Twikoo'
+      ? window.shuoshuoComment = { loadComment: loadTwikoo }
+      : window.loadOtherComment = loadTwikoo
+    return
+  }
+
+  if ('Twikoo' === 'Twikoo' || !false) {
+    if (false) btf.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else loadTwikoo()
+  } else {
+    window.loadOtherComment = loadTwikoo
+  }
+})()</script></div><script async src="//at.alicdn.com/t/c/font_4860073_9duzoqyl2cn.js"></script><script defer data-pjax src="/js/readPercent.js"></script><script src="/js/pagination-jump.js"></script><script async src="/js/fps.js"></script><script async data-pjax src="/js/txmap.js"></script><script defer type="text/javascript" src="https://cdn1.tianli0.top/npm/sweetalert2@8.19.0/dist/sweetalert2.all.js"></script><script async data-pjax src="/js/music.js"></script><script defer src="/js/lunar.js"></script><script async src="https://cdn1.tianli0.top/npm/vue@2.6.14/dist/vue.min.js"></script><script async src="https://cdn1.tianli0.top/npm/element-ui@2.15.6/lib/index.js"></script><script type="text/javascript" src="https://cdn1.tianli0.top/npm/jquery@latest/dist/jquery.min.js"></script><script> let backimg =["url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/d42bcc24810cda2c22eaed769b79a93.jpg)","url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/2f5e89ae13329dd89bdcdbfc68c5fde.jpg)","url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/48b137c38cc79ad960ecf2a9a12fc20.jpg)","url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/4474312751631fedb37381e37cdb9c0.jpg)","url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/be978bd80f41d2781455513ba1676a2.jpg)","url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/a01223e0819746191dd135670a2d7da.jpg)","url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/af380cb8a5ed3f047e66dbfe731f488.jpg)"];let index = Math.floor(Math.random() * backimg.length);;document.getElementById("web_bg").style.backgroundImage = backimg[index]</script><script type="text/javascript" src="/js/rightmenu.js"></script><script src="/js/history.js"></script><script src="/js/historyroll.js"></script><script async src="//at.alicdn.com/t/font_2264842_3izu8i5eoc2.js"></script><script defer src="/js/day.js"></script><script async src="/js/title.js"></script><script defer src="/js/random.js"></script><canvas id="universe"></canvas><script defer src="/js/universe.js"></script><script async src="//npm.elemecdn.com/pace-js@1.2.4/pace.min.js"></script><script src="/js/sun_moon.js" async></script><script>
+  document.addEventListener('copy', function(e) {
+    const selection = window.getSelection().toString()
+    if (selection.length > 30) {
+      const notice = document.createElement('div')
+      notice.className = 'copy-notification'
+      notice.textContent = '内容已复制到剪贴板'
+
+      document.body.appendChild(notice)
+      setTimeout(() => notice.classList.add('show'), 10)
+
+      setTimeout(() => {
+        notice.classList.remove('show')
+        setTimeout(() => notice.remove(), 300)
+      }, 2000)
+    }
+  })
+</script>
+<div class="aplayer no-destroy" data-id="7338633309" data-server="netease" data-type="playlist" data-fixed="true" data-mini="true" data-listFolded="false" data-order="random" data-lrctype="1" data-preload="none" data-autoplay="true" muted></div><script src="https://cdn.staticfile.org/jquery/3.6.3/jquery.min.js"></script><script async data-pjax src="https://cdn.wpon.cn/2022-sucai/Gold-ingot.js"></script><script async data-pjax src="/js/newYear.js"></script><script id="canvas_nest" defer="defer" color="0,0,255" opacity="0.7" zIndex="-1" count="30" mobile="false" src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/canvas-nest.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = false;
+POWERMODE.mobile = true;
+document.body.addEventListener('input', POWERMODE);
+</script><script id="click-show-text" src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/click-show-text.min.js" data-mobile="false" data-text="Ha,Ha,Ha" data-fontsize="15px" data-random="false" async="async"></script><script>(() => {
+  const isChatBtn = true
+  const isChatHideShow = true
+
+  if (isChatBtn) {
+    const close = () => {
+      Chatra('minimizeWidget')
+      Chatra('hide')
+    }
+
+    const open = () => {
+      Chatra('openChat', true)
+      Chatra('show')
+    }
+
+    window.ChatraSetup = { startHidden: true }
+  
+    window.chatBtnFn = () => {
+      document.getElementById('chatra').classList.contains('chatra--expanded') ? close() : open()
+    }
+  } else if (isChatHideShow) {
+    window.chatBtn = {
+      hide: () => Chatra('hide'),
+      show: () => Chatra('show')
+    }
+  }
+
+  (function(d, w, c) {
+    w.ChatraID = 'E3NZpK6rk4cR7jmwK'
+    var s = d.createElement('script')
+    w[c] = w[c] || function() {
+      (w[c].q = w[c].q || []).push(arguments)
+    }
+    s.async = true
+    s.src = 'https://call.chatra.io/chatra.js'
+    if (d.head) d.head.appendChild(s)
+  })(document, window, 'Chatra')
+})()</script><link rel="stylesheet" href="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/aplayer/1.10.1/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/aplayer/1.10.1/APlayer.min.js"></script><script src="https://npm.elemecdn.com/hexo-anzhiyu-music@1.0.1/assets/js/Meting2.min.js"></script><script>(() => {
+  const destroyAplayer = () => {
+    if (window.aplayers) {
+      for (let i = 0; i < window.aplayers.length; i++) {
+        if (!window.aplayers[i].options.fixed) {
+          window.aplayers[i].destroy()
+        }
+      }
+    }
+  }
+
+  const runMetingJS = () => {
+    typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+  }
+
+  btf.addGlobalFn('pjaxSend', destroyAplayer, 'destroyAplayer')
+  btf.addGlobalFn('pjaxComplete', loadMeting, 'runMetingJS')
+})()</script><script src="https://lib.baomitu.com/pjax/0.2.8/pjax.min.js"></script><script>(() => {
+  const pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+  window.pjax = new Pjax({
+    elements: 'a:not([target="_blank"]):not([href="/music/"]):not([href="/no-pjax/"])',
+    selectors: pjaxSelectors,
+    cacheBust: false,
+    analytics: false,
+    scrollRestoration: false
+  })
+
+  const triggerPjaxFn = (val) => {
+    if (!val) return
+    Object.values(val).forEach(fn => fn())
+  }
+
+  document.addEventListener('pjax:send', () => {
+    // removeEventListener
+    btf.removeGlobalFnEvent('pjaxSendOnce')
+    btf.removeGlobalFnEvent('themeChange')
+
+    // reset readmode
+    const $bodyClassList = document.body.classList
+    if ($bodyClassList.contains('read-mode')) $bodyClassList.remove('read-mode')
+
+    triggerPjaxFn(window.globalFn.pjaxSend)
+  })
+
+  document.addEventListener('pjax:complete', () => {
+    btf.removeGlobalFnEvent('pjaxCompleteOnce')
+    document.querySelectorAll('script[data-pjax]').forEach(item => {
+      const newScript = document.createElement('script')
+      const content = item.text || item.textContent || item.innerHTML || ""
+      Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+      newScript.appendChild(document.createTextNode(content))
+      item.parentNode.replaceChild(newScript, item)
+    })
+
+    triggerPjaxFn(window.globalFn.pjaxComplete)
+  })
+
+  document.addEventListener('pjax:error', e => {
+    if (e.request.status === 404) {
+      pjax.loadUrl('/404.html')
+    }
+  })
+})()</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div><!-- hexo injector body_end start --><script data-pjax>
+    function butterfly_categories_card_injector_config(){
+      var parent_div_git = document.getElementsByClassName('recent-posts')[0];
+      var item_html = '<div class="recent-post-item" style="height:auto;width:100%;padding:0px;"><div id="categoryBar"><ul class="categoryBar-list"><li class="categoryBar-list-item" style="background:url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_155818.png);"> <a class="categoryBar-list-link" onclick="pjax.loadUrl(&quot;categories/技术栈/&quot;);" href="javascript:void(0);">技术栈</a><span class="categoryBar-list-count">1</span><span class="categoryBar-list-descr">java指南</span></li><li class="categoryBar-list-item" style="background:url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112813.png);"> <a class="categoryBar-list-link" onclick="pjax.loadUrl(&quot;categories/计算机基础/&quot;);" href="javascript:void(0);">计算机基础</a><span class="categoryBar-list-count">2</span><span class="categoryBar-list-descr">java技术栈</span></li><li class="categoryBar-list-item" style="background:url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112758.png);"> <a class="categoryBar-list-link" onclick="pjax.loadUrl(&quot;categories/计算机基础/专业课/&quot;);" href="javascript:void(0);">专业课</a><span class="categoryBar-list-count">1</span><span class="categoryBar-list-descr">计算机基础指南</span></li><li class="categoryBar-list-item" style="background:url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/4e357962b00044466380f6850a120ec.jpg);"> <a class="categoryBar-list-link" onclick="pjax.loadUrl(&quot;categories/编程语言/&quot;);" href="javascript:void(0);">编程语言</a><span class="categoryBar-list-count">2</span><span class="categoryBar-list-descr">专业课</span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" onclick="pjax.loadUrl(&quot;categories/操作系统/&quot;);" href="javascript:void(0);">操作系统</a><span class="categoryBar-list-count">5</span><span class="categoryBar-list-descr"></span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" onclick="pjax.loadUrl(&quot;categories/计算机组成原理/&quot;);" href="javascript:void(0);">计算机组成原理</a><span class="categoryBar-list-count">7</span><span class="categoryBar-list-descr"></span></li></ul></div></div>';
+      console.log('已挂载butterfly_categories_card')
+      parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+      }
+    if( document.getElementsByClassName('recent-posts')[0] && (location.pathname ==='/'|| '/' ==='all')){
+    butterfly_categories_card_injector_config()
+    }
+  </script><script data-pjax>
+  function butterfly_clock_anzhiyu_injector_config(){
+    var parent_div_git = document.getElementsByClassName('sticky_layout')[0];
+    var item_html = '<div class="card-widget card-clock"><div class="card-glass"><div class="card-background"><div class="card-content"><div id="hexo_electric_clock"><img class="entered loading" id="card-clock-loading" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://cdn.cbd.int/hexo-butterfly-clock-anzhiyu/lib/loading.gif" style="height: 120px; width: 100%;" data-ll-status="loading"/></div></div></div></div></div>';
+    console.log('已挂载butterfly_clock_anzhiyu')
+    if(parent_div_git) {
+      parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+    }
+  }
+  var elist = 'null'.split(',');
+  var cpage = location.pathname;
+  var epage = '/';
+  var qweather_key = '9aac1b5db191491a8993c445d664de8f';
+  var gaud_map_key = '3cc01a5a19f500daa0e9e680ef0f6db2';
+  var baidu_ak_key = 'undefined';
+  var flag = 0;
+  var clock_rectangle = '120.780172,40.624088';
+  var clock_default_rectangle_enable = 'false';
+
+  for (var i=0;i<elist.length;i++){
+    if (cpage.includes(elist[i])){
+      flag++;
+    }
+  }
+
+  if ((epage ==='all')&&(flag == 0)){
+    butterfly_clock_anzhiyu_injector_config();
+  }
+  else if (epage === cpage){
+    butterfly_clock_anzhiyu_injector_config();
+  }
+  </script><script src="https://widget.qweather.net/simple/static/js/he-simple-common.js?v=2.0"></script><script data-pjax src="https://cdn.cbd.int/hexo-butterfly-clock-anzhiyu/lib/clock.min.js"></script><script data-pjax>
+  function butterfly_swiper_injector_config(){
+    var parent_div_git = document.getElementById('recent-posts');
+    var item_html = '<div class="recent-post-item" style="height: auto;width: 100%"><div class="blog-slider swiper-container-fade swiper-container-horizontal" id="swiper_container"><div class="blog-slider__wrp swiper-wrapper" style="transition-duration: 0ms;"><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/g86c4e7a.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112650.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-08-29</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/g86c4e7a.html&quot;);" href="javascript:void(0);" alt="">第 7 章 计算机系统结构</a><div class="blog-slider__text">阐述计算机系统结构的基本概念，分析并行处理技术的实现方式，详解存储层次的优化策略，介绍系统性能的评价指标与方法。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/g86c4e7a.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/f75b3d6f.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112844.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-08-29</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/f75b3d6f.html&quot;);" href="javascript:void(0);" alt="">第 6 章 输入输出系统</a><div class="blog-slider__text">介绍I/O设备的分类与特性，详解程序查询、中断与DMA三种控制方式，分析中断系统的处理机制，理解设备与主机的信息交换过程。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/f75b3d6f.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/d64a2c5e.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_155656.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-08-29</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/d64a2c5e.html&quot;);" href="javascript:void(0);" alt="">第 5 章 中央处理器</a><div class="blog-slider__text">详解CPU的功能组成与工作原理，分析时序系统的作用，对比微程序与硬布线控制方式，介绍流水线技术的性能优化机制。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/d64a2c5e.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/b93e5f6d.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112758.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-08-29</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/b93e5f6d.html&quot;);" href="javascript:void(0);" alt="">第 4 章 指令系统</a><div class="blog-slider__text">详解指令的基本格式与寻址方式，对比CISC与RISC体系结构特点，分析指令的执行流程，理解指令系统对硬件的适配关系。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/b93e5f6d.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/a81d4c7b.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112813.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-08-29</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/a81d4c7b.html&quot;);" href="javascript:void(0);" alt="">第 3 章 存储系统</a><div class="blog-slider__text">分析存储系统的层次结构设计，详解主存储器的组成与工作流程，阐述Cache的映射方式与替换策略，介绍存储器性能优化方法。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/a81d4c7b.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/e72f3b9c.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112855.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-08-29</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/e72f3b9c.html&quot;);" href="javascript:void(0);" alt="">第 2 章 数据的表示与计算</a><div class="blog-slider__text">详解数制转换规则，阐述定点数与浮点数的表示方法，分析补码运算机制，介绍ALU的功能与实现，掌握数据在计算机中的处理方式。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/e72f3b9c.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/bae4ff13.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112626.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-03-12</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/bae4ff13.html&quot;);" href="javascript:void(0);" alt="">Redis</a><div class="blog-slider__text">Redis 作为内存 NoSQL 数据库的定位，支持 String/Hash 等多数据结构，具备 RDB/AOF 持久化与主从高可用，核心用于缓存、分布式锁，性能高效。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/bae4ff13.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/833e46bb.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112844.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-08-29</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/833e46bb.html&quot;);" href="javascript:void(0);" alt="">第 2 章 进程与线程：并发管理核心</a><div class="blog-slider__text">讲解进程与线程的定义、状态转换及控制逻辑，分析进程调度策略，阐述进程同步互斥（PV 操作）与死锁的处理机制，是操作系统并发管理的核心。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/833e46bb.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/169339cb.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112844.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-08-29</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/169339cb.html&quot;);" href="javascript:void(0);" alt="">第 5 章 输入输出管理：设备协同与优化</a><div class="blog-slider__text">详解I/O设备分类与控制方式（程序直接控制/DMA/通道），分析磁盘结构与调度策略，介绍SPOOLing等I/O优化技术，保障设备与CPU、内存的高效协同。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/169339cb.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/ce20e5e9.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112813.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-08-29</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/ce20e5e9.html&quot;);" href="javascript:void(0);" alt="">第 3 章 内存管理：地址映射与虚拟内存</a><div class="blog-slider__text">覆盖内存分配方式（连续/分页/分段）与地址转换机制，详解虚拟内存技术、请求分页流程及页面置换策略，解决多道程序下内存利用率与地址映射问题。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/ce20e5e9.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/790dfc8c.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112650.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-08-29</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/790dfc8c.html&quot;);" href="javascript:void(0);" alt="">第 4 章 文件管理：存储与访问机制</a><div class="blog-slider__text">介绍文件的逻辑与物理结构，讲解目录管理（按名存取）、索引节点功能及外存空闲空间分配策略，实现文件的安全存储与高效共享。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/790dfc8c.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/b328aa63.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112844.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-08-29</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/b328aa63.html&quot;);" href="javascript:void(0);" alt="">第 1 章 操作系统概述：计算机系统基础</a><div class="blog-slider__text">阐述操作系统的定义与核心功能，详解四大特征（并发 / 共享 / 虚拟 / 异步）、处理器运行模式及系统结构分类，介绍 OS 引导流程，奠定操作系统认知基础。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/b328aa63.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/c45d1e8a.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112813.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-08-29</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/c45d1e8a.html&quot;);" href="javascript:void(0);" alt="">第 1 章 计算机系统概述</a><div class="blog-slider__text">介绍计算机系统的硬件与软件组成，详解五大功能部件及总线工作机制，阐述指令集体系结构的核心作用，建立计算机系统的整体认知。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/c45d1e8a.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/b8b0eacd.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112618.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-03-12</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/b8b0eacd.html&quot;);" href="javascript:void(0);" alt="">java基础</a><div class="blog-slider__text">Java基础</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/b8b0eacd.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/79666db.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112626.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-03-12</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/79666db.html&quot;);" href="javascript:void(0);" alt="">数据结构</a><div class="blog-slider__text">数据结构的核心是高效组织数据，区分逻辑结构（线性 / 非线性）与物理结构（顺序 / 链式），覆盖数组、树、图等核心类型，为优化算法效率、支撑工程应用奠定基础。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/79666db.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/77666db.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112855.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-04-07</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/77666db.html&quot;);" href="javascript:void(0);" alt="">王道计组pdf</a><div class="blog-slider__text">计算机组成原理</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/77666db.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div></div><div class="blog-slider__pagination swiper-pagination-clickable swiper-pagination-bullets"></div></div></div>';
+    console.log('已挂载butterfly_swiper')
+    parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+    }
+  var elist = 'undefined'.split(',');
+  var cpage = location.pathname;
+  var epage = '/';
+  var flag = 0;
+
+  for (var i=0;i<elist.length;i++){
+    if (cpage.includes(elist[i])){
+      flag++;
+    }
+  }
+
+  if ((epage ==='all')&&(flag == 0)){
+    butterfly_swiper_injector_config();
+  }
+  else if (epage === cpage){
+    butterfly_swiper_injector_config();
+  }
+  </script><script defer src="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiper.min.js"></script><script defer data-pjax src="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiper_init.js"></script><div class="js-pjax"><script async="async">var arr = document.getElementsByClassName('recent-post-item');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '2s');
+    arr[i].setAttribute('data-wow-delay', '1s');
+    arr[i].setAttribute('data-wow-offset', '100');
+    arr[i].setAttribute('data-wow-iteration', '1');
+  }</script><script async="async">var arr = document.getElementsByClassName('card-widget');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '');
+    arr[i].setAttribute('data-wow-delay', '');
+    arr[i].setAttribute('data-wow-offset', '');
+    arr[i].setAttribute('data-wow-iteration', '');
+  }</script></div><script defer src="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/wow.min.js"></script><script defer src="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/wow_init.js"></script><!-- hexo injector body_end end --><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"log":false});</script></body></html>

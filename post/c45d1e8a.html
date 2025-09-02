@@ -1,0 +1,2407 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>第 1 章 计算机系统概述 | 蜡笔梦工厂</title><meta name="author" content="Lorinda"><meta name="copyright" content="Lorinda"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="介绍计算机系统的硬件与软件组成，详解五大功能部件及总线工作机制，阐述指令集体系结构的核心作用，建立计算机系统的整体认知。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="第 1 章 计算机系统概述">
+<meta property="og:url" content="http://labi.com/post/c45d1e8a.html">
+<meta property="og:site_name" content="蜡笔梦工厂">
+<meta property="og:description" content="介绍计算机系统的硬件与软件组成，详解五大功能部件及总线工作机制，阐述指令集体系结构的核心作用，建立计算机系统的整体认知。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112813.png">
+<meta property="article:published_time" content="2025-08-28T21:14:00.000Z">
+<meta property="article:modified_time" content="2025-08-28T22:28:26.165Z">
+<meta property="article:author" content="Lorinda">
+<meta property="article:tag" content="计算机系统组成（硬件&#x2F;软件）">
+<meta property="article:tag" content="五大功能部件">
+<meta property="article:tag" content="总线系统（地址&#x2F;数据&#x2F;控制总线）">
+<meta property="article:tag" content="指令集体系结构（ISA）">
+<meta property="article:tag" content="系统层次结构">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112813.png"><link rel="shortcut icon" href="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_155552.png"><link rel="canonical" href="http://labi.com/post/c45d1e8a.html"><link rel="preconnect" href="//cdnjs.cloudflare.com"/><link rel="preconnect" href="//hm.baidu.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/node-snackbar/0.1.16/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!true && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?bf06f078fafddfd82b474ce179303666";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+btf.addGlobalFn('pjaxComplete', () => {
+  _hmt.push(['_trackPageview',window.location.pathname])
+}, 'baidu_analytics')
+</script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":{"enable":true},"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: true,
+    post: true
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"已切换为繁体中文","cht_to_chs":"已切换为简体中文","day_to_night":"已切换为深色模式","night_to_day":"已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"bottom-left"},
+  infinitegrid: {
+    js: 'https://cdnjs.cloudflare.com/ajax/libs/egjs-infinitegrid/4.12.0/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isAnchor: true,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '第 1 章 计算机系统概述',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  isShuoshuo: false
+}</script><link rel="stylesheet" href="/css/wave.css"><link rel="stylesheet" href="/css/readPercent.css"><link rel="stylesheet" href="//at.alicdn.com/t/font_2264842_b004iy0kk2b.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/loading.css"><link rel="stylesheet" href="/css/about.css"><link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script><link rel="stylesheet" href="https://fastly.jsdelivr.net/gh/HCLonely/images@master/others/heartbeat.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/l-lin/font-awesome-animation/dist/font-awesome-animation.min.css"  media="defer" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/ethan4116-blog/lib/css/plane_v2.css"><link rel="stylesheet" href="/css/universe.css"><link rel="stylesheet" href="/css/progress_bar.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="https://cdn1.tianli0.top/npm/element-ui@2.15.6/packages/theme-chalk/lib/index.css"><span id="fps"></span><svg aria-hidden="true" style="position:absolute; overflow:hidden; width:0; height:0"><symbol id="icon-sun" viewBox="0 0 1024 1024"><path d="M960 512l-128 128v192h-192l-128 128-128-128H192v-192l-128-128 128-128V192h192l128-128 128 128h192v192z" fill="#FFD878" p-id="8420"></path><path d="M736 512a224 224 0 1 0-448 0 224 224 0 1 0 448 0z" fill="#FFE4A9" p-id="8421"></path><path d="M512 109.248L626.752 224H800v173.248L914.752 512 800 626.752V800h-173.248L512 914.752 397.248 800H224v-173.248L109.248 512 224 397.248V224h173.248L512 109.248M512 64l-128 128H192v192l-128 128 128 128v192h192l128 128 128-128h192v-192l128-128-128-128V192h-192l-128-128z" fill="#4D5152" p-id="8422"></path><path d="M512 320c105.888 0 192 86.112 192 192s-86.112 192-192 192-192-86.112-192-192 86.112-192 192-192m0-32a224 224 0 1 0 0 448 224 224 0 0 0 0-448z" fill="#4D5152" p-id="8423"></path></symbol><symbol id="icon-moon" viewBox="0 0 1024 1024"><path d="M611.370667 167.082667a445.013333 445.013333 0 0 1-38.4 161.834666 477.824 477.824 0 0 1-244.736 244.394667 445.141333 445.141333 0 0 1-161.109334 38.058667 85.077333 85.077333 0 0 0-65.066666 135.722666A462.08 462.08 0 1 0 747.093333 102.058667a85.077333 85.077333 0 0 0-135.722666 65.024z" fill="#FFB531" p-id="11345"></path><path d="M329.728 274.133333l35.157333-35.157333a21.333333 21.333333 0 1 0-30.165333-30.165333l-35.157333 35.157333-35.114667-35.157333a21.333333 21.333333 0 0 0-30.165333 30.165333l35.114666 35.157333-35.114666 35.157334a21.333333 21.333333 0 1 0 30.165333 30.165333l35.114667-35.157333 35.157333 35.157333a21.333333 21.333333 0 1 0 30.165333-30.165333z" fill="#030835" p-id="11346"></path></symbol></svg><!-- hexo injector head_end start --><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-categories-card@1.0.0/lib/categorybar.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-double-row-display@1.00/cardlistpost.min.css"/>
+<style>#recent-posts > .recent-post-item >.recent-post-info > .article-meta-wrap > .tags:before {content:"\A";
+  white-space: pre;}#recent-posts > .recent-post-item >.recent-post-info > .article-meta-wrap > .tags > .article-meta__separator{display:none}</style>
+<link rel="stylesheet" href="https://cdn.cbd.int/hexo-butterfly-clock-anzhiyu/lib/clock.min.css" /><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiper.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiperstyle.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/animate.min.css" media="print" onload="this.media='all'"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body><div id="loading-box" onclick="document.getElementById(&quot;loading-box&quot;).classList.add(&quot;loaded&quot;)"><div class="loading-bg"><div class="loading-img"></div><div class="loading-image-dot"></div></div></div><script>const preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',()=> { preloader.endLoading() })
+
+if (true) {
+  document.addEventListener('pjax:send', () => { preloader.initLoading() })
+  document.addEventListener('pjax:complete', () => { preloader.endLoading() })
+}</script><script>window.paceOptions = {
+  restartOnPushState: false
+}
+
+btf.addGlobalFn('pjaxSend', () => {
+  Pace.restart()
+}, 'pace_restart')
+
+</script><link rel="stylesheet" href="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_160015.png"/><script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js"></script><div id="web_bg" style="background-image: url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/af380cb8a5ed3f047e66dbfe731f488.jpg);"></div><div id="an_music_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_155535.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">17</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">71</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">6</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/"><i class="fa-fw icon-hexoa-homezhuyefangzijia"></i><svg class="icon fas fa-home" aria-hidden="true"><use xlink:href="#icon-hexoa-homezhuyefangzijia"></use></svg><span> 首页</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/comments/"><i class="fa-fw icon-hexoshouhuiban"></i><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexoshouhuiban"></use></svg><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group faa-parent animated-hover" href="javascript:void(0);"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexohuanjiaowenzhang"></use></svg><span> 文章</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/categories/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexofenlei"></use></svg><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexobiaoqian"></use></svg><span> 标签</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/archives/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexoguidang"></use></svg><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page group faa-parent animated-hover" href="javascript:void(0);"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexoicon_liebiao"></use></svg><span> 娱乐</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/music/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexoyinle"></use></svg><span> 音乐</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/gallery/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexotubiaozhizuomoban"></use></svg><span> 相册</span></a></li></ul></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/link/"><i class="fa-fw icon-hexopengyou"></i><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexopengyou"></use></svg><span> 友链</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/about/"><i class="fa-fw icon-hexowode"></i><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexowode"></use></svg><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112813.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><img class="site-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_155552.png" alt="Logo"><span class="site-name">蜡笔梦工厂</span></a><a class="nav-page-title" href="/"><span class="site-name">第 1 章 计算机系统概述</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i></span></div><div class="menus_items"><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/"><i class="fa-fw icon-hexoa-homezhuyefangzijia"></i><svg class="icon fas fa-home" aria-hidden="true"><use xlink:href="#icon-hexoa-homezhuyefangzijia"></use></svg><span> 首页</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/comments/"><i class="fa-fw icon-hexoshouhuiban"></i><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexoshouhuiban"></use></svg><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group faa-parent animated-hover" href="javascript:void(0);"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexohuanjiaowenzhang"></use></svg><span> 文章</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/categories/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexofenlei"></use></svg><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexobiaoqian"></use></svg><span> 标签</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/archives/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexoguidang"></use></svg><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page group faa-parent animated-hover" href="javascript:void(0);"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexoicon_liebiao"></use></svg><span> 娱乐</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/music/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexoyinle"></use></svg><span> 音乐</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/gallery/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexotubiaozhizuomoban"></use></svg><span> 相册</span></a></li></ul></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/link/"><i class="fa-fw icon-hexopengyou"></i><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexopengyou"></use></svg><span> 友链</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/about/"><i class="fa-fw icon-hexowode"></i><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-hexowode"></use></svg><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div><div id="randomPost"><a class="site-page social-icon search" href="javascript:;" onclick="randomPost()" title="随机访问一篇文章"><i class="fas fa-circle-notch fa-fw"></i></a></div></nav><div id="post-info"><h1 class="post-title">第 1 章 计算机系统概述</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-08-28T21:14:00.000Z" title="发表于 2025-08-29 05:14:00">2025-08-29</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-08-28T22:28:26.165Z" title="更新于 2025-08-29 06:28:26">2025-08-29</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86/">计算机组成原理</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">15.3k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>49分钟</span></span><span class="post-meta-separator">|</span><span id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="twikoo_visitors"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><section class="main-hero-waves-area waves-area"><svg class="waves-svg" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto"><defs><path id="gentle-wave" d="M -160 44 c 30 0 58 -18 88 -18 s 58 18 88 18 s 58 -18 88 -18 s 58 18 88 18 v 44 h -352 Z"></path></defs><g class="parallax"><use href="#gentle-wave" x="48" y="0"></use><use href="#gentle-wave" x="48" y="3"></use><use href="#gentle-wave" x="48" y="5"></use><use href="#gentle-wave" x="48" y="7"></use></g></svg></section></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1>计算机系统概述</h1>
+<h2 id="计算机系统的组成">计算机系统的组成</h2>
+<p>计算机系统由<strong>硬件系统</strong>和<strong>软件系统</strong>共同组成，两者协同工作。<br>
+系统性能取决于<strong>硬件与软件的综合能力</strong><br>
+结构：</p>
+<ul>
+<li>软件
+<ul>
+<li>
+<p><strong>系统软件（中间层）</strong></p>
+<ul>
+<li>管理硬件资源，为应用软件提供运行环境。</li>
+<li><strong>分类</strong>：
+<ul>
+<li><strong>操作系统</strong>：Windows、Linux、macOS（资源调度核心）</li>
+<li><strong>语言处理程序</strong>：编译器（GCC）、解释器（Python）、汇编器</li>
+<li><strong>数据库管理系统（DBMS）</strong>：MySQL、Oracle</li>
+<li><strong>服务程序</strong>：调试工具、磁盘清理工具、诊断程序</li>
+<li><strong>网络系统</strong>：网络协议栈、通信管理软件、路由器固件</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>应用软件（最上层）</strong></p>
+<ul>
+<li>面向用户解决特定领域的问题</li>
+<li><strong>分类</strong>：
+<ul>
+<li><strong>通用软件</strong>：Office（文字/表格处理）、Photoshop（图像处理）</li>
+<li><strong>行业软件</strong>：AutoCAD（工程设计）、MATLAB（科学计算）</li>
+<li><strong>事务管理</strong>：ERP系统、财务软件</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>硬件系统（最底层）</strong>
+<ul>
+<li><strong>主机</strong>
+<ul>
+<li><strong>中央处理器（CPU）</strong>：运算器、控制器、寄存器</li>
+<li><strong>主存储器（内存）</strong>：RAM、ROM</li>
+<li><strong>系统总线</strong>：数据总线、地址总线、控制总线</li>
+</ul>
+</li>
+<li><strong>外部设备</strong></li>
+<li><strong>输入设备</strong>：键盘、鼠标、摄像头</li>
+<li><strong>输出设备</strong>：显示器、打印机</li>
+<li><strong>辅助存储器</strong>：硬盘、SSD、U盘</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>计算机系统性能的好坏，取决于硬件和软件功能的总和。<br>
+计算机的工作特点是<mark>快速性、准确性、通用性、逻辑性</mark><br>
+当前世界上计算机用途中领域的<mark>应用数据处理</mark>占的比例最大<br>
+微型计算机的发展以<mark>微处理器</mark>技术为标志<br>
+v：寄存器 &gt;Cache&gt;内存</p>
+</blockquote>
+<h2 id="计算机的发展">计算机的发展</h2>
+<p>第一台真正意义上的电子数字计算机——ABC<br>
+第一台实用的电子数字计算机——ENIAC</p>
+<h3 id="计算机硬件的发展">计算机硬件的发展</h3>
+<p>计算机的逻辑器件：<mark>电子管(真空管)→晶体管→中小规模集成电路→大规模、超大规模集成电路</mark><br>
+以<mark>元器件的更新</mark>作为计算机技术进步和划分时代的主要标志<br>
+体积越小，功耗越低，可靠性越高，速度越快<br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250326084316978.png" alt="image.png"></p>
+<table>
+<thead>
+<tr>
+<th>发展阶段</th>
+<th>使用器件</th>
+<th>运算速度（次 / 秒）</th>
+<th>主存（内存）</th>
+<th>辅存（外存）</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第 1 代（1946-1957 年）</td>
+<td>电子管（真空管）</td>
+<td>几千～几万</td>
+<td>水银延迟线、磁鼓、磁芯</td>
+<td>穿孔卡片、穿孔纸带</td>
+<td>使用机器语言编程，无操作系统</td>
+</tr>
+<tr>
+<td>第 2 代（1958-1964 年）</td>
+<td>晶体管</td>
+<td>几十万～几百万</td>
+<td>磁芯</td>
+<td>磁鼓、磁带、磁盘</td>
+<td>主要用汇编语言，开始使用 FORTRAN、COBOL 等高级语言，单道批处理系统</td>
+</tr>
+<tr>
+<td>第 3 代（1965-1971 年）</td>
+<td>集成电路</td>
+<td>几百万～几千万</td>
+<td>半导体存储器</td>
+<td>磁带、磁盘</td>
+<td>高级语言发展，出现 B 语言，多道批处理系统、分时系统</td>
+</tr>
+<tr>
+<td>第 4 代（1972 至今）</td>
+<td>超大规模集成电路</td>
+<td>几十亿～几千亿</td>
+<td>半导体存储器</td>
+<td>磁盘、磁带、光盘、半导体存储器</td>
+<td>各种高级语言（如 C/C++、Java、Python），现代操作系统</td>
+</tr>
+</tbody>
+</table>
+<h3 id="计算机软件的发展">计算机软件的发展</h3>
+<ul>
+<li><strong>编程语言</strong>
+<ul>
+<li><strong>机器语言</strong><br>
+用<mark>二进制代码</mark>表示的计算机能<mark>直接</mark>识别和执行的一种机器指令的集合。唯一能被硬件直接执行的语言，成为目标程序</li>
+<li><strong>汇编语言</strong><br>
+用<strong>助记符</strong>（如<code>MOV</code>, <code>ADD</code>）代替机器指令，与机器码<strong>一一对应</strong>，基本保留了机器语言的灵活性，但仍依赖硬件架构</li>
+<li><strong>高级语言</strong><br>
+面向用户的语言，通过<strong>抽象</strong>隐藏硬件细节，与具体机器无关
+<ul>
+<li><strong>编译型</strong>（如C/C++）：<br>
+源代码 → <strong>编译器</strong> → 直接生成<strong>机器码</strong>（或先转为汇编代码再汇编） → 链接为可执行文件（如.exe）。</li>
+<li><strong>解释型</strong>（如Python、JavaScript）：<br>
+解释器逐行翻译并<strong>边解释边执行</strong>，无独立机器码文件。</li>
+<li><strong>混合型</strong>（如Java）：<br>
+源代码 → 编译为<strong>中间码</strong>（如字节码） → 由虚拟机（JVM）解释/即时编译（JIT）执行。</li>
+</ul>
+</li>
+<li><strong>面向对象</strong><br>
+高级语言的<strong>范式演进</strong>，以“对象”为核心组织代码（如C++、Java）</li>
+</ul>
+</li>
+<li><strong>操作系统</strong>
+<ul>
+<li>提供了<strong>在汇编语言和高级语言的使用和实现过程中所需的某些基本操作</strong></li>
+<li>负责<strong>控制并管理计算机系统的全部硬件资源</strong>（eg.CPU、内存、外部设备）和<strong>软件资源</strong>（eg.编译程序、应用程序）</li>
+</ul>
+</li>
+</ul>
+<p>程序员用汇编语言写出源程序，再用汇编编译器将其编译为机器指令，由计算机最终执行。</p>
+<p>高级语言程序转换为机器语言程序，即<strong>翻译程序</strong>：<br>
+编译、汇编、解释程序可统称翻译程序</p>
+<table>
+<thead>
+<tr>
+<th><strong>类型</strong></th>
+<th><strong>输入</strong></th>
+<th><strong>输出</strong></th>
+<th><strong>特点</strong></th>
+<th><strong>示例语言</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>汇编程序</strong></td>
+<td>汇编语言源代码</td>
+<td>机器码目标文件</td>
+<td>一对一翻译，依赖硬件架构</td>
+<td>x86汇编、ARM汇编</td>
+</tr>
+<tr>
+<td><strong>编译程序</strong></td>
+<td>高级语言源代码</td>
+<td>汇编/机器码文件</td>
+<td>整体翻译，生成独立可执行文件.exe</td>
+<td>C、C++、Go</td>
+</tr>
+<tr>
+<td><strong>解释程序</strong></td>
+<td>高级语言源代码</td>
+<td>直接执行</td>
+<td>逐行翻译，无独立机器码</td>
+<td>Python、JavaScript</td>
+</tr>
+<tr>
+<td><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250327160427749.png" alt="image.png"></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><font color="#ff0000">预处理→编译→汇编→链接</font></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li><strong>预处理（Preprocessing）</strong>
+<ul>
+<li>预处理器(cpp)对源程序中以字符#开头的命令进行处理，例如将#include命令后面的.h文件内容插入程序文件。输出结果是一个以i为扩展名的源程序 hello.i。</li>
+</ul>
+</li>
+<li><strong>编译（Compilation）</strong>
+<ul>
+<li>编译器(ccl)对预处理后的源程序进行编译，生成一个<strong>汇编语言源程序</strong> hello.s。汇编语言源程序中的每条语句都以一种文本格式描述了一条低级机器语言指令。</li>
+</ul>
+</li>
+<li><strong>汇编（Assembly）</strong>
+<ul>
+<li>汇编器将汇编代码转为<strong>机器码目标文件</strong>（<code>.o</code>或<code>.obj</code>）。汇编器(as)将 hello.s 翻译成机器语言指令，把这些指令打包成一个称为可重定位目标代码文件 hello.o，它是一种二进制文件，因此用文本编辑器打开会显示乱码。</li>
+</ul>
+</li>
+<li><strong>链接（Linking）</strong>
+<ul>
+<li>链接器(ld)将多个可重定位目标代码文件和标准库函数合并为一个可执行目标文件，简称可执行文件。本例中，链接器将 hello.o 和标准库函数 printf 所在的可重定位目标模块 printf.o 合并，生成可执行文件 hello。最终生成的可执行文件被保存在磁盘上。</li>
+</ul>
+</li>
+</ol>
+<p>注：</p>
+<ul>
+<li>v:<mark>编译程序&gt;解释程序</mark><br>
+解释程序需要便翻译成机器语言边执行，故速度比机器语言慢</li>
+</ul>
+<p>当前计算机的发展趋势</p>
+<ul>
+<li>更微型化：低耗能，较高性能，多用途</li>
+<li>更巨型化：超高速，并行处理，智能化</li>
+</ul>
+<h2 id="计算机硬件">计算机硬件</h2>
+<p>冯·诺依曼结构（也称普林斯顿结构）是计算机设计的理论基础，其核心思想是“<strong>存储程序</strong>”，即程序指令和数据共同存储在存储器中，由控制器按顺序自动执行。<br>
+<strong>存储程序原理</strong>：</p>
+<ul>
+<li><strong>核心思想</strong>：
+<ul>
+<li>程序与数据<strong>预先存入主存</strong>，启动后计算机自动逐条执行指令，无需人工干预。</li>
+<li><strong>按地址访问</strong>：通过指令中的地址码定位存储单元，而非按内容寻址（相联存储器为特例，按内容或地址选择地址，成为按内容寻址的寄存器，不属冯氏结构基础）</li>
+</ul>
+</li>
+</ul>
+<p>冯诺依曼计算机主要特点：</p>
+<ol>
+<li>指令和数据均采用二进制表示
+<ul>
+<li><strong>形式无区分</strong>：指令和数据均以<strong>二进制形式</strong>存储在<strong>存储器</strong>中，计算机通过<strong>执行阶段</strong>区分二者。【指令和数据在内存中可以有各种进制<mark>表示</mark>，但是<mark>存放</mark>的必须是二进制】<br>
+在计算机系统内部，所有信息都是用二进制进行编码的，这样做的原因有以下几点。<br>
+1)二进制只有两种状态，使用有两个稳定状态的物理器件就可以表示二进制数的每一位制造成本比较低，例如用高、低电平或电荷的正、负极性都可以很方便地表示0和1。<br>
+2)二进制位 1和 0正好与逻辑值“真”和“假”相对应，为计算机实现逻辑运算和程序中的逻辑判断提供了便利条件。<br>
+3)进制的编码和运算规则都很简单，通过逻辑门电路能方便地实现算术运算。</li>
+</ul>
+</li>
+</ol>
+<ul>
+<li><strong>取指阶段</strong>：从存储器中读取的是<strong>指令</strong>（由操作码和地址码组成）。</li>
+<li><strong>执行阶段</strong>：根据指令中的地址码访问<strong>数据</strong>或目标地址。</li>
+</ul>
+<ol start="2">
+<li>指令和数据存放在存储器中，按地址访问。</li>
+<li>指令在存储器中按<strong>顺序</strong>存放。一般情况下，指令是顺序执行的。
+<ul>
+<li><strong>指令结构</strong>：</li>
+</ul>
+</li>
+</ol>
+<ul>
+<li><strong>操作码</strong>：指明操作类型（如取数、存数、加、减、乘、除、跳转）。</li>
+<li><strong>地址码</strong>：指明操作数在存储器中的位置（地址）或直接数据。</li>
+</ul>
+<ol start="6">
+<li>机器以<strong>运算器</strong>为中心，输入/输出设备与存储器间的数据传送通过运算器完成，浪费很多可以用于运算的时间<br>
+<strong>现代改进</strong>：当代计算机以<strong>存储器为中心</strong>，输入/输出可通过<strong>DMA（直接内存访问）</strong> 绕过CPU，提升效率。</li>
+<li>计算机硬件由<strong>运算器、控制器、存储器、输入设备/输出设备</strong>5大部件组成。
+<blockquote>
+<p><strong>注</strong>：现代计算机中，运算器与控制器集成在<strong>CPU</strong>中，存储器主要指<strong>主存（内存）</strong>。<br>
+<strong>内存由存储单元组成</strong>，每个单元有唯一地址，而非由寄存器构成。<br>
+存储器中可存地址（如指针变量），但地址本质是存储单元的编号。</p>
+</blockquote>
+</li>
+<li><strong>指令流驱动</strong>：程序执行流程由指令序列控制，PC指向当前指令地址，顺序执行或跳转。</li>
+</ol>
+<p>控制器与其他部件之间通过控制器和反馈线相连，这些部件需要在控制器的控制下协调工作<br>
+图中从控制器送出的虚线就是控制信号，可以控制如何修改 PC 以得到下一条指令的地址，可以控制ALU 执行什么运算，可以控制主存是进行读操作还是写操作(读/写控制信号)。<br>
+但是这种设计，每次IO操作都需要运算器参与，浪费了很多可以用于运算的时间<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250326093328099.png" alt="image.png"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250326094434509.png" alt="image.png"><br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250326093400793.png" alt="image.png"><br>
+现代计算机以存储器为核心<br>
+可以让IO设备直接与存储器交换数据，以提高整体效率<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250326094617374.png" alt="image.png">控制器核心为控制单元CU(Control Unit)，主要功能如下：</p>
+<ul>
+<li>用于解释存储器中的指令，并发出各种操作命令来执行指令。</li>
+<li>I/O设备也受CU控制，用于完成相应的输入/输出操作。<br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250326093441775.png" alt="image.png"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250326093454858.png" alt="image.png"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250326095110873.png" alt="image.png">主机细化：<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250327101101923.png" alt="image.png"></li>
+</ul>
+<h3 id="相关术语">相关术语</h3>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250326112214285.png" alt="image.png|350"></p>
+<ol>
+<li>
+<p><font color="#ff0000">主机</font> = <strong>CPU + 内存 + 系统总线</strong>（部分定义包含I/O接口）<br>
+<strong>输入输出接口（I/O接口）</strong>：属于主机与外部设备（如键盘、打印机）的<strong>桥梁</strong>，严格来说属于主机的一部分，但外设本身（如硬盘、显示器）不算主机。</p>
+</li>
+<li>
+<p><strong><font color="#ff0000">存储器</font></strong></p>
+<ul>
+<li><strong>内存（主存、主存储器）</strong>： 临时存储正在运行的程序和数据（断电丢失），相当于办公桌。CPU可以直接访问主存储器
+<ul>
+<li>存储体</li>
+<li>MAR</li>
+<li>MDR<br>
+随着硬件技术的发展，内存都制成大规模集成电路芯片，而将<mark>MAR和MDR集成到了CPU芯片中</mark></li>
+</ul>
+</li>
+<li><strong>外存（辅助存储器、外存储器）</strong>：例如硬盘、U盘，长期保存文件（断电不丢），相当于文件柜。<br>
+辅助存储器中的信息必须调入主存后，才能为CPU所访问。</li>
+</ul>
+</li>
+<li>
+<p><strong><font color="#ff0000">CPU</font>（中央处理器）</strong>：计算机的“大脑”，负责计算和控制，核心由<strong>运算器（ALU）</strong> 和 <strong>控制器（CU）</strong> 组成，通过<strong>寄存器</strong>实现高速数据存取【运算器和控制器中都有寄存器】</p>
+<ul>
+<li><strong><font color="#ff0000">运算器</font></strong>：
+<ul>
+<li><strong>算术逻辑单元ALU</strong>：执行定点或浮点的算术==运算操作（加减乘除）及逻辑操作（与、或、非、异或、比较、移位），也可执行地址的运算和转换。==属于组合逻辑电路
+<ul>
+<li>结构
+<ul>
+<li><strong>加法器</strong>：实现二进制加法，是ALU的基础单元。</li>
+<li><strong>选择逻辑</strong>：通过控制信号选择输入数据（如两个操作数），决定执行何种运算。</li>
+<li><strong>输出控制</strong>：支持结果直接传输或移位（如左移、右移）。</li>
+</ul>
+</li>
+<li><strong>重要性</strong>：计算机性能的关键，因为大部分数据处理依赖ALU的运算速度。</li>
+</ul>
+</li>
+<li>相关寄存器
+<ul>
+<li><strong>累加器ACC</strong>，一种<strong>专用寄存器</strong>（非ALU直接部件），用于暂存ALU<strong>前一次运算的结果</strong>或<strong>初始操作数（被加数/被减数）</strong>，在加减法中作为运算的基准值。（例如：执行<code>A = A + B</code>时，累加器存放<code>A</code>的值）</li>
+<li><strong>乘商寄存器MQ</strong>：在乘法和除法运算中，存储乘数、商或中间结果。</li>
+<li><strong>操作数寄存器X</strong>：用于临时存储<strong>从主存或指令中获取的第二个操作数（加数、减数、乘数）</strong></li>
+<li><strong>标志寄存器PSW</strong>：也称程序状态寄存器，存放ALU运算得到的一些标志信息或处理机的状态信息，如溢出、进位或借位、结果正负、零标志，是条件执行的基础
+<ul>
+<li><strong>进位标志</strong>：加法结果超过位数时标记（如99+1=100，进位了）</li>
+<li><strong>零标志</strong>：结果是否为0。</li>
+</ul>
+</li>
+<li>变址寄存器IX</li>
+<li>基址寄存器BR<br>
+前三个是必备的</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong><font color="#ff0000">控制器</font></strong>：计算机的神经中枢，指挥各个部件自动协调工作。<br>
+核心流程为<strong>1. 从内存取指令（取指） → 2. 分析指令（分析） → 3. 发信号让运算器/内存干活（执行）</strong><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250326112932395.png" alt="image.png|350">
+<ul>
+<li><strong>核心组件</strong>：
+<ul>
+<li><strong>程序计数器（PC）</strong>：存放下一条指令的<mark>地址</mark>，有自动+1功能（指令长度）<u>与主存的MAR间有一条直接通路</u> 寄存信息、计数功能</li>
+<li><strong>指令寄存器（IR）</strong>：==存放从存储器取出的当前指令，内容来自主存的MDR。==指令中的操作码（用OP(IR)表示）送至 CU（OP(IR)→CU），用以<strong>分析指令</strong>并发出各种微操作命令序列；而地址码 Ad(IR)送往MAR，用以取操作数。
+<ul>
+<li>暂存当前执行的指令
+<ul>
+<li>分离 操作码OP和地址码 Ad
+<ul>
+<li>OP送入控制单元CU，解码</li>
+<li>Ad用于定位操作数在内存中的地址</li>
+</ul>
+</li>
+<li><strong>取指阶段</strong>：IR 接收从内存读取的指令。</li>
+<li><strong>执行阶段</strong>：IR 提供操作码和地址码，驱动 CPU 完成操作（如运算、存数等）<br>
+注：<br>
+IR指令寄存器IR用来存放<strong>当前的指令</strong>，IR的内容来自存储器数据寄存器MDR。<br>
+程序计数器PC用来存放<strong>当前欲执行指令的地址</strong>，PC与存储器地址寄存器MAR之间有一条直接通路。PC自动形成下一条指令的地址(“自动加1”功能)</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>控制单元（CU）</strong>：<mark>分析</mark>存储器中的指令，并发出各种操作命令来执行指令。</li>
+<li><strong>指令译码器</strong>：解析指令的操作码（如“加法”）和地址码（如“操作数位置”）。</li>
+<li><strong>时序部件</strong>：生成时钟信号，同步各操作步骤。</li>
+<li><strong>操作控制部件</strong>：根据译码结果，向ALU、内存等发送控制信号（如“开始加法运算”）。</li>
+<li><strong>中断机构</strong>：处理外部紧急事件（如用户按下键盘）。</li>
+</ul>
+</li>
+<li>相关寄存器</li>
+</ul>
+</li>
+<li><font color="#ff0000">寄存器</font>：CPU内部的“高速临时存储单元”，直接参与运算和控制，速度远快于内存。
+<ul>
+<li><strong>分类</strong>：</li>
+<li><strong>通用寄存器（GPRs）</strong>：由若干个寄存器组成，早期就是累加器
+<ul>
+<li>存储临时数据或中间结果（如计算<code>(a+b)*c</code>时，存放<code>a+b</code>的结果）。</li>
+<li>用户可通过编程直接访问（如x86中的<code>EAX</code>、<code>EBX</code>）。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong><font color="#ff0000">总线</font>（Bus）</strong>：在计算机中连接CPU和其他芯片的导线的集合</p>
+<ul>
+<li>
+<ol>
+<li><strong>地址总线AB</strong></li>
+</ol>
+<ul>
+<li><strong>寻址空间</strong>：地址总线的位数（宽度）决定了CPU可访问的<strong>内存地址空间</strong>。</li>
+<li>若地址总线为 n 位，则寻址空间为 2^n <strong>个存储单元</strong>。</li>
+<li><strong>示例</strong>：
+<ul>
+<li>20位地址总线 → 2^{20} = 1,048,576 个存储单元（即1MB，若每个单元为1字节）。</li>
+</ul>
+</li>
+<li><strong>存储容量</strong>：存储器的总容量由<strong>地址空间 × 存储单元大小</strong>决定
+<ul>
+<li>若地址总线为16位（2^{16}=65536 单元），且每个单元为8位（1字节），则总容量为 <strong>64KB</strong>。</li>
+</ul>
+</li>
+<li><strong>CPU操作</strong>：CPU通过地址总线发送地址信号，选中目标存储单元或I/O设备。</li>
+</ul>
+</li>
+<li><strong>2. 数据总线（Data Bus, DB）</strong>
+<ul>
+<li><strong>机器字长</strong>：数据总线的宽度通常等于CPU的<strong>机器字长</strong>，即一次能处理的二进制位数（如32位、64位）。
+<ul>
+<li>机器字长决定了通用寄存器的位数和ALU的运算能力（如64位CPU可一次处理64位数据）。</li>
+</ul>
+</li>
+<li><strong>并行传输能力</strong>：数据总线的宽度直接影响CPU与外界的数据传输速度。
+<ul>
+<li><strong>示例</strong>：
+<ul>
+<li>16位数据总线 → 一次传输2字节。</li>
+<li>32位数据总线 → 一次传输4字节。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>速度影响</strong>：数据总线越宽，单次传输数据量越大，整体传输速率越高（速率 = 总线宽度 × 时钟频率）。</li>
+</ul>
+</li>
+<li><strong>3. 控制总线（Control Bus, CB）</strong>
+<ul>
+<li><strong>控制信号传输</strong>：负责传递CPU与外部设备间的控制信号，包括：
+<ul>
+<li><strong>读写命令</strong>：如内存读（MEMR）、内存写（MEMW）。</li>
+<li><strong>中断请求</strong>：如IRQ（中断请求）、NMI（不可屏蔽中断）。</li>
+<li><strong>总线仲裁</strong>：如总线请求（BUSRQ）、总线响应（BUSAK）。</li>
+<li><strong>状态信号</strong>：如就绪（READY）、复位（RESET）。</li>
+</ul>
+</li>
+<li><strong>控制能力</strong>：控制总线的宽度决定了可独立传输的控制信号种类数量。
+<ul>
+<li>更多的控制线允许更复杂的协调操作（如多设备并行管理）。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<p>注：<br>
+<strong>地址总线位数</strong>决定可寻址的<strong>存储单元数量</strong>（2^n），而<strong>数据总线宽度</strong>决定每个单元的<strong>数据位宽</strong>（如8位、16位）。</p>
+<ul>
+<li><strong>示例</strong>：
+<ul>
+<li>16位地址总线 + 8位数据总线 → 地址空间为 2^{16}=65536 单元，每个单元8位，总容量为 <strong>64KB</strong>。</li>
+<li>16位地址总线 + 32位数据总线 → 地址空间仍为65536单元，但每个单元32位，总容量为 <strong>256KB</strong>。</li>
+</ul>
+</li>
+<li><strong>结论</strong>：地址空间仅由地址总线位数决定，与数据总线宽度无关。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th><strong>总线类型</strong></th>
+<th><strong>核心作用</strong></th>
+<th><strong>决定因素</strong></th>
+<th><strong>典型关联概念</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>地址总线</strong></td>
+<td>指定存储单元位置</td>
+<td>寻址空间（2^n 单元）</td>
+<td>存储容量、内存地址范围</td>
+</tr>
+<tr>
+<td><strong>数据总线</strong></td>
+<td>传输操作数/结果</td>
+<td>机器字长、数据传输速度</td>
+<td>通用寄存器、ALU运算能力</td>
+</tr>
+<tr>
+<td><strong>控制总线</strong></td>
+<td>协调操作与状态同步</td>
+<td>控制信号种类与复杂度</td>
+<td>中断管理、总线仲裁</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>AB、DB、CB协同工作</strong>：地址总线定位数据位置，数据总线传输数据内容，控制总线确保操作时序与协调。</li>
+<li><strong>性能平衡</strong>：地址总线宽度决定内存容量，数据总线宽度影响处理速度，控制总线复杂度决定系统灵活性。</li>
+</ul>
+<ol start="5">
+<li><strong>指令集体系结构</strong>（ISA）：
+<ul>
+<li><strong>核心作用</strong>：</li>
+<li><strong>硬件与软件的接口</strong>，定义计算机可执行的所有指令集合。</li>
+<li>规定指令的操作类型、操作数地址空间及数据类型（如x86、ARM指令集）。</li>
+<li><strong>层级位置</strong>：</li>
+<li>位于计算机系统层次结构的<strong>软件与硬件之间</strong>，是软件可见的最低层。</li>
+</ul>
+</li>
+</ol>
+<ul>
+<li><strong>关键特性</strong>：
+<ul>
+<li><strong>软件可见性</strong>：程序员通过ISA编写代码，无需关心底层硬件细节。</li>
+</ul>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th><strong>寄存器/部件</strong></th>
+<th><strong>可见性</strong></th>
+<th><strong>说明</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>MAR、MDR、IR</strong></td>
+<td>不可见（对程序员透明）</td>
+<td>由硬件自动控制，用户无法直接访问。</td>
+</tr>
+<tr>
+<td><strong>PC（程序计数器）</strong></td>
+<td>部分可见（汇编程序员可见）</td>
+<td>可通过分支指令间接操作（如JMP）。</td>
+</tr>
+<tr>
+<td><strong>状态寄存器（Flag）</strong></td>
+<td>汇编程序员可见</td>
+<td>通过条件码控制程序流程（如JZ、JC）。</td>
+</tr>
+<tr>
+<td><strong>通用寄存器（GPRs）</strong></td>
+<td>汇编程序员可见</td>
+<td>直接参与数据运算（如ADD R1, R2）。</td>
+</tr>
+<tr>
+<td>计算机基本的结构模型</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250327122211999.png" alt="image.png"></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>设主存储器容量为 64Kx32位，且指令字长、存储字长、机器字长三者相等。写出各寄存器的位数，并指出哪些寄存器之间有信息通路。</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>各寄存器位数分析</strong>：</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li>
+<p><strong>与地址相关的寄存器</strong>：</p>
+<ul>
+<li><strong>MAR（存储器地址寄存器）</strong>：主存容量为64K（$2^{16}$），地址总线宽度为 <strong>16位</strong>。</li>
+<li><strong>PC（程序计数器）</strong>：存放指令地址，与MAR一致，为 <strong>16位</strong>。</li>
+</ul>
+</li>
+<li>
+<p><strong>与数据相关的寄存器</strong>：</p>
+<ul>
+<li><strong>MDR（存储器数据寄存器）</strong>：存储字长为32位，数据总线宽度为32位，故MDR为 <strong>32位</strong>。</li>
+<li><strong>IR（指令寄存器）</strong>：指令字长=存储字长=32位，故IR为 <strong>32位</strong>。</li>
+<li><strong>ACC（累加器）、MQ（乘商寄存器）、X（操作数寄存器）</strong>：机器字长=32位，均为 <strong>32位</strong>。</li>
+</ul>
+</li>
+</ol>
+<p><strong>寄存器间的信息通路</strong>：</p>
+<ol>
+<li>
+<p><strong>取指令阶段</strong>：</p>
+<ul>
+<li><strong>PC → MAR</strong>：程序计数器将指令地址发送至MAR，用于访存取指。</li>
+<li><strong>MDR → IR</strong>：从内存取出的指令通过MDR传送到IR。</li>
+</ul>
+</li>
+<li>
+<p><strong>执行阶段</strong>：</p>
+<ul>
+<li><strong>Ad(IR) → MAR</strong>：指令中的地址字段（如访存地址）从IR提取后发送至MAR。</li>
+<li><strong>MDR → ACC</strong>（取数操作）：内存读取的数据通过MDR传送到ACC。</li>
+<li><strong>ACC → MDR</strong>（存数操作）：ACC中的数据通过MDR写入内存。</li>
+</ul>
+</li>
+</ol>
+<h2 id="计算机系统的层次结构">计算机系统的层次结构</h2>
+<p>系统中的每一层都向其上层提供一个简洁和抽象的接口<br>
+每一层的实现细节对其上层而言都是“看不见”的，也就是透明的。<br>
+计算机解决问题的过程就是层次结构中的各层逐层转换的过程。</p>
+<ul>
+<li><strong>下层是上层的基础</strong>（硬件 → 系统软件 → 应用软件）</li>
+<li><strong>上层拓展下层功能</strong>（应用软件通过系统软件操作硬件）<br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250326085951572.png" alt="image.png"></li>
+</ul>
+<hr>
+<p><strong>1. 硬件层（最底层）</strong></p>
+<ul>
+<li><strong>组成</strong>：由逻辑门、寄存器、ALU、总线等物理电路构成。</li>
+<li><strong>功能</strong>：直接执行二进制指令（机器码），完成基本逻辑运算与数据存储。</li>
+<li><strong>特点</strong>：完全依赖物理硬件，无抽象接口。</li>
+</ul>
+<p><strong>2. 微程序层</strong></p>
+<ul>
+<li><strong>组成</strong>：微程序控制器，包含微指令序列。</li>
+<li><strong>功能</strong>：
+<ul>
+<li>将复杂机器指令分解为<strong>微操作</strong>（如取数、运算、存数）。</li>
+<li>通过微指令控制硬件电路的时序与动作。</li>
+</ul>
+</li>
+<li><strong>示例</strong>：一条<code>ADD</code>指令可能对应多步微操作（从寄存器取数 → ALU计算 → 结果写回）。</li>
+</ul>
+<p><strong>3. 指令系统层（机器语言层）</strong></p>
+<ul>
+<li><strong>组成</strong>：机器指令集（如x86、ARM指令集）。</li>
+<li><strong>功能</strong>：
+<ul>
+<li>定义计算机可执行的所有机器指令（如<code>MOV</code>, <code>JMP</code>）。</li>
+<li>规定指令的操作类型、操作数位置及数据类型。</li>
+</ul>
+</li>
+<li><strong>特点</strong>：程序员需熟悉具体机器的指令格式与硬件结构。</li>
+</ul>
+<p><strong>4. 操作系统层</strong></p>
+<ul>
+<li><strong>组成</strong>：内核、设备驱动、系统调用接口。</li>
+<li><strong>功能</strong>：
+<ul>
+<li>管理硬件资源（CPU调度、内存分配、I/O控制）。</li>
+<li>为上层应用提供统一的系统服务（如文件读写、进程管理）。</li>
+</ul>
+</li>
+<li><strong>开发要求</strong>：
+<ul>
+<li>需深入理解指令集、汇编语言及系统级编程语言（如C）。</li>
+</ul>
+</li>
+</ul>
+<p><strong>5. 汇编语言层</strong></p>
+<ul>
+<li><strong>组成</strong>：助记符（如<code>ADD</code>, <code>MOV</code>）与目标机器指令一一对应。</li>
+<li><strong>功能</strong>：
+<ul>
+<li>提供机器指令的符号化表示，简化编程。</li>
+<li>需通过<strong>汇编器</strong>转换为机器码。</li>
+</ul>
+</li>
+<li><strong>特点</strong>：
+<ul>
+<li>程序员仍需熟悉硬件细节（如寄存器布局、内存寻址）。</li>
+</ul>
+</li>
+</ul>
+<p><strong>6. 高级语言层（最顶层）</strong></p>
+<ul>
+<li><strong>组成</strong>：与机器无关的编程语言（如Python、Java、C++）。</li>
+<li><strong>功能</strong>：
+<ul>
+<li>通过抽象语法（如变量、循环）隐藏硬件细节。</li>
+<li>程序通过<strong>编译器/解释器</strong>转换为机器码。</li>
+</ul>
+</li>
+<li><strong>开发要求</strong>：
+<ul>
+<li>仅需掌握语法规则、算法与数据结构，无需了解底层硬件。</li>
+</ul>
+</li>
+</ul>
+<p><strong>各层特点对比</strong></p>
+<table>
+<thead>
+<tr>
+<th><strong>层级</strong></th>
+<th><strong>抽象程度</strong></th>
+<th><strong>依赖硬件细节</strong></th>
+<th><strong>开发复杂度</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>高级语言层</td>
+<td>最高</td>
+<td>无</td>
+<td>最低</td>
+</tr>
+<tr>
+<td>汇编语言层</td>
+<td>低</td>
+<td>高</td>
+<td>高</td>
+</tr>
+<tr>
+<td>操作系统层</td>
+<td>中</td>
+<td>中</td>
+<td>中</td>
+</tr>
+<tr>
+<td>指令系统层</td>
+<td>低</td>
+<td>极高</td>
+<td>极高</td>
+</tr>
+<tr>
+<td>硬件层</td>
+<td>无</td>
+<td>完全依赖</td>
+<td>最高</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>硬件层与微程序层实现物理计算能力。</li>
+<li>操作系统层管理资源并向上提供接口。</li>
+<li>汇编/高级语言层构建用户可编程的软件生态。</li>
+</ul>
+<blockquote>
+<p>硬件和软件<mark>逻辑</mark>上有等价性，硬件执行<strong>速度高</strong>，软件<strong>灵活</strong><br>
+软件的功能可以用硬件取代</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th><strong>特性</strong></th>
+<th><strong>硬件实现</strong></th>
+<th><strong>软件实现</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>性能与速度</strong></td>
+<td>高（专用电路并行处理，如ASIC、FPGA）</td>
+<td>低（依赖通用CPU串行执行）</td>
+</tr>
+<tr>
+<td><strong>灵活性</strong></td>
+<td>低（功能固化，修改需重新设计电路）</td>
+<td>高（代码可动态更新，适应新需求）</td>
+</tr>
+<tr>
+<td><strong>开发成本</strong></td>
+<td>高（需定制芯片设计、流片费用）</td>
+<td>低（编写代码，复用通用硬件）</td>
+</tr>
+<tr>
+<td><strong>适用场景</strong></td>
+<td>高频交易、实时信号处理、密码学加速</td>
+<td>操作系统、应用软件、动态调整功能的场景</td>
+</tr>
+</tbody>
+</table>
+<h3 id="存储过程">存储过程</h3>
+<ul>
+<li>主存储器：包含存储体、MAR、MDR
+<ul>
+<li><strong>存储体</strong>：
+<ul>
+<li>由若干个<strong>存储单元</strong>组成
+<ul>
+<li>每个存储单元由若干个<strong>存储元件</strong>组成
+<ul>
+<li>每个存储元件能存储1位二进制数0/1</li>
+</ul>
+</li>
+<li>一个存储单元中可存储一串二进制信息，称这串二进制信息为一个<strong>存储字</strong>，这串二进制信息的位数称为<strong>存储字长</strong>（可以是8位、16位或32位等）</li>
+</ul>
+</li>
+<li>给每个存储单元都赋予一个编号，称为<strong>存储单元的地址</strong></li>
+</ul>
+</li>
+<li><strong>内存地址寄存器（MAR）</strong>
+<ul>
+<li>功能：</li>
+<li>保存<strong>数据目标地址</strong>或<strong>数据源地址</strong>，用于寻址主存单元。</li>
+<li><strong>连接存储器与地址总线</strong>，传递地址信号。</li>
+<li>物理实现：</li>
+<li>集成于CPU中，但逻辑上属于<strong>主存储器</strong>的组成部分。</li>
+<li>位数与容量：</li>
+<li><strong>位数 = 存储单元地址数量</strong>（如10位MAR支持2^10=1024个存储单元，即1KB），反应最多可寻址的存储单元个数<br>
+存储单元：存放一串二进制代码，存储器一次操作的基本单位。</li>
+<li><mark>MAR长度与<strong>PC（程序计数器）</strong> 一致</mark>，决定寻址空间。</li>
+</ul>
+</li>
+<li><strong>内存数据寄存器（MDR）</strong>：<br>
+<strong>临时缓存从主存（内存）读取或写入的数据或指令</strong>，充当 CPU 与主存之间的<strong>数据中转站</strong>
+<ul>
+<li><strong>读取数据时</strong>：暂存从主存读取的指令或操作数。</li>
+<li><strong>写入数据时</strong>：暂存待写入主存的数据。</li>
+<li>功能：</li>
+<li>是CPU与主存之间的<strong>唯一数据通道</strong></li>
+<li><strong>连接存储器与数据总线</strong>，传输数据信号。</li>
+<li>物理实现：
+<ul>
+<li>集成于CPU中，逻辑上属于<strong>主存储器</strong>的组成部分。</li>
+</ul>
+</li>
+<li>位数与字长：</li>
+<li><strong>位数 = 存储字长</strong>（如32位MDR对应32位存储单元）。<br>
+存储字长：存储单元中二进制代码的位数每个存储单元赋予一个地址号</li>
+<li>一般为字节（8位）的整数倍（如32位、64位）。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>eg1.MAR=4位，MDR=8位<br>
+存储单元个数16，存储字长8位<br>
+eg2.若存储字长为8位，MAR的位数(长度)为16位，则存储体的总容量<br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250327120211029.png" alt="image.png"></p>
+<p><strong>主存储器的核心组件</strong><br>
+主存储器是计算机中用于存储程序和数据的关键部件，其核心功能是通过地址访问存储单元，完成数据的读写操作。<br>
+<strong>主存储器按地址存取</strong>：通过MAR指定地址，MDR暂存数据，存储体存储二进制信息。</p>
+<table>
+<thead>
+<tr>
+<th><strong>组件</strong></th>
+<th><strong>功能</strong></th>
+<th><strong>说明</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>存储体</strong></td>
+<td>存储二进制数据，由多个存储单元构成，每个单元有唯一地址。</td>
+<td>每个存储单元的大小通常为1字节（8位），地址范围由地址总线的宽度决定。</td>
+</tr>
+<tr>
+<td><strong>地址寄存器MAR</strong></td>
+<td>存放当前要访问的存储单元的地址。</td>
+<td>MAR（Memory Address Register）接收来自CPU或总线的地址信号。</td>
+</tr>
+<tr>
+<td><strong>数据寄存器MDR</strong></td>
+<td>暂存从存储器读出的数据或待写入存储器的数据。</td>
+<td>MDR（Memory Data Register）在读写操作中作为数据缓冲，确保数据稳定传输。</td>
+</tr>
+<tr>
+<td><strong>时序控制逻辑</strong></td>
+<td>产生存储器操作所需的控制信号（如读/写信号、片选信号），协调各部件时序。</td>
+<td>控制逻辑根据CPU指令生成时序信号，确保操作按步骤执行。</td>
+</tr>
+<tr>
+<td>![image.png</td>
+<td>350](<a target="_blank" rel="noopener" href="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250326113413143.png">https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250326113413143.png</a>) <strong>读操作流程（MAR→存储体→MDR→CPU）</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li><strong>加载地址</strong>：CPU将目标地址送入<strong>MAR</strong>。</li>
+<li><strong>发出读命令</strong>：时序控制逻辑生成<strong>读信号</strong>（Read Enable）。</li>
+<li><strong>数据读取</strong>：存储体根据MAR中的地址定位存储单元，将数据送入<strong>MDR</strong>。</li>
+<li><strong>数据传输</strong>：CPU从MDR中读取数据。</li>
+</ol>
+<p><strong>写操作流程（CPU→MDR→MAR→存储体）</strong></p>
+<ol>
+<li><strong>加载地址与数据</strong>：CPU将目标地址送入<strong>MAR</strong>，待写数据送入<strong>MDR</strong>。</li>
+<li><strong>发出写命令</strong>：时序控制逻辑生成<strong>写信号</strong>（Write Enable）。</li>
+<li><strong>数据写入</strong>：存储体根据MAR中的地址定位存储单元，将MDR中的数据写入该单元。</li>
+</ol>
+<p><strong>时序控制逻辑的作用</strong></p>
+<ul>
+<li><strong>同步操作</strong>：确保地址加载、数据读写等步骤按严格时序执行。
+<ul>
+<li>例如：在读取时，MAR地址稳定后，才允许存储体输出数据到MDR。</li>
+</ul>
+</li>
+<li><strong>信号生成</strong>：
+<ul>
+<li><strong>读信号（RE）</strong>：允许存储体输出数据到MDR。</li>
+<li><strong>写信号（WE）</strong>：允许MDR数据写入存储体。</li>
+<li><strong>片选信号（CS）</strong>：在多存储器模块中选择目标模块。</li>
+</ul>
+</li>
+</ul>
+<p>eg.假设CPU执行指令 <code>LOAD [0x1000]</code>（读取地址0x1000的数据）：</p>
+<ol>
+<li>CPU将地址<code>0x1000</code>写入MAR。</li>
+<li>时序逻辑发出读信号，存储体将地址<code>0x1000</code>对应的数据送入MDR。</li>
+<li>CPU从MDR中读取数据并存入寄存器（如AX）。</li>
+</ol>
+<p>CPU通过PC和MAR向存储器发去取指令请求(发送指令地址)并且把读信号送到控制线上，一起告诉存储器要读哪一个地方的信息；<br>
+读出来的信息传到MDR，如果是指令则传到IR；如果是数据就送到寄存器，再送到ALU计算，或者直接送到ALU。</p>
+<p><mark><strong>计算机如何分辨此时取出的是数据还是指令呢？</strong></mark><br>
+根据<mark>指令周期</mark>的不同阶段判断。<br>
+在<strong>取指令</strong>阶段取出的是<strong>指令</strong>，在<strong>执行</strong>指令阶段取出的是<strong>数据</strong>。</p>
+<h2 id="计算机的基本工作原理">计算机的基本工作原理</h2>
+<h3 id="计算机硬件组成的细化">计算机硬件组成的细化</h3>
+<h4 id="加减乘除操作">加减乘除操作</h4>
+<ul>
+<li><strong>累加器ACC</strong>，一种<strong>专用寄存器</strong>（非ALU直接部件），用于暂存ALU<strong>前一次运算的结果</strong>或<strong>初始操作数（被加数/被减数/被乘数/乘机高位/被除数/余数）</strong>，在加减法中作为运算的基准值。（例如：执行<code>A = A + B</code>时，累加器存放<code>A</code>的值）</li>
+<li><strong>乘商寄存器MQ</strong>：在乘法和除法运算中，存储<strong>乘数/商/乘积低位</strong>。
+<ul>
+<li><strong>乘法存储逻辑</strong>：
+<ul>
+<li>乘法结果的位数通常是操作数的两倍（如 8位 × 8位 → 16位），因此需两个寄存器存储。</li>
+<li><strong>ACC存储高位，MQ存储低位</strong><br>
+例如：<code>5 (ACC) × 3 (MQ)</code> → 结果为 <code>15</code>，高位 <code>0</code>（若为 8位系统）存 <code>ACC</code>，低位 <code>15</code> 存 <code>MQ</code>。</li>
+<li><strong>X存储被乘数</strong><br>
+在乘法前，<code>ACC</code> 的被乘数需暂存至 <code>X</code>，以便释放 <code>ACC</code> 存储结果高位。</li>
+</ul>
+</li>
+<li><strong>除法存储逻辑</strong>：
+<ul>
+<li><strong>ACC存储余数，MQ存储商</strong>：<br>
+例如：<code>15 ÷ 4</code> → 商为 <code>3</code>（存 <code>MQ</code>），余数 <code>3</code>（存 <code>ACC</code>）。</li>
+<li><strong>X存储除数</strong>：从主存加载除数到 <code>X</code>，保证除法操作的稳定性。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>操作数寄存器X</strong>：用于临时存储<strong>从主存或指令中获取的第二个操作数（加数/减数/乘数/除数）</strong></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>寄存器</th>
+<th>加法</th>
+<th>减法</th>
+<th>乘法</th>
+<th>除法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ACC</strong></td>
+<td>被加数 → 和</td>
+<td>被减数 → 差</td>
+<td>被乘数（操作前）→ 乘积高位</td>
+<td>被除数 → 余数</td>
+</tr>
+<tr>
+<td><strong>MQ</strong></td>
+<td>—</td>
+<td>—</td>
+<td>乘数（操作前）→ 乘积低位</td>
+<td>→ 商</td>
+</tr>
+<tr>
+<td><strong>X</strong></td>
+<td>加数</td>
+<td>减数</td>
+<td>被乘数（从ACC复制）</td>
+<td>除数</td>
+</tr>
+<tr>
+<td>M 表示主存储器中某个存储单元的地址</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>(M)表示地址为M的存储单元中的内容</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>ACC 表示累加器</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>(ACC)表示累加器中的内容</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>MQ 表示乘商寄存器</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>(MQ)表示乘商寄存器中的内容</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>X表示操作数寄存器</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>(X)表示操作数寄存器中的内容</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>加法操作过程
+<ol>
+<li>(M)→X：从主存地址 M 取出内容（加数），送入操作数寄存器 X</li>
+<li>(ACC)+(X)→ACC：累加器 ACC 中的被加数与 X 中的加数相加，结果（和）存回 ACC。</li>
+</ol>
+</li>
+<li>减法操作过程
+<ol>
+<li>(M)→ X</li>
+<li>(ACC)-(X)→ACC</li>
+</ol>
+</li>
+<li>乘法操作过程
+<ol>
+<li>(M) → MQ：取出存放在主存中地址为M的存储单元中的内容(M)(乘数)，送到乘商寄存器MQ中</li>
+<li>(ACC)→X：将累加器ACC中的内容(ACC)(被乘数)，送到操作数寄存器X中</li>
+<li>(X) x (MQ)→ ACC // MQ：将操作数寄存器X中的内容(X)(被乘数)与乘商寄存器MQ中的内容(MQ)(乘数)相乘结果(积)的高位保留在累加器ACC中，低位保留在乘商寄存器MQ中</li>
+</ol>
+</li>
+<li>除法操作过程
+<ol>
+<li>(M)-&gt;X</li>
+<li>(ACC) ÷ (X)→ MQ</li>
+</ol>
+</li>
+</ul>
+<p>共同点：取出存放在主存储器中地址为M的存储单元中的内容(M)，送到某个寄存器中</p>
+<p>y = a * b + c<br>
+a=2,b=3,c=1,y=0<br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250327101752137.png" alt="image.png"><br>
+注：</p>
+<ol>
+<li>程序执行前，由于冯诺依曼“存储程序”的思想，先将程序的机器指令序列（操作码+地址码）存放到存储体</li>
+<li>程序执行前，先将程序的第一条指令的地址存放到PC中，PC=0，</li>
+<li>任何指令的执行都从<strong>取指令</strong>开始，此时 CPU 需要从内存中读取指令。因此，取指令阶段固定为<strong>读操作</strong></li>
+<li>执行阶段由操作码决定读/写</li>
+<li><strong>MAR</strong>：仅用于存储地址，不参与数据处理。</li>
+<li><strong>MDR</strong>：作为 CPU 与主存间的数据缓冲，所有读写均需经过 MDR。</li>
+</ol>
+<p><strong>执行流程</strong>：</p>
+<ol>
+<li>
+<p>取数 <code>a</code> 至 ACC</p>
+<ul>
+<li><strong>指令地址</strong>：<code>0</code>（PC=0）</li>
+<li><strong>步骤</strong>：
+<ol>
+<li><strong>取指令</strong>：
+<ul>
+<li><code>(PC=0) → MAR</code>，控制器将PC的内容送至内存的MAR，对内存进行寻址，并命令内存做读操作。</li>
+<li><code>M(MAR) → MDR</code>，从内存地址 <code>0</code> 读取指令 <code>000001 0000000101</code>（操作码 <code>取数</code>，地址码 <code>5</code>）。</li>
+<li><code>(MDR) → IR</code>，指令存入指令寄存器。</li>
+<li><code>(PC) + 1 → PC</code>，PC 自增为 <code>1</code>。<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250327105809223.png" alt="image.png"></li>
+</ul>
+</li>
+<li><strong>分析指令</strong>：
+<ul>
+<li><code>OP(IR) → CU</code>，控制单元识别为“取数”指令。</li>
+</ul>
+</li>
+<li><strong>执行指令</strong>：
+<ul>
+<li><code>Ad(IR)=5 → MAR</code>，将IR中保存的指令地址码送至内存的MAR中，对内存进行寻址，并命令内存做读操作。</li>
+<li><code>M(MAR) → MDR</code>，从地址 <code>5</code> 读取数据 <code>a=2</code>送入MDR。</li>
+<li><code>(MDR) → ACC</code>，将 <code>a=2</code> 存入累加器 ACC。</li>
+</ul>
+</li>
+</ol>
+</li>
+</ul>
+</li>
+<li>
+<p>乘法 <code>a * b</code>，结果存于 ACC</p>
+<ul>
+<li><strong>指令地址</strong>：<code>1</code>（PC=1）</li>
+<li><strong>步骤</strong>：
+<ol>
+<li><strong>取指令</strong>：
+<ul>
+<li><code>(PC) → MAR</code>，控制器将PC的内容送至内存的MAR，对内存进行寻址，并命令内存做读操作。</li>
+<li><code>M(MAR) → MDR</code>，读取指令 <code>000100 0000000110</code>（操作码 <code>乘法</code>，地址码 <code>6</code>）。</li>
+<li><code>(MDR) → IR</code>，指令存入指令寄存器。</li>
+<li><code>(PC) + 1 → PC</code>，PC 自增为 <code>2</code>。</li>
+</ul>
+</li>
+<li><strong>分析指令</strong>：
+<ul>
+<li><code>OP(IR) → CU</code>，控制单元识别为“乘法”指令。</li>
+</ul>
+</li>
+<li><strong>执行指令</strong>：
+<ul>
+<li><code>Ad(IR)=6 → MAR</code>，发送地址 <code>6</code> 到内存。</li>
+<li><code>M(MAR) → MDR</code>，从地址 <code>6</code> 读取数据 <code>b=3</code>。</li>
+<li><code>(MDR) → MQ</code>，将 <code>b=3</code> 存入乘商寄存器 MQ。</li>
+<li><code>(ACC)=2 → X</code>，将 ACC 的值 <code>2</code> 送入 X 寄存器。</li>
+<li><code>(MQ)*(X) → ACC</code>，ALU 执行 X * MQ，结果为 <code>6</code>，存入 ACC</li>
+</ul>
+</li>
+</ol>
+</li>
+</ul>
+</li>
+<li>
+<p>加法 <code>a * b + c</code>，结果存于 ACC</p>
+<ul>
+<li><strong>指令地址</strong>：<code>2</code>（PC=2）</li>
+<li><strong>步骤</strong>：
+<ol>
+<li><strong>取指令</strong>：
+<ul>
+<li><code>(PC=2) → MAR</code>，控制器将PC的内容送至内存的MAR，对内存进行寻址，并命令内存做读操作。</li>
+<li><code>M(MAR) → MDR</code>，读取指令 <code>000011 0000000111</code>（操作码 <code>加法</code>，地址码 <code>7</code>）。</li>
+<li><code>(MDR) → IR</code>，指令存入指令寄存器。</li>
+<li><code>(PC) + 1 → PC</code>，PC 自增为 <code>3</code>。</li>
+</ul>
+</li>
+<li><strong>分析指令</strong>：
+<ul>
+<li><code>OP(IR) → CU</code>，控制单元识别为“加法”指令。</li>
+</ul>
+</li>
+<li><strong>执行指令</strong>：
+<ul>
+<li><code>Ad(IR)=7 → MAR</code>，发送地址 <code>7</code> 到内存。</li>
+<li><code>M(MAR) → MDR</code>，从地址 <code>7</code> 读取数据 <code>c=1</code>。</li>
+<li><code>(MDR) → X</code>，将 <code>c=1</code> 送入 X 寄存器。</li>
+<li><code>(ACC)+(X) → ACC</code>，ALU 执行 ACC + X，结果为 <code>6 + 1 = 7</code>，存入 ACC。</li>
+</ul>
+</li>
+</ol>
+</li>
+</ul>
+</li>
+<li>
+<p>存数 <code>a * b + c</code> 至主存单元 <code>y</code></p>
+<ul>
+<li><strong>指令地址</strong>：<code>3</code>（PC=3）</li>
+<li><strong>步骤</strong>：
+<ol>
+<li><strong>取指令</strong>：
+<ul>
+<li><code>(PC) → MAR</code>，控制器将PC的内容送至内存的MAR，对内存进行寻址，并命令内存做读操作。</li>
+<li><code>M(MAR) → MDR</code>，读取指令 <code>000010 0000001000</code>（操作码 <code>存数</code>，地址码 <code>8</code>）。</li>
+<li><code>(MDR) → IR</code>，指令存入指令寄存器。</li>
+<li><code>(PC) + 1 → PC</code>，PC 自增为 <code>4</code>。</li>
+</ul>
+</li>
+<li><strong>分析指令</strong>：
+<ul>
+<li><code>OP(IR) → CU</code>，控制单元识别为“存数”指令。</li>
+</ul>
+</li>
+<li><strong>执行指令</strong>：
+<ul>
+<li><code>Ad(IR)=8 → MAR</code>，发送地址 <code>8</code> 到内存。</li>
+<li><code>(ACC)=7 → MDR</code>，将 ACC 的值 <code>7</code> 存入 MDR。</li>
+<li><code>(MDR) → M(MAR)</code>，将 <code>7</code> 写入内存地址 <code>8</code>（存储变量 <code>y</code>）。</li>
+</ul>
+</li>
+</ol>
+</li>
+</ul>
+</li>
+<li>
+<p>停机</p>
+<ul>
+<li><strong>指令地址</strong>：<code>4</code>（PC=4）</li>
+<li><strong>步骤</strong>：
+<ol>
+<li><strong>取指令</strong>：
+<ul>
+<li><code>(PC=4) → MAR</code>，控制器将PC的内容送至内存的MAR，对内存进行寻址，并命令内存做读操作。</li>
+<li><code>M(MAR) → MDR</code>，读取指令 <code>000110 0000000000</code>（操作码 <code>停机</code>）。</li>
+<li><code>(MDR) → IR</code>，指令存入指令寄存器。</li>
+<li><code>(PC) + 1 → PC</code>，PC 自增为 <code>5</code>。</li>
+</ul>
+</li>
+<li><strong>分析指令</strong>：
+<ul>
+<li><code>OP(IR) → CU</code>，控制单元识别为“停机”指令。</li>
+</ul>
+</li>
+<li><strong>执行指令</strong>：
+<ul>
+<li>CPU 终止当前进程，结果 <code>y=7</code> 已存入内存地址 <code>8</code>。</li>
+</ul>
+</li>
+</ol>
+</li>
+</ul>
+</li>
+</ol>
+<p><strong>最终结果</strong></p>
+<ul>
+<li><strong>内存地址 <code>8</code></strong>：存储 <code>y=7</code>。</li>
+<li><strong>寄存器状态</strong>：
+<ul>
+<li><code>ACC=7</code>，<code>MQ=3</code>（乘法中间值），<code>X=1</code>（加法操作数）。</li>
+<li><code>PC=5</code>，指向下一条指令地址（已停机）。</li>
+</ul>
+</li>
+</ul>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250327110944602.png" alt="image.png"></p>
+<h4 id="1-取指令阶段"><strong>1. 取指令阶段</strong></h4>
+<p><strong>目标</strong>：将下一条指令从主存读取到指令寄存器（IR）。<br>
+<strong>步骤</strong>：</p>
+<ol>
+<li><strong>PC → MAR</strong>
+<ul>
+<li><strong>操作</strong>：将程序计数器（PC）当前存储的指令地址送入内存地址寄存器（MAR）。</li>
+<li><strong>说明</strong>：<code>PC→MAR</code> 表示 <code>(PC)</code>（PC 中存储的值）通过数据通路传递到 MAR。</li>
+</ul>
+</li>
+<li><strong>MAR → 地址线，控制器发送读信号</strong>
+<ul>
+<li><strong>操作</strong>：MAR 的内容被送至地址线，控制器向主存发送读信号。</li>
+<li><strong>说明</strong>：主存根据地址线上的地址和读信号，定位存储单元。</li>
+</ul>
+</li>
+<li><strong>主存 → 数据线 → MDR</strong>
+<ul>
+<li><strong>操作</strong>：主存将指定地址的指令通过数据线传输到内存数据寄存器（MDR）。</li>
+</ul>
+</li>
+<li><strong>MDR → IR</strong>
+<ul>
+<li><strong>操作</strong>：MDR 中的指令被送入指令寄存器（IR）。</li>
+<li><strong>结果</strong>：IR 中存储当前待执行的指令。</li>
+</ul>
+</li>
+<li><strong>更新 PC</strong>
+<ul>
+<li><strong>操作</strong>：<code>(PC) + 1 → PC</code>，为取下一条指令准备地址。</li>
+<li><strong>注意</strong>：
+<ul>
+<li><strong>括号不可省略</strong>：运算时必须写为 <code>(PC)+1→PC</code>，表示对 PC 的值进行运算。</li>
+<li><strong>数据通路省略</strong>：<code>PC→MAR</code> 可简写，但运算表达式需严格保留括号。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<h4 id="2-分析指令阶段"><strong>2. 分析指令阶段</strong></h4>
+<p><strong>目标</strong>：解码指令并生成控制信号。<br>
+<strong>步骤</strong>：</p>
+<ol>
+<li><strong>OP(IR) → CU</strong>
+<ul>
+<li><strong>操作</strong>：从 IR 中提取操作码（OP），送入控制单元（CU）。</li>
+</ul>
+</li>
+<li><strong>CU 译码与生成控制信号</strong>
+<ul>
+<li><strong>操作</strong>：CU 根据操作码生成对应的控制信号，分发到各执行部件。</li>
+<li><strong>示例</strong>（取数指令）：
+<ul>
+<li>CU 生成“读主存”信号，激活总线控制线，准备读取操作数。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<h4 id="3-执行指令阶段"><strong>3. 执行指令阶段</strong></h4>
+<p><strong>目标</strong>：执行当前指令的操作（以取数指令为例）。<br>
+<strong>步骤</strong>：</p>
+<ol>
+<li><strong>Ad(IR) → MAR</strong>
+<ul>
+<li><strong>操作</strong>：将 IR 中的地址码（操作数地址）送入 MAR。</li>
+<li><strong>示例</strong>：若指令为 <code>取数a至ACC</code>，地址码指向变量 <code>a</code> 的存储地址。</li>
+</ul>
+</li>
+<li><strong>MAR → 地址线，控制器发送读信号</strong>
+<ul>
+<li><strong>操作</strong>：主存根据 MAR 中的地址和读信号，定位操作数存储单元。</li>
+</ul>
+</li>
+<li><strong>主存 → 数据线 → MDR</strong>
+<ul>
+<li><strong>操作</strong>：主存将操作数通过数据线传输到 MDR。</li>
+</ul>
+</li>
+<li><strong>MDR → ACC</strong>
+<ul>
+<li><strong>操作</strong>：MDR 中的操作数被送入累加器（ACC）。</li>
+<li><strong>结果</strong>：ACC 中存储了所需的数据（如 <code>a=2</code>）。</li>
+</ul>
+</li>
+</ol>
+<h3 id="常见指令">常见指令</h3>
+<p><code>LOAD</code> 指令是计算机体系结构中的一种<strong>数据传输指令</strong>，其核心功能是<strong>将数据从内存（主存）加载到CPU的寄存器中</strong>。例如，在汇编语言中，<code>LOAD R1, [0x1000]</code> 表示将内存地址 <code>0x1000</code> 处的数据加载到寄存器 <code>R1</code> 中。<br>
+<code>LOAD</code> 指令的执行遵循经典的 <strong>5 阶段指令周期</strong>：</p>
+<ol>
+<li>
+<p><strong>取指（Fetch）</strong></p>
+<ul>
+<li>CPU 根据程序计数器（PC）的值，从内存中读取指令（如 <code>LOAD R1, [0x1000]</code>）到指令寄存器（IR）。</li>
+<li>PC 自动递增，指向下一条指令地址。</li>
+</ul>
+</li>
+<li>
+<p><strong>译码（Decode）</strong></p>
+<ul>
+<li>控制单元（CU）解析指令的操作码（<code>LOAD</code>），确定操作类型。</li>
+<li>提取目标寄存器（<code>R1</code>）和内存地址（<code>0x1000</code>）。</li>
+</ul>
+</li>
+<li>
+<p><strong>执行（Execute）</strong></p>
+<ul>
+<li>将内存地址 <code>0x1000</code> 写入存储器地址寄存器（MAR）。</li>
+<li>生成读信号（Read Enable），通知内存准备数据。</li>
+</ul>
+</li>
+<li>
+<p><strong>访存（Memory Access）</strong></p>
+<ul>
+<li>内存根据 MAR 中的地址定位存储单元，将数据送至存储器数据寄存器（MDR）。</li>
+</ul>
+</li>
+<li>
+<p><strong>写回（Write Back）</strong></p>
+<ul>
+<li>将 MDR 中的数据写入目标寄存器 <code>R1</code>，完成加载操作。</li>
+</ul>
+</li>
+<li>
+<p><strong>不同寻址方式对 <code>LOAD</code> 指令的影响</strong><br>
+<code>LOAD</code> 指令的具体行为取决于其使用的<strong>寻址方式</strong>：</p>
+</li>
+</ol>
+<ul>
+<li>
+<p><strong>直接寻址</strong><br>
+指令中直接包含内存地址（如 <code>LOAD R1, [0x1000]</code>）。<br>
+<strong>优点</strong>：简单直观。<br>
+<strong>缺点</strong>：地址固定，灵活性低。</p>
+</li>
+<li>
+<p><strong>间接寻址</strong><br>
+指令中的地址指向另一个内存地址（如 <code>LOAD R1, [[R2]]</code>）。<br>
+<strong>优点</strong>：支持动态地址计算。<br>
+<strong>缺点</strong>：需要多次访存，速度较慢。</p>
+</li>
+<li>
+<p><strong>寄存器间接寻址</strong><br>
+地址存储在寄存器中（如 <code>LOAD R1, [R2]</code>）。<br>
+<strong>优点</strong>：高效灵活，适合循环遍历数组。</p>
+</li>
+<li>
+<p><strong>立即数寻址</strong><br>
+指令直接包含数据（如 <code>LOAD R1, #42</code>）。<br>
+<strong>注</strong>：严格来说，这属于加载立即数到寄存器，而非内存操作。</p>
+</li>
+</ul>
+<ol>
+<li>
+<p><strong><code>LAD X, ACC</code>（Load Address to ACC）</strong></p>
+<ul>
+<li><strong>功能</strong>：将主存地址 <code>X</code> 的内容加载到累加器 ACC。</li>
+<li><strong>操作</strong>：<br>
+$R[\text{ACC}] \leftarrow M[X]$</li>
+<li><strong>硬件流程</strong>：
+<ul>
+<li>将 <code>X</code>（地址码）送入 MAR，读取主存数据到 MDR，再传输到 ACC。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong><code>SUB ACC, Z</code>（Subtract）</strong></p>
+<ul>
+<li><strong>功能</strong>：从 ACC 中减去主存地址 <code>Z</code> 的值，结果存回 ACC。</li>
+<li><strong>操作</strong>：<br>
+$R[\text{ACC}] \leftarrow R[\text{ACC}] - M[Z]$</li>
+<li><strong>硬件流程</strong>：
+<ul>
+<li>读取 <code>Z</code> 的值到 MDR → 送入 ALU 的 X 寄存器 → ALU 执行减法 → 结果存回 ACC。<br>
+<strong>取值周期（Fetch Cycle）</strong><br>
+<strong>目标</strong>：从主存中读取下一条指令到 IR，并更新 PC。<br>
+<strong>步骤</strong>：</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong><code>PC → BUS → MAR</code></strong></p>
+<ul>
+<li>程序计数器（PC）的值通过总线送至内存地址寄存器（MAR）。</li>
+</ul>
+</li>
+<li>
+<p><strong><code>M(MAR) → 数据线 → MDR</code></strong></p>
+<ul>
+<li>主存根据 MAR 的地址，通过数据总线将指令送入内存数据寄存器（MDR）。</li>
+<li><strong>控制信号</strong>：控制器发送 <strong>读信号（MemRead=1）</strong>。</li>
+</ul>
+</li>
+<li>
+<p><strong><code>MDR → BUS → IR</code></strong></p>
+<ul>
+<li>MDR 中的指令通过总线送入指令寄存器（IR）。</li>
+</ul>
+</li>
+<li>
+<p><strong><code>(PC) + 1 → PC</code></strong></p>
+<ul>
+<li>PC 自增，指向下一条指令的地址。</li>
+</ul>
+</li>
+</ol>
+<p><strong>执行周期（Execute Cycle）</strong></p>
+<h5 id="1-LAD-X-ACC-的执行流程"><strong>1. <code>LAD X, ACC</code> 的执行流程</strong></h5>
+<ol>
+<li><strong><code>Ad(IR) → BUS → MAR</code></strong>
+<ul>
+<li>将 IR 中的地址码 <code>X</code> 送入 MAR。</li>
+</ul>
+</li>
+<li><strong><code>M(MAR) → 数据线 → MDR</code></strong>
+<ul>
+<li>主存根据 MAR 的地址，通过数据总线将数据送入 MDR。</li>
+<li><strong>控制信号</strong>：控制器发送 <strong>读信号（MemRead=1）</strong>。</li>
+</ul>
+</li>
+<li><strong><code>MDR → BUS → ACC</code></strong>
+<ul>
+<li>MDR 中的数据通过总线送入累加器 ACC。</li>
+</ul>
+</li>
+</ol>
+<h5 id="2-SUB-ACC-Z-的执行流程"><strong>2. <code>SUB ACC, Z</code> 的执行流程</strong></h5>
+<ol>
+<li><strong><code>Ad(IR) → BUS → MAR</code></strong>
+<ul>
+<li>将 IR 中的地址码 <code>Z</code> 送入 MAR。</li>
+</ul>
+</li>
+<li><strong><code>M(MAR) → 数据线 → MDR</code></strong>
+<ul>
+<li>主存根据 MAR 的地址，读取 <code>Z</code> 的值到 MDR。</li>
+</ul>
+</li>
+<li><strong><code>MDR → X</code></strong>
+<ul>
+<li>MDR 的值送入 ALU 的输入寄存器 X。</li>
+</ul>
+</li>
+<li><strong>`ALU 执行减法运算</strong>
+<ul>
+<li>
+<p>ALU 计算 <code>ACC - X</code>，结果存回 ACC。</p>
+<ul>
+<li><code>LAD</code>、<code>SUB</code> 等涉及数据加载的指令 → 读操作（<code>MemRead=1</code>）。</li>
+<li><code>STO</code>（存数指令） → 写操作（<code>MemWrite=1</code>）。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>总线控制</strong>：
+<ul>
+<li>数据总线在取值和执行阶段分别传输指令和数据。</li>
+<li>地址总线始终由 MAR 驱动。</li>
+</ul>
+</li>
+</ol>
+<h5 id="1-操作数的加载是否必须通过主存？"><strong>1. 操作数的加载是否必须通过主存？</strong></h5>
+<ul>
+<li><strong>否</strong>：
+<ul>
+<li>操作数可直接来自寄存器（如 <code>ADD R1, R2</code>），无需访问主存。</li>
+<li>若操作数在主存中（如 <code>ADD [M]</code>），则需通过 <code>X</code> 或 <code>MQ</code> 中转。</li>
+</ul>
+</li>
+<li><strong>示例对比</strong>：
+<ul>
+<li><strong>直接寄存器操作</strong>：<code>ADD ACC, X</code>（假设指令支持）。</li>
+<li><strong>主存操作</strong>：<code>ADD [M]</code> → <code>(M)→X → (ACC)+(X)→ACC</code>。</li>
+</ul>
+</li>
+</ul>
+<h5 id="2-加法实例"><strong>2. 加法实例</strong></h5>
+<ul>
+<li><strong>指令</strong>：<code>ADD [0x1000]</code></li>
+<li><strong>步骤</strong>：
+<ol>
+<li>从主存地址 <code>0x1000</code> 加载数据到 <code>X</code>（如 <code>X=5</code>）。</li>
+<li><code>ACC</code> 中的值（如 <code>ACC=10</code>）与 <code>X</code> 相加，结果存回 <code>ACC</code>（<code>ACC=15</code>）。</li>
+</ol>
+</li>
+</ul>
+<h5 id="3-乘法实例"><strong>3. 乘法实例</strong></h5>
+<ul>
+<li><strong>指令</strong>：<code>MUL [0x2000]</code></li>
+<li><strong>步骤</strong>：
+<ol>
+<li>从主存地址 <code>0x2000</code> 加载乘数到 <code>MQ</code>（如 <code>MQ=3</code>）。</li>
+<li>将 <code>ACC</code> 中的被乘数（如 <code>ACC=5</code>）暂存到 <code>X</code>。</li>
+<li>执行乘法：<code>X=5</code> × <code>MQ=3</code> → 结果高位 <code>0</code>（ACC）、低位 <code>15</code>（MQ）。</li>
+</ol>
+</li>
+</ul>
+<h5 id="4-除法实例"><strong>4. 除法实例</strong></h5>
+<ul>
+<li><strong>指令</strong>：<code>DIV [0x3000]</code></li>
+<li><strong>步骤</strong>：
+<ol>
+<li>从主存地址 <code>0x3000</code> 加载除数到 <code>X</code>（如 <code>X=4</code>）。</li>
+<li><code>ACC</code> 中的被除数（如 <code>ACC=15</code>）除以 <code>X=4</code> → 商 <code>3</code>（MQ），余数 <code>3</code>（ACC）。</li>
+</ol>
+</li>
+</ul>
+<h2 id="计算机系统的性能指标">计算机系统的性能指标</h2>
+<p>计算机系统的性能指标是用来衡量计算机系统在各种操作和任务中的<strong>工作效率、执行速度以及处理能力</strong>的标准。<br>
+计算机系统的性能指标可以<strong>帮助人们评估计算机系统</strong>的整体表现，从而更好地了解系统<strong>在不同方面的优势和限制</strong><br>
+计算机系统的性能指标与硬件和软件都有关</p>
+<ul>
+<li>
+<p>硬件与计算机系统性能的关系</p>
+<ul>
+<li>硬件是构建计算机系统的<strong>物理组件</strong>(例如CPU、内存、外部设备等)。</li>
+<li>硬件对于计算机系统的性能有着重要影响，因为它决定了系统的<font color="#ff0000">计算能力、数据传输速率和存储容量</font>。
+<ul>
+<li>CPU的时钟频率决定了CPU每秒钟可以执行的指令数量。</li>
+<li>内存带宽会影响数据的读写速率。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>软件与计算机系统性能的关系</p>
+<ul>
+<li>软件包括用于控制、管理、应用计算机系统的各类系统软件和应用软件。</li>
+<li>软件的优化可以显著影响计算机系统的性能，因为<strong>合理的算法和代码</strong>实现可以<strong>更有效地利用硬件资源</strong>。
+<ul>
+<li>操作系统的调度算法会影响多任务处理的效率，从而影响系统的响应时间。</li>
+<li>在图像处理任务中，优化的软件算法可以减轻CPU和内存的负担，提高图形处理速度。</li>
+<li>软件层面的并行计算可以更好地利用多核处理器，提高吞吐量。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>硬件是性能的上限</strong>，决定了系统的理论能力。</p>
+</li>
+<li>
+<p><strong>软件是性能的下限</strong>，决定了硬件的实际利用率。</p>
+</li>
+<li>
+<p><strong>软硬件协同优化</strong>是提升计算机系统性能的核心路径。</p>
+</li>
+</ul>
+<h3 id="计算机硬件相关性能指标">计算机硬件相关性能指标</h3>
+<h4 id="基本性能指标">基本性能指标</h4>
+<ol>
+<li><strong>机器字长</strong></li>
+<li><strong>主存容量</strong></li>
+<li><strong>吞吐量</strong></li>
+<li><strong>响应时间</strong></li>
+</ol>
+<h4 id="与运行速度相关的性能指标">与运行速度相关的性能指标</h4>
+<ol>
+<li><strong>CPU时钟频率和时钟周期</strong></li>
+<li><strong>CPI</strong></li>
+<li><strong>CPU执行时间</strong></li>
+<li><strong>IPC</strong></li>
+<li><strong>MIPS</strong></li>
+<li><strong>MFLOPS</strong></li>
+</ol>
+<p>概念解释：</p>
+<ol>
+<li>
+<p><strong>机器字长（字长）</strong></p>
+<ul>
+<li><strong>定义</strong>：计算机一次能处理的二进制位数（如32位、64位），即b的数量。<br>
+<mark>机器字长 = 用于整数运算的ALU位数 = 通用寄存器宽度 = 数据总线宽度</mark>
+<ul>
+<li>数据总线宽度（数据字长）= 数据总线一次能并行传送信息的位数（如32位总线一次传输4字节）</li>
+</ul>
+</li>
+<li>早期：指令字长（一个指令字中包含的二进制代码的位数）=存储字长（一个存储单元存储的二进制代码的长度）=机器字长
+<ul>
+<li>随着计算机的发展，指令字长、字长都可变，但必须都是字节的整数倍。</li>
+<li>若指令字长等于存储字长的2倍，则需要2个访存周期来取出一条指令</li>
+<li>若指令字长等于存储字长（如均为32位），单次访存即可取指，此时<strong>取指周期=机器周期</strong>。</li>
+</ul>
+</li>
+<li><strong>影响</strong>：
+<ul>
+<li>字长越长，<strong>数的表示范围</strong>就越大、<strong>精度</strong>也越高。
+<ul>
+<li><strong>无符号整数</strong>：0∼2<sup>n</sup>−1（n 为字长）。</li>
+<li><strong>有符号整数</strong>：−2<sup>n−1</sup>∼2<sup>n−1</sup>−1</li>
+<li><strong>单精度（32位）</strong>：指数8位，尾数23位，范围约 ±10<sup>38</sup></li>
+<li><strong>双精度（64位）</strong>：指数11位，尾数52位，范围约 ±10<sup>308</sup></li>
+</ul>
+</li>
+<li>字长越长，<strong>计算精度</strong>也越高<br>
+字长越长，小数部分的位数越多，精度越高。</li>
+<li>字长还会影响<strong>计算速度</strong></li>
+<li><strong>数据处理能力</strong>：字长越大，单次处理的数据量越大。</li>
+<li><strong>地址空间</strong>：32位系统最大支持4GB内存，64位系统支持更大内存。</li>
+<li><strong>硬件复杂度</strong>：字长增加可能提高电路复杂度。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>主存容量</strong></p>
+<ul>
+<li><strong>定义</strong>：主存储器（内存）的总存储容量，通常以GB或TB为单位。</li>
+<li><strong>公式</strong>：<br>
+<strong>主存容量=N×M</strong>(位，即比特b)<br>
+M：主存中存储单元的总数量。<br>
+N：每个存储单元可存储的二进制位数（如8位、64位）。<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250327161644732.png" alt="image.png|400"><br>
+增加主存(内存)容量可以<strong>减少</strong>程序运行期间对<strong>辅存</strong>(外存)的访问，由于访问内存的速度远大于访问外存的速度，因此可以提高程序的<strong>执行速度</strong>，进而提高计算机系统的性能。</li>
+</ul>
+</li>
+<li>
+<p><strong>吞吐量</strong></p>
+<ul>
+<li><strong>定义</strong>：<font color="#ff0000">单位时间内系统完成的任务量</font>（如每秒处理请求数），系统吞吐量<font color="#f79646">主要取决于主存的存取周期</font>。</li>
+<li><strong>影响因素</strong>：
+<ul>
+<li>CPU的处理能力</li>
+<li>内存（主存）的访问速度</li>
+<li>外存的访问速度</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>响应时间</strong></p>
+<ul>
+<li><strong>定义</strong>：从向计算机系统<font color="#ff0000">提交作业开始</font>，到系统<font color="#ff0000">完成作业为止所需要的时间</font>（包括CPU处理、I/O等待等）。</li>
+<li>通常把用户感觉到的响应时间分成以下两个时间：
+<ul>
+<li>CPU时间：运行一个程序所花费的时间
+<ul>
+<li><strong>CPU执行时间</strong>：执行用户程序本身所花费的CPU时间（一般基于此对性能评价）</li>
+<li>系统CPU时间：为执行用户程序而花费在操作系统上的时间</li>
+</ul>
+</li>
+<li>其他时间（等待时间）：用户访问内存(主存)、外存(辅存)、其他外部设备所花费的时间</li>
+</ul>
+</li>
+<li>系统性能和CPU性能有一定的区别：</li>
+<li>系统性能：系统响应时间，与CPU外的其他部分也有关系</li>
+<li>CPU性能：用户CPU时间，即CPU执行时间<br>
+主频、CPI和指令条数是相互制约的</li>
+</ul>
+</li>
+<li>
+<p><strong>CPU时钟频率与时钟周期</strong></p>
+<ul>
+<li><strong>时钟频率</strong>：CPU每秒的时钟周期数（单位：Hz，如3.0 GHz）<br>
+比喻：每秒敲鼓次数。<br>
+频率越高，CPU“敲鼓”越快，理论上干活速度更快。</li>
+<li><strong>时钟周期</strong>：每个<strong>脉冲信号</strong>的时间，单个时钟周期的时间（$T = \frac{1}{\text{频率}}$），如3.0 GHz对应0.333 ns），是<mark>CPU中最小的时间单位</mark>，执行指令的每个动作至少需要1个时钟周期。<br>
+时钟脉冲信号由机器脉冲源发出的脉冲信号经整形和分频后形成。<br>
+时钟周期以相邻状态单元间组合逻辑电路的最大延迟时间为基准确定。<br>
+时钟周期也以指令流水线的每个流水段的最大延迟时间确定。<br>
+比喻：每次敲鼓的时间间隔，比如鼓手每0.3秒敲一次<br>
+周期越短，每个动作越快完成</li>
+<li><strong>作用</strong>：对于同类型的计算机，同一指令执行所需的CPU时钟周期的数量是一样的，因此CPU的时钟频率越高，该指令的执行速度就越快。<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250327130641138.png" alt="image.png"></li>
+</ul>
+</li>
+<li>
+<p><strong>CPI（Cycles Per Instruction）</strong><br>
+<a target="_blank" rel="noopener" href="https://www.doc88.com/p-38199244559254.html">计算机组成原理作业- CPU性能含解答 - 道客巴巴 (doc88.com)</a></p>
+<ul>
+<li><strong>定义</strong>：<mark>执行一条指令所需的平均时钟周期数。</mark><br>
+不同指令的时钟周期数可能不同，因此对于一个程序或一台机器来说，其 CPI指该程序或该机器指令集中的所有指令执行所需的平均时钟周期数，即平均CPI。<br>
+比喻：炒一盘菜平均需要几次操作<br>
+CPI越低效率越高</li>
+<li><strong>计算</strong>：<br>
+$\text{CPI} = \frac{\text{总时钟周期数}}{\text{总指令数}}$<br>
+$CPI = \sum_{i=1}^{n} (CPI_i \times P_i)$ Pi是相应指令所占比例<br>
+$总周期 = Σ(指令条数 × CPI)$</li>
+<li><strong>优化</strong>：通过流水线、超标量等技术降低CPI。</li>
+<li><strong>系统结构、指令集、计算机组织</strong>都会影响 CPI，而<strong>时钟频率</strong>并不会影响CPI，但缩短每个时钟周期的时间，可加快指令的执行速度。</li>
+</ul>
+</li>
+<li>
+<p><strong>CPU执行时间</strong><br>
+即运行一个程序所花费的时间</p>
+<ul>
+<li><strong>公式</strong>：<br>
+$\text{执行时间} = \text{总时钟周期数} \times \text{时钟周期}$<br>
+$\text{执行时间} = \text{总指令数} \times \text{CPI} \times \text{时钟周期}$<br>
+比喻：做一桌菜的总时间 = 菜的数量 × 每道菜的步骤 × 每步的时间</li>
+<li>CPU性能（CPU执行时间）取决于：主频、CPI、指令条数【三者相互制约】</li>
+<li><strong>缩短程序执行时间</strong>：
+<ul>
+<li>减少指令数（算法优化）</li>
+<li>降低CPI（架构优化）</li>
+<li>提高频率（硬件升级）</li>
+<li>优化数据通路结构，可以有效提高计算机系统的吞吐量</li>
+<li>编译优化</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>IPC</strong>（每个周期能做多少事，衡量指令执行速度）</p>
+<ul>
+<li><strong>定义</strong>：每个时钟周期执行的指令数，与CPI互为倒数（$\text{IPC} = \frac{1}{\text{CPI}}$）。<br>
+比喻：每个动作能炒几盘菜</li>
+<li><strong>示例</strong>：CPI=0.5 → IPC=2，表示每个周期执行2条指令，高效。IPC越高，效率越高</li>
+</ul>
+</li>
+<li>
+<p><strong>IPS</strong>（每秒能做多少事，即）<br>
+IPC 表示每个时钟周期可运行的指令的数量，IPS 表示<strong>每秒可运行的指令的数量</strong>，$IPS = 频率 × IPC=频率  / 平均CPI$<br>
+IPS越高，说明CPU处理指令的速度越快</p>
+</li>
+<li>
+<p><strong>MIPS（Million Instructions Per Second）</strong></p>
+</li>
+</ol>
+<ul>
+<li><strong>每秒执行百万条指令数</strong>，衡量CPU的<strong>整数运算吞吐量</strong>。<br>
+越大，性能越高</li>
+<li><strong>公式</strong>： $\text{MIPS} = \frac{\text{时钟频率} \times \text{IPC}}{10^6} = \frac{\text{总指令数}}{\text{执行时间} \times 10^6}$</li>
+<li>用MIPS对不同的机器进行性能比较有时是不准确的主要原因如下。
+<ul>
+<li>不同机器的指令集不同，并且指令的功能也不同，在某种机器上的某一条指令的功能可能在另一种机器上需要用多条指令来实现,</li>
+<li>不同机器的CPI和时钟周期也不同，因而同一条指令在不同机器上所用的时间也不同</li>
+</ul>
+</li>
+</ul>
+<ol start="10">
+<li><strong>MFLOPS（Million Floating-Point Operations Per Second）</strong></li>
+</ol>
+<ul>
+<li><strong>每秒百万次浮点运算</strong>，衡量浮点计算能力。</li>
+<li>用于==科学计算的计算机中，是标志系统性能最有用的参数 ==</li>
+<li><strong>计算</strong>：$\text{MFLOPS} = \frac{\text{浮点操作总数}}{\text{执行时间} \times 10^6}$</li>
+<li>MFLOPS不能全面反映计算机系统的性能。MFLOPS仅反映浮点运算速度，其值与所使用的测试程序相关。不同测试程序中包含的浮点运算量不同，测试得到的结果也不相同。<br>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250327153330760.png" alt="image.png">GTPEZ<br>
+采用并行技术是实现高性能计算的重要途径，现今超级计算机均采用多处理器来增强并行处理能力。</li>
+</ul>
+<h3 id="指标间的关系与权衡"><strong>指标间的关系与权衡</strong></h3>
+<table>
+<thead>
+<tr>
+<th><strong>指标</strong></th>
+<th><strong>优化策略</strong></th>
+<th><strong>实际应用中的权衡</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>时钟频率</strong></td>
+<td>提高制程工艺、优化散热</td>
+<td>高频可能导致功耗和发热增加</td>
+</tr>
+<tr>
+<td><strong>CPI/IPC</strong></td>
+<td>改进微架构（如流水线、乱序执行）</td>
+<td>复杂架构可能增加设计成本和延迟</td>
+</tr>
+<tr>
+<td><strong>MIPS/MFLOPS</strong></td>
+<td>优化指令集、并行计算</td>
+<td>MIPS忽略指令类型差异，MFLOPS依赖任务特性</td>
+</tr>
+<tr>
+<td><strong>吞吐量 vs 响应时间</strong></td>
+<td>负载均衡、异步处理</td>
+<td>高吞吐量可能牺牲单任务响应速度</td>
+</tr>
+</tbody>
+</table>
+<h3 id="使用基准程序进行性能评估">使用基准程序进行性能评估</h3>
+<ul>
+<li>基准程序(Benchmark)是一组特定的程序，专门用于评测计算机的性能。</li>
+<li>这些程序能够有效地模拟计算机在处理实际任务时的表现。</li>
+<li>在不同计算机上运行同样的基准程序，通过比较各计算机运行基准程序的时间，从而评测它们各自的性能不同基准程序的评测重点不同，例如CPU性能、图形性能、存储性能、浮点数计算性能、并行计算性能等。目前国际上流行的基准程序主要有SPEC、Linpack、Dhrystone、Whetstone、NPB等。</li>
+<li>使用基准程序进行计算机性能评测也存在一些缺陷，因为基准程序的性能可能与某一小段的短代码密切相关，而硬件系统设计人员或编译器开发者可能针对这些代码片段进行特殊的优化，使得执行这段代码的速度非常快，以至于得不到准确的性能评测结果。</li>
+</ul>
+<p>衡量计算机系统性能是一项比较复杂的任务，很难仅凭借单一指标进行精确衡量。<br>
+上述一些衡量计算机性能的指标之间也不是完全独立的，改变其中一项指标可能会影响到其他指标。</p>
+<h2 id="第一章错题">第一章错题</h2>
+<ol>
+<li>
+<p>2017年公布的全球超级计算机TOP500排名中，我国“神威·太湖之光”超级计算机蝉联第其浮点运算速度为93.0146 PFLOPS，说明该计算机每秒钟内完成的浮点操作次数约为()<br>
+A. 9.3x1013次   B.9.3x1015次   c.9.3千万亿次   D.9.3亿亿次<br>
+d</p>
+</li>
+<li>
+<p>假定基准程序A在某计算机上的运行时间为100s，其中90s为CPU时间，其余为I/O时间。若CPU速度提高50%，I/0速度不变，则运行基准程序A所耗费的时间是()。A.55s   B. 60s   C.65s   D.70s<br>
+新CPU时间 = 原CPU时间 / 1.5 = 90秒 / 1.5 = 60秒<br>
+新总时间 = 新CPU时间 + I/O时间 = 60秒 + 10秒 = 70秒</p>
+</li>
+<li>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250327163149037.png" alt="image.png"></p>
+</li>
+<li>
+<p>有三种不同的处理器A,B和C执行同样的指令集，A的时钟频率为3GHz，CPI为1.5；B的时钟频率为2.5GHz，CPI为1.0；C的时钟频率为4GHz，CPI为2.2.<br>
+（1）以每秒钟执行的指令数目为标准，哪个处理器的性能最高？<br>
+（2）如果每个处理器执行一个程序都需花费10秒的时间，求它们的时钟周期数和指令数。<br>
+（3）我们试图把执行时间减少30%，但这会引起CPI增加20%。问：时钟频率应该是多少才能达到程序执行时间减少30%的目的？<br>
+(1)已知时钟频率和CPI，可以求MIPS反映性能，分别是2，2.5，1.82 GIPs。B最高<br>
+(2)时钟周期数=运行时间×f，时钟周期数分别是3，2.5，4 × 10^10<br>
+CPI=时钟周期数/指令条数，指令数分别是2，2.5，0.18 × 10^10<br>
+(3)原执行时间 ($T = \frac{\text{指令数} \times \text{CPI}}{\text{频率}}$)<br>
+新要求：$0.7T = \frac{\text{指令数} \times 1.2\text{CPI}}{\text{新频率}}$<br>
+解得：$\text{新频率} = \frac{1.2}{0.7} \times \text{原频率} \approx 1.714 \times \text{原频率}$<br>
+新频率需为1.71f</p>
+</li>
+<li>
+<p>CPU 不包括()<br>
+A.地址寄存器   B.地址译码器   C.指令寄存器(IR)   D.通用寄存器<br>
+CPU 主要包括 运算器（ALU、通用寄存器、状态寄存器） 和 控制器（IR、PC、CU）。地址译码器 属于存储器（如主存）的组成部分，用于将地址总线信号转换为对特定存储单元的访问，不属于 CPU 内部结构。</p>
+</li>
+<li>
+<p>在运算器中，不包含()<br>
+A.状态寄存器   B.数据总线   C. ALU   D.地址寄存器<br>
+数据总线在运算器中用于传输操作数，选d</p>
+</li>
+<li>
+<p>若一个8位的计算机系统以 16 位来表示地址，则该计算机系统有( )个地址空间<br>
+A.256   B.65535   C.65536   D. 131072<br>
+8 位计算机表明计算机字长为8位，即一次可以处理8位的数据；而 地址空间大小仅由地址位数决定，与数据总线宽度（8位）无关，16 位表示地址码的长度，因此该机器有2^6=65536 个地址空间。</p>
+</li>
+<li>
+<p>()是程序运行时的存储位置，包括所需的数据。<br>
+A.数据通路   B.主存   C.硬盘   D.操作系统<br>
+b</p>
+</li>
+<li>
+<p>机器 A 的主频为 800MHz，某程序在 A 上运行需要 12s。现在硬件设计人员想设计机器B,希望该程序在B上的运行时间能缩短为 8s，使用新技术后可使B的主频大幅度提高，但在B上运行该程序所需的时钟周期数为在A上的1.5倍。则机器B的主频至少应为( )。<br>
+时钟周期数=主频×运行时间<br>
+时钟周期数A=800M×12s     时钟周期数B=1.5×800M×12s<br>
+主频B=1.5×800M×12s / 8  = 1.8GHz</p>
+</li>
+<li>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/20250330210323965.png" alt="image.png">CPI1=2.5，CPI2=2，MIPS1=500×10^6 / 2.5×10^6=200，MIPS2=500×10^6 / 2×10^6=250；总周期 = Σ(指令条数 × CPI)，总周期1=15，总周期2=10，所以执行时间1=总时钟周期数×时钟周期=15×2ns=30ns，执行时间2=20ns，d</p>
+</li>
+<li>
+<p>若机器 M的主频为 1.5GHz，在 M 上执行程序P的指令条数为 5x10^5，P的平均 CPI为 1.2，则P在M 上的指令执行速度和用户 CPU 时间分别为( )。<br>
+A.08GIPS,0.4ms       B.08GIPS,0.4us<br>
+C.1.25GIPS,0.4ms    D. 1.25GIPS,0.4us<br>
+IPC指令执行速度=主频/CPI=1.5GHz/1.2=1.25GIPS<br>
+CPU时间=指令数×CPI/主频=5x10^5×1.2/1.5×10^9=0.4ms</p>
+</li>
+</ol>
+<div class="main-hero-waves-area"><div class="waves-area"><svg class="waves-svg" version="1.1" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 1440 140" preserveAspectRatio="none"><path class="parallax" d="M 0 44 C 355 167 415 0 725 44 L 725 44 L 0 44 Z"></path><use class="parallax" xlink:href="#wave1" x="48" y="3"></use><use class="parallax" xlink:href="#wave1" x="48" y="5"></use><use class="parallax" xlink:href="#wave1" x="48" y="7"></use><use class="parallax" xlink:href="#wave1" x="48" y="9"></use></svg></div></div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://labi.com">Lorinda</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://labi.com/post/c45d1e8a.html">http://labi.com/post/c45d1e8a.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="http://labi.com" target="_blank">蜡笔梦工厂</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E7%BB%84%E6%88%90%EF%BC%88%E7%A1%AC%E4%BB%B6-%E8%BD%AF%E4%BB%B6%EF%BC%89/">计算机系统组成（硬件/软件）</a><a class="post-meta__tags" href="/tags/%E4%BA%94%E5%A4%A7%E5%8A%9F%E8%83%BD%E9%83%A8%E4%BB%B6/">五大功能部件</a><a class="post-meta__tags" href="/tags/%E6%80%BB%E7%BA%BF%E7%B3%BB%E7%BB%9F%EF%BC%88%E5%9C%B0%E5%9D%80-%E6%95%B0%E6%8D%AE-%E6%8E%A7%E5%88%B6%E6%80%BB%E7%BA%BF%EF%BC%89/">总线系统（地址/数据/控制总线）</a><a class="post-meta__tags" href="/tags/%E6%8C%87%E4%BB%A4%E9%9B%86%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84%EF%BC%88ISA%EF%BC%89/">指令集体系结构（ISA）</a><a class="post-meta__tags" href="/tags/%E7%B3%BB%E7%BB%9F%E5%B1%82%E6%AC%A1%E7%BB%93%E6%9E%84/">系统层次结构</a></div><div class="post-share"><div class="social-share" data-image="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112813.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://lib.baomitu.com/social-share.js/1.0.16/css/share.min.css" media="print" onload="this.media='all'"><script src="https://lib.baomitu.com/social-share.js/1.0.16/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/post/b328aa63.html" title="第 1 章 操作系统概述：计算机系统基础"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112844.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">第 1 章 操作系统概述：计算机系统基础</div></div><div class="info-2"><div class="info-item-1">阐述操作系统的定义与核心功能，详解四大特征（并发 / 共享 / 虚拟 / 异步）、处理器运行模式及系统结构分类，介绍 OS 引导流程，奠定操作系统认知基础。</div></div></div></a><a class="pagination-related" href="/post/833e46bb.html" title="第 2 章 进程与线程：并发管理核心"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112844.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">第 2 章 进程与线程：并发管理核心</div></div><div class="info-2"><div class="info-item-1">讲解进程与线程的定义、状态转换及控制逻辑，分析进程调度策略，阐述进程同步互斥（PV 操作）与死锁的处理机制，是操作系统并发管理的核心。</div></div></div></a></nav><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="card-info-avatar"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_155535.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-status-box"><div class="author-status"><g-emoji class="g-emoji" alias="palm_tree" fallback-src="https://lskypro.acozycotage.net/LightPicture/2022/12/fe1dc0402e623096.jpg">🐟</g-emoji><span>认真摸鱼中</span></div></div></div><div class="author-info-name">Lorinda</div><div class="author-info-description">欢迎来到Lorinda的个人博客\^o^/</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">17</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">71</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">6</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://lr0513.github.io/"><i class="fab fa-github"></i><span>你回来了~</span><i class="faa-passing animated" style="padding-left:20px;display:inline-block;vertical-align:middle;"><svg class="icon" style="height:28px;width:28px;fill:currentColor;position:relative;top:5px"><use xlink:href="#icon-hexolabixiaoxin1"></use></svg></i></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content"></div><div id="welcome-info"></div></div><div class="xpand" style="height:200px;"><canvas class="illo" width="800" height="800" style="max-width: 200px; max-height: 200px; touch-action: none; width: 640px; height: 640px;"></canvas></div><script src="https://npm.elemecdn.com/ethan4116-blog/lib/js/other/two-people/twopeople1.js"></script><script src="https://npm.elemecdn.com/ethan4116-blog/lib/js/other/two-people/zdog.dist.js"></script><script id="rendered-js" src="https://npm.elemecdn.com/ethan4116-blog/lib/js/other/two-people/twopeople.js"></script><style>.card-widget.card-announcement {
+margin: 0;
+align-items: center;
+justify-content: center;
+text-align: center;
+}
+canvas {
+display: block;
+margin: 0 auto;
+cursor: move;
+}</style><div class="card-widget" id="newYear"><div class="item-headline"><i></i><span></span></div><div class="item-content"><div id="newYear-main"><div class="mask"></div> <p class="title"></p> <div class="newYear-time"></div> <p class="today" style="text-align: right;"></p> </div></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">计算机系统概述</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E7%9A%84%E7%BB%84%E6%88%90"><span class="toc-number">1.1.</span> <span class="toc-text">计算机系统的组成</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%9A%84%E5%8F%91%E5%B1%95"><span class="toc-number">1.2.</span> <span class="toc-text">计算机的发展</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A1%AC%E4%BB%B6%E7%9A%84%E5%8F%91%E5%B1%95"><span class="toc-number">1.2.1.</span> <span class="toc-text">计算机硬件的发展</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%BD%AF%E4%BB%B6%E7%9A%84%E5%8F%91%E5%B1%95"><span class="toc-number">1.2.2.</span> <span class="toc-text">计算机软件的发展</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A1%AC%E4%BB%B6"><span class="toc-number">1.3.</span> <span class="toc-text">计算机硬件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9B%B8%E5%85%B3%E6%9C%AF%E8%AF%AD"><span class="toc-number">1.3.1.</span> <span class="toc-text">相关术语</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%B1%82%E6%AC%A1%E7%BB%93%E6%9E%84"><span class="toc-number">1.4.</span> <span class="toc-text">计算机系统的层次结构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AD%98%E5%82%A8%E8%BF%87%E7%A8%8B"><span class="toc-number">1.4.1.</span> <span class="toc-text">存储过程</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%9A%84%E5%9F%BA%E6%9C%AC%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="toc-number">1.5.</span> <span class="toc-text">计算机的基本工作原理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A1%AC%E4%BB%B6%E7%BB%84%E6%88%90%E7%9A%84%E7%BB%86%E5%8C%96"><span class="toc-number">1.5.1.</span> <span class="toc-text">计算机硬件组成的细化</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8A%A0%E5%87%8F%E4%B9%98%E9%99%A4%E6%93%8D%E4%BD%9C"><span class="toc-number">1.5.1.1.</span> <span class="toc-text">加减乘除操作</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E5%8F%96%E6%8C%87%E4%BB%A4%E9%98%B6%E6%AE%B5"><span class="toc-number">1.5.1.2.</span> <span class="toc-text">1. 取指令阶段</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E5%88%86%E6%9E%90%E6%8C%87%E4%BB%A4%E9%98%B6%E6%AE%B5"><span class="toc-number">1.5.1.3.</span> <span class="toc-text">2. 分析指令阶段</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E6%89%A7%E8%A1%8C%E6%8C%87%E4%BB%A4%E9%98%B6%E6%AE%B5"><span class="toc-number">1.5.1.4.</span> <span class="toc-text">3. 执行指令阶段</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81%E6%8C%87%E4%BB%A4"><span class="toc-number">1.5.2.</span> <span class="toc-text">常见指令</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#1-LAD-X-ACC-%E7%9A%84%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B"><span class="toc-number">1.5.2.0.1.</span> <span class="toc-text">1. LAD X, ACC 的执行流程</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2-SUB-ACC-Z-%E7%9A%84%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B"><span class="toc-number">1.5.2.0.2.</span> <span class="toc-text">2. SUB ACC, Z 的执行流程</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#1-%E6%93%8D%E4%BD%9C%E6%95%B0%E7%9A%84%E5%8A%A0%E8%BD%BD%E6%98%AF%E5%90%A6%E5%BF%85%E9%A1%BB%E9%80%9A%E8%BF%87%E4%B8%BB%E5%AD%98%EF%BC%9F"><span class="toc-number">1.5.2.0.3.</span> <span class="toc-text">1. 操作数的加载是否必须通过主存？</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2-%E5%8A%A0%E6%B3%95%E5%AE%9E%E4%BE%8B"><span class="toc-number">1.5.2.0.4.</span> <span class="toc-text">2. 加法实例</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3-%E4%B9%98%E6%B3%95%E5%AE%9E%E4%BE%8B"><span class="toc-number">1.5.2.0.5.</span> <span class="toc-text">3. 乘法实例</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#4-%E9%99%A4%E6%B3%95%E5%AE%9E%E4%BE%8B"><span class="toc-number">1.5.2.0.6.</span> <span class="toc-text">4. 除法实例</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E7%9A%84%E6%80%A7%E8%83%BD%E6%8C%87%E6%A0%87"><span class="toc-number">1.6.</span> <span class="toc-text">计算机系统的性能指标</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A1%AC%E4%BB%B6%E7%9B%B8%E5%85%B3%E6%80%A7%E8%83%BD%E6%8C%87%E6%A0%87"><span class="toc-number">1.6.1.</span> <span class="toc-text">计算机硬件相关性能指标</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E6%80%A7%E8%83%BD%E6%8C%87%E6%A0%87"><span class="toc-number">1.6.1.1.</span> <span class="toc-text">基本性能指标</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%8E%E8%BF%90%E8%A1%8C%E9%80%9F%E5%BA%A6%E7%9B%B8%E5%85%B3%E7%9A%84%E6%80%A7%E8%83%BD%E6%8C%87%E6%A0%87"><span class="toc-number">1.6.1.2.</span> <span class="toc-text">与运行速度相关的性能指标</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8C%87%E6%A0%87%E9%97%B4%E7%9A%84%E5%85%B3%E7%B3%BB%E4%B8%8E%E6%9D%83%E8%A1%A1"><span class="toc-number">1.6.2.</span> <span class="toc-text">指标间的关系与权衡</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E5%9F%BA%E5%87%86%E7%A8%8B%E5%BA%8F%E8%BF%9B%E8%A1%8C%E6%80%A7%E8%83%BD%E8%AF%84%E4%BC%B0"><span class="toc-number">1.6.3.</span> <span class="toc-text">使用基准程序进行性能评估</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AC%AC%E4%B8%80%E7%AB%A0%E9%94%99%E9%A2%98"><span class="toc-number">1.7.</span> <span class="toc-text">第一章错题</span></a></li></ol></li></ol></div></div><div class="card-widget card-post-series"><div class="item-headline"><i class="fa-solid fa-layer-group"></i><span>系列文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/post/g86c4e7a.html" title="第 7 章 计算机系统结构"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112650.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 7 章 计算机系统结构"></a><div class="content"><a class="title" href="/post/g86c4e7a.html" title="第 7 章 计算机系统结构">第 7 章 计算机系统结构</a><time datetime="2025-08-28T21:20:00.000Z" title="发表于 2025-08-29 05:20:00">2025-08-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/f75b3d6f.html" title="第 6 章 输入输出系统"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112844.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 6 章 输入输出系统"></a><div class="content"><a class="title" href="/post/f75b3d6f.html" title="第 6 章 输入输出系统">第 6 章 输入输出系统</a><time datetime="2025-08-28T21:19:00.000Z" title="发表于 2025-08-29 05:19:00">2025-08-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/169339cb.html" title="第 5 章 输入输出管理：设备协同与优化"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112844.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 5 章 输入输出管理：设备协同与优化"></a><div class="content"><a class="title" href="/post/169339cb.html" title="第 5 章 输入输出管理：设备协同与优化">第 5 章 输入输出管理：设备协同与优化</a><time datetime="2025-08-28T21:18:00.000Z" title="发表于 2025-08-29 05:18:00">2025-08-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/d64a2c5e.html" title="第 5 章 中央处理器"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_155656.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 5 章 中央处理器"></a><div class="content"><a class="title" href="/post/d64a2c5e.html" title="第 5 章 中央处理器">第 5 章 中央处理器</a><time datetime="2025-08-28T21:18:00.000Z" title="发表于 2025-08-29 05:18:00">2025-08-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/790dfc8c.html" title="第 4 章 文件管理：存储与访问机制"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112650.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 4 章 文件管理：存储与访问机制"></a><div class="content"><a class="title" href="/post/790dfc8c.html" title="第 4 章 文件管理：存储与访问机制">第 4 章 文件管理：存储与访问机制</a><time datetime="2025-08-28T21:17:00.000Z" title="发表于 2025-08-29 05:17:00">2025-08-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/b93e5f6d.html" title="第 4 章 指令系统"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112758.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 4 章 指令系统"></a><div class="content"><a class="title" href="/post/b93e5f6d.html" title="第 4 章 指令系统">第 4 章 指令系统</a><time datetime="2025-08-28T21:17:00.000Z" title="发表于 2025-08-29 05:17:00">2025-08-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/ce20e5e9.html" title="第 3 章 内存管理：地址映射与虚拟内存"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112813.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 3 章 内存管理：地址映射与虚拟内存"></a><div class="content"><a class="title" href="/post/ce20e5e9.html" title="第 3 章 内存管理：地址映射与虚拟内存">第 3 章 内存管理：地址映射与虚拟内存</a><time datetime="2025-08-28T21:16:00.000Z" title="发表于 2025-08-29 05:16:00">2025-08-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/a81d4c7b.html" title="第 3 章 存储系统"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112813.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 3 章 存储系统"></a><div class="content"><a class="title" href="/post/a81d4c7b.html" title="第 3 章 存储系统">第 3 章 存储系统</a><time datetime="2025-08-28T21:16:00.000Z" title="发表于 2025-08-29 05:16:00">2025-08-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/e72f3b9c.html" title="第 2 章 数据的表示与计算"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112855.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 2 章 数据的表示与计算"></a><div class="content"><a class="title" href="/post/e72f3b9c.html" title="第 2 章 数据的表示与计算">第 2 章 数据的表示与计算</a><time datetime="2025-08-28T21:15:00.000Z" title="发表于 2025-08-29 05:15:00">2025-08-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/833e46bb.html" title="第 2 章 进程与线程：并发管理核心"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112844.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 2 章 进程与线程：并发管理核心"></a><div class="content"><a class="title" href="/post/833e46bb.html" title="第 2 章 进程与线程：并发管理核心">第 2 章 进程与线程：并发管理核心</a><time datetime="2025-08-28T21:15:00.000Z" title="发表于 2025-08-29 05:15:00">2025-08-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/c45d1e8a.html" title="第 1 章 计算机系统概述"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112813.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 1 章 计算机系统概述"></a><div class="content"><a class="title" href="/post/c45d1e8a.html" title="第 1 章 计算机系统概述">第 1 章 计算机系统概述</a><time datetime="2025-08-28T21:14:00.000Z" title="发表于 2025-08-29 05:14:00">2025-08-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/b328aa63.html" title="第 1 章 操作系统概述：计算机系统基础"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112844.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 1 章 操作系统概述：计算机系统基础"></a><div class="content"><a class="title" href="/post/b328aa63.html" title="第 1 章 操作系统概述：计算机系统基础">第 1 章 操作系统概述：计算机系统基础</a><time datetime="2025-08-28T21:14:00.000Z" title="发表于 2025-08-29 05:14:00">2025-08-29</time></div></div></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/post/g86c4e7a.html" title="第 7 章 计算机系统结构"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112650.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 7 章 计算机系统结构"/></a><div class="content"><a class="title" href="/post/g86c4e7a.html" title="第 7 章 计算机系统结构">第 7 章 计算机系统结构</a><time datetime="2025-08-28T21:20:00.000Z" title="发表于 2025-08-29 05:20:00">2025-08-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/f75b3d6f.html" title="第 6 章 输入输出系统"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112844.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 6 章 输入输出系统"/></a><div class="content"><a class="title" href="/post/f75b3d6f.html" title="第 6 章 输入输出系统">第 6 章 输入输出系统</a><time datetime="2025-08-28T21:19:00.000Z" title="发表于 2025-08-29 05:19:00">2025-08-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/169339cb.html" title="第 5 章 输入输出管理：设备协同与优化"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112844.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 5 章 输入输出管理：设备协同与优化"/></a><div class="content"><a class="title" href="/post/169339cb.html" title="第 5 章 输入输出管理：设备协同与优化">第 5 章 输入输出管理：设备协同与优化</a><time datetime="2025-08-28T21:18:00.000Z" title="发表于 2025-08-29 05:18:00">2025-08-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/d64a2c5e.html" title="第 5 章 中央处理器"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_155656.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 5 章 中央处理器"/></a><div class="content"><a class="title" href="/post/d64a2c5e.html" title="第 5 章 中央处理器">第 5 章 中央处理器</a><time datetime="2025-08-28T21:18:00.000Z" title="发表于 2025-08-29 05:18:00">2025-08-29</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/790dfc8c.html" title="第 4 章 文件管理：存储与访问机制"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112650.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第 4 章 文件管理：存储与访问机制"/></a><div class="content"><a class="title" href="/post/790dfc8c.html" title="第 4 章 文件管理：存储与访问机制">第 4 章 文件管理：存储与访问机制</a><time datetime="2025-08-28T21:17:00.000Z" title="发表于 2025-08-29 05:17:00">2025-08-29</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2025  <i id="heartbeat" class="fa fas fa-heartbeat"></i> By Lorinda</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">I wish you to become your own sun, no need to rely on who's light.<p><a target="_blank" href="https://hexo.io/"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img.shields.io/badge/Frame-Hexo-blue?style=flat&logo=hexo" title="博客框架为Hexo"></a>&nbsp;<a target="_blank" href="https://butterfly.js.org/"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img.shields.io/badge/Theme-Butterfly-6513df?style=flat&logo=bitdefender" title="主题采用butterfly"></a>&nbsp;<a target="_blank" href="https://www.jsdelivr.com/"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img.shields.io/badge/CDN-jsDelivr-orange?style=flat&logo=jsDelivr" title="本站使用JsDelivr为静态资源提供CDN加速"></a> &nbsp;<a target="_blank" href="https://vercel.com/ "><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img.shields.io/badge/Hosted-Vervel-brightgreen?style=flat&logo=Vercel" title="本站采用双线部署，默认线路托管于Vercel"></a>&nbsp;<a target="_blank" href="https://vercel.com/ "><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img.shields.io/badge/Hosted-Coding-0cedbe?style=flat&logo=Codio" title="本站采用双线部署，联通线路托管于Coding"></a>&nbsp;<a target="_blank" href="https://github.com/"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img.shields.io/badge/Source-Github-d021d6?style=flat&logo=GitHub" title="本站项目由Gtihub托管"></a>&nbsp;<a target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img.shields.io/badge/Copyright-BY--NC--SA%204.0-d42328?style=flat&logo=Claris" title="本站采用知识共享署名-非商业性使用-相同方式共享4.0国际许可协议进行许可"></a></p></div></div><div class="js-pjax" id="rightMenu"><div class="rightMenu-group rightMenu-small"><a class="rightMenu-item" href="javascript:window.history.back();"><i class="fa fa-arrow-left"></i></a><a class="rightMenu-item" href="javascript:window.history.forward();"><i class="fa fa-arrow-right"></i></a><a class="rightMenu-item" href="javascript:window.location.reload();"><i class="fa fa-refresh"></i></a><a class="rightMenu-item" href="javascript:rmf.scrollToTop();"><i class="fa fa-arrow-up"></i></a></div><div class="rightMenu-group rightMenu-line hide" id="menu-text"><a class="rightMenu-item" href="javascript:rmf.copySelect();"><i class="fa fa-copy"></i><span>复制</span></a><a class="rightMenu-item" href="javascript:window.open(&quot;https://www.baidu.com/s?wd=&quot;+window.getSelection().toString());window.location.reload();"><i class="fa fa-search"></i><span>百度搜索</span></a></div><div class="rightMenu-group rightMenu-line hide" id="menu-too"><a class="rightMenu-item" href="javascript:window.open(window.getSelection().toString());window.location.reload();"><i class="fa fa-link"></i><span>转到链接</span></a></div><div class="rightMenu-group rightMenu-line hide" id="menu-paste"><a class="rightMenu-item" href="javascript:rmf.paste()"><i class="fa fa-copy"></i><span>粘贴</span></a></div><div class="rightMenu-group rightMenu-line hide" id="menu-post"><a class="rightMenu-item" href="javascript:rmf.copyWordsLink()"><i class="fa fa-link"></i><span>复制本文地址</span></a></div><div class="rightMenu-group rightMenu-line hide" id="menu-to"><a class="rightMenu-item" href="javascript:rmf.openWithNewTab()"><i class="fa fa-window-restore"></i><span>新窗口打开</span></a><a class="rightMenu-item" id="menu-too" href="javascript:rmf.open()"><i class="fa fa-link"></i><span>转到链接</span></a><a class="rightMenu-item" href="javascript:rmf.copyLink()"><i class="fa fa-copy"></i><span>复制链接</span></a></div><div class="rightMenu-group rightMenu-line hide" id="menu-img"><a class="rightMenu-item" href="javascript:rmf.saveAs()"><i class="fa fa-download"></i><span>保存图片</span></a><a class="rightMenu-item" href="javascript:rmf.openWithNewTab()"><i class="fa fa-window-restore"></i><span>在新窗口打开</span></a><a class="rightMenu-item" href="javascript:rmf.copyLink()"><i class="fa fa-copy"></i><span>复制图片链接</span></a></div><div class="rightMenu-group rightMenu-line"><a class="rightMenu-item" href="javascript:randomPost()"><i class="fa fa-paper-plane"></i><span>随便逛逛</span></a><a class="rightMenu-item" href="javascript:switchNightMode();"><i class="fa fa-moon"></i><span>昼夜切换</span></a><a class="rightMenu-item" href="javascript:rmf.switchReadMode();"><i class="fa fa-book"></i><span>阅读模式</span></a><a class="rightMenu-item" href="/about/"><i class="fa fa-info-circle"></i><span>关于博客</span></a><a class="rightMenu-item" href="javascript:rmf.fullScreen();"><i class="fas fa-expand"></i><span>切换全屏</span></a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><a class="icon-V hidden" onclick="switchNightMode()" title="日间和夜间模式切换"><svg width="25" height="25" viewBox="0 0 1024 1024"><use id="modeicon" xlink:href="#icon-moon"></use></svg></a><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="to_comment" type="button" title="前往评论" onclick="FixedCommentBtn();"><i class="fas fa-comments"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i><span id="percent">0<span>%</span></span></button><button id="go-down" type="button" title="直达底部" onclick="btf.scrollToDest(document.body.scrollHeight, 500)"><i class="fas fa-arrow-down"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page@5.1.0/instantpage.min.js" type="module"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-lazyload/19.1.3/lazyload.iife.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/node-snackbar/0.1.16/snackbar.min.js"></script><script>(() => {
+  const panguFn = () => {
+    if (typeof pangu === 'object') pangu.autoSpacingPage()
+    else {
+      btf.getScript('https://cdnjs.cloudflare.com/ajax/libs/pangu/4.0.7/pangu.min.js')
+        .then(() => {
+          pangu.autoSpacingPage()
+        })
+    }
+  }
+
+  const panguInit = () => {
+    if (false){
+      GLOBAL_CONFIG_SITE.isPost && panguFn()
+    } else {
+      panguFn()
+    }
+  }
+
+  btf.addGlobalFn('pjaxComplete', panguInit, 'pangu')
+  document.addEventListener('DOMContentLoaded', panguInit)
+})()</script><div class="js-pjax"><script>(() => {
+  const runMermaid = ele => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    ele.forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = `%%{init:{ 'theme':'${theme}'}}%%\n`
+      const mermaidID = `mermaid-${index}`
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+      const renderMermaid = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      // mermaid v9 and v10 compatibility
+      typeof renderFn === 'string' ? renderMermaid(renderFn) : renderFn.then(({ svg }) => renderMermaid(svg))
+    })
+  }
+
+  const codeToMermaid = () => {
+    const codeMermaidEle = document.querySelectorAll('pre > code.mermaid')
+    if (codeMermaidEle.length === 0) return
+
+    codeMermaidEle.forEach(ele => {
+      const preEle = document.createElement('pre')
+      preEle.className = 'mermaid-src'
+      preEle.hidden = true
+      preEle.textContent = ele.textContent
+      const newEle = document.createElement('div')
+      newEle.className = 'mermaid-wrap'
+      newEle.appendChild(preEle)
+      ele.parentNode.replaceWith(newEle)
+    })
+  }
+
+  const loadMermaid = () => {
+    if (true) codeToMermaid()
+    const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+    if ($mermaid.length === 0) return
+
+    const runMermaidFn = () => runMermaid($mermaid)
+    btf.addGlobalFn('themeChange', runMermaidFn, 'mermaid')
+    window.loadMermaid ? runMermaidFn() : btf.getScript('https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.4.0/mermaid.min.js').then(runMermaidFn)
+  }
+
+  btf.addGlobalFn('encrypt', loadMermaid, 'mermaid')
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script><script>(() => {
+  const isShuoshuo = GLOBAL_CONFIG_SITE.isShuoshuo
+  const option = null
+
+  const getCount = () => {
+    const countELement = document.getElementById('twikoo-count')
+    if(!countELement) return
+    twikoo.getCommentsCount({
+      envId: 'https://twikoo-api-three-beta.vercel.app/',
+      region: 'ap-beijing',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(res => {
+      countELement.textContent = res[0].count
+    }).catch(err => {
+      console.error(err)
+    })
+  }
+
+  const init = (el = document, path = location.pathname) => {
+    twikoo.init({
+      el: el.querySelector('#twikoo-wrap'),
+      envId: 'https://twikoo-api-three-beta.vercel.app/',
+      region: 'ap-beijing',
+      onCommentLoaded: () => {
+        btf.loadLightbox(document.querySelectorAll('#twikoo .tk-content img:not(.tk-owo-emotion)'))
+      },
+      ...option,
+      path: isShuoshuo ? path : (option && option.path) || path
+    })
+
+    
+
+    isShuoshuo && (window.shuoshuoComment.destroyTwikoo = () => {
+      if (el.children.length) {
+        el.innerHTML = ''
+        el.classList.add('no-comment')
+      }
+    })
+  }
+
+  const loadTwikoo = (el, path) => {
+    if (typeof twikoo === 'object') setTimeout(() => init(el, path), 0)
+    else btf.getScript('https://cdn.staticfile.org/twikoo/1.6.8/twikoo.all.min.js').then(() => init(el, path))
+  }
+
+  if (isShuoshuo) {
+    'Twikoo' === 'Twikoo'
+      ? window.shuoshuoComment = { loadComment: loadTwikoo }
+      : window.loadOtherComment = loadTwikoo
+    return
+  }
+
+  if ('Twikoo' === 'Twikoo' || !false) {
+    if (false) btf.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else loadTwikoo()
+  } else {
+    window.loadOtherComment = loadTwikoo
+  }
+})()</script></div><script async src="//at.alicdn.com/t/c/font_4860073_9duzoqyl2cn.js"></script><script defer data-pjax src="/js/readPercent.js"></script><script src="/js/pagination-jump.js"></script><script async src="/js/fps.js"></script><script async data-pjax src="/js/txmap.js"></script><script defer type="text/javascript" src="https://cdn1.tianli0.top/npm/sweetalert2@8.19.0/dist/sweetalert2.all.js"></script><script async data-pjax src="/js/music.js"></script><script defer src="/js/lunar.js"></script><script async src="https://cdn1.tianli0.top/npm/vue@2.6.14/dist/vue.min.js"></script><script async src="https://cdn1.tianli0.top/npm/element-ui@2.15.6/lib/index.js"></script><script type="text/javascript" src="https://cdn1.tianli0.top/npm/jquery@latest/dist/jquery.min.js"></script><script> let backimg =["url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/d42bcc24810cda2c22eaed769b79a93.jpg)","url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/2f5e89ae13329dd89bdcdbfc68c5fde.jpg)","url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/48b137c38cc79ad960ecf2a9a12fc20.jpg)","url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/4474312751631fedb37381e37cdb9c0.jpg)","url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/be978bd80f41d2781455513ba1676a2.jpg)","url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/a01223e0819746191dd135670a2d7da.jpg)","url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/af380cb8a5ed3f047e66dbfe731f488.jpg)"];let index = Math.floor(Math.random() * backimg.length);;document.getElementById("web_bg").style.backgroundImage = backimg[index]</script><script type="text/javascript" src="/js/rightmenu.js"></script><script src="/js/history.js"></script><script src="/js/historyroll.js"></script><script async src="//at.alicdn.com/t/font_2264842_3izu8i5eoc2.js"></script><script defer src="/js/day.js"></script><script async src="/js/title.js"></script><script defer src="/js/random.js"></script><canvas id="universe"></canvas><script defer src="/js/universe.js"></script><script async src="//npm.elemecdn.com/pace-js@1.2.4/pace.min.js"></script><script src="/js/sun_moon.js" async></script><script>
+  document.addEventListener('copy', function(e) {
+    const selection = window.getSelection().toString()
+    if (selection.length > 30) {
+      const notice = document.createElement('div')
+      notice.className = 'copy-notification'
+      notice.textContent = '内容已复制到剪贴板'
+
+      document.body.appendChild(notice)
+      setTimeout(() => notice.classList.add('show'), 10)
+
+      setTimeout(() => {
+        notice.classList.remove('show')
+        setTimeout(() => notice.remove(), 300)
+      }, 2000)
+    }
+  })
+</script>
+<div class="aplayer no-destroy" data-id="7338633309" data-server="netease" data-type="playlist" data-fixed="true" data-mini="true" data-listFolded="false" data-order="random" data-lrctype="1" data-preload="none" data-autoplay="true" muted></div><script src="https://cdn.staticfile.org/jquery/3.6.3/jquery.min.js"></script><script async data-pjax src="https://cdn.wpon.cn/2022-sucai/Gold-ingot.js"></script><script async data-pjax src="/js/newYear.js"></script><script id="canvas_nest" defer="defer" color="0,0,255" opacity="0.7" zIndex="-1" count="30" mobile="false" src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/canvas-nest.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = false;
+POWERMODE.mobile = true;
+document.body.addEventListener('input', POWERMODE);
+</script><script id="click-show-text" src="https://cdnjs.cloudflare.com/ajax/libs/butterfly-extsrc/1.1.4/click-show-text.min.js" data-mobile="false" data-text="Ha,Ha,Ha" data-fontsize="15px" data-random="false" async="async"></script><script>(() => {
+  const isChatBtn = true
+  const isChatHideShow = true
+
+  if (isChatBtn) {
+    const close = () => {
+      Chatra('minimizeWidget')
+      Chatra('hide')
+    }
+
+    const open = () => {
+      Chatra('openChat', true)
+      Chatra('show')
+    }
+
+    window.ChatraSetup = { startHidden: true }
+  
+    window.chatBtnFn = () => {
+      document.getElementById('chatra').classList.contains('chatra--expanded') ? close() : open()
+    }
+  } else if (isChatHideShow) {
+    window.chatBtn = {
+      hide: () => Chatra('hide'),
+      show: () => Chatra('show')
+    }
+  }
+
+  (function(d, w, c) {
+    w.ChatraID = 'E3NZpK6rk4cR7jmwK'
+    var s = d.createElement('script')
+    w[c] = w[c] || function() {
+      (w[c].q = w[c].q || []).push(arguments)
+    }
+    s.async = true
+    s.src = 'https://call.chatra.io/chatra.js'
+    if (d.head) d.head.appendChild(s)
+  })(document, window, 'Chatra')
+})()</script><link rel="stylesheet" href="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/aplayer/1.10.1/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/aplayer/1.10.1/APlayer.min.js"></script><script src="https://npm.elemecdn.com/hexo-anzhiyu-music@1.0.1/assets/js/Meting2.min.js"></script><script>(() => {
+  const destroyAplayer = () => {
+    if (window.aplayers) {
+      for (let i = 0; i < window.aplayers.length; i++) {
+        if (!window.aplayers[i].options.fixed) {
+          window.aplayers[i].destroy()
+        }
+      }
+    }
+  }
+
+  const runMetingJS = () => {
+    typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+  }
+
+  btf.addGlobalFn('pjaxSend', destroyAplayer, 'destroyAplayer')
+  btf.addGlobalFn('pjaxComplete', loadMeting, 'runMetingJS')
+})()</script><script src="https://lib.baomitu.com/pjax/0.2.8/pjax.min.js"></script><script>(() => {
+  const pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+  window.pjax = new Pjax({
+    elements: 'a:not([target="_blank"]):not([href="/music/"]):not([href="/no-pjax/"])',
+    selectors: pjaxSelectors,
+    cacheBust: false,
+    analytics: false,
+    scrollRestoration: false
+  })
+
+  const triggerPjaxFn = (val) => {
+    if (!val) return
+    Object.values(val).forEach(fn => fn())
+  }
+
+  document.addEventListener('pjax:send', () => {
+    // removeEventListener
+    btf.removeGlobalFnEvent('pjaxSendOnce')
+    btf.removeGlobalFnEvent('themeChange')
+
+    // reset readmode
+    const $bodyClassList = document.body.classList
+    if ($bodyClassList.contains('read-mode')) $bodyClassList.remove('read-mode')
+
+    triggerPjaxFn(window.globalFn.pjaxSend)
+  })
+
+  document.addEventListener('pjax:complete', () => {
+    btf.removeGlobalFnEvent('pjaxCompleteOnce')
+    document.querySelectorAll('script[data-pjax]').forEach(item => {
+      const newScript = document.createElement('script')
+      const content = item.text || item.textContent || item.innerHTML || ""
+      Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+      newScript.appendChild(document.createTextNode(content))
+      item.parentNode.replaceChild(newScript, item)
+    })
+
+    triggerPjaxFn(window.globalFn.pjaxComplete)
+  })
+
+  document.addEventListener('pjax:error', e => {
+    if (e.request.status === 404) {
+      pjax.loadUrl('/404.html')
+    }
+  })
+})()</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div><!-- hexo injector body_end start --><script data-pjax>
+    function butterfly_categories_card_injector_config(){
+      var parent_div_git = document.getElementsByClassName('recent-posts')[0];
+      var item_html = '<div class="recent-post-item" style="height:auto;width:100%;padding:0px;"><div id="categoryBar"><ul class="categoryBar-list"><li class="categoryBar-list-item" style="background:url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_155818.png);"> <a class="categoryBar-list-link" onclick="pjax.loadUrl(&quot;categories/技术栈/&quot;);" href="javascript:void(0);">技术栈</a><span class="categoryBar-list-count">1</span><span class="categoryBar-list-descr">java指南</span></li><li class="categoryBar-list-item" style="background:url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112813.png);"> <a class="categoryBar-list-link" onclick="pjax.loadUrl(&quot;categories/计算机基础/&quot;);" href="javascript:void(0);">计算机基础</a><span class="categoryBar-list-count">2</span><span class="categoryBar-list-descr">java技术栈</span></li><li class="categoryBar-list-item" style="background:url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112758.png);"> <a class="categoryBar-list-link" onclick="pjax.loadUrl(&quot;categories/计算机基础/专业课/&quot;);" href="javascript:void(0);">专业课</a><span class="categoryBar-list-count">1</span><span class="categoryBar-list-descr">计算机基础指南</span></li><li class="categoryBar-list-item" style="background:url(https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/4e357962b00044466380f6850a120ec.jpg);"> <a class="categoryBar-list-link" onclick="pjax.loadUrl(&quot;categories/编程语言/&quot;);" href="javascript:void(0);">编程语言</a><span class="categoryBar-list-count">2</span><span class="categoryBar-list-descr">专业课</span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" onclick="pjax.loadUrl(&quot;categories/操作系统/&quot;);" href="javascript:void(0);">操作系统</a><span class="categoryBar-list-count">5</span><span class="categoryBar-list-descr"></span></li><li class="categoryBar-list-item" style="background:url(undefined);"> <a class="categoryBar-list-link" onclick="pjax.loadUrl(&quot;categories/计算机组成原理/&quot;);" href="javascript:void(0);">计算机组成原理</a><span class="categoryBar-list-count">7</span><span class="categoryBar-list-descr"></span></li></ul></div></div>';
+      console.log('已挂载butterfly_categories_card')
+      parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+      }
+    if( document.getElementsByClassName('recent-posts')[0] && (location.pathname ==='/'|| '/' ==='all')){
+    butterfly_categories_card_injector_config()
+    }
+  </script><script data-pjax>
+  function butterfly_clock_anzhiyu_injector_config(){
+    var parent_div_git = document.getElementsByClassName('sticky_layout')[0];
+    var item_html = '<div class="card-widget card-clock"><div class="card-glass"><div class="card-background"><div class="card-content"><div id="hexo_electric_clock"><img class="entered loading" id="card-clock-loading" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://cdn.cbd.int/hexo-butterfly-clock-anzhiyu/lib/loading.gif" style="height: 120px; width: 100%;" data-ll-status="loading"/></div></div></div></div></div>';
+    console.log('已挂载butterfly_clock_anzhiyu')
+    if(parent_div_git) {
+      parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+    }
+  }
+  var elist = 'null'.split(',');
+  var cpage = location.pathname;
+  var epage = '/';
+  var qweather_key = '9aac1b5db191491a8993c445d664de8f';
+  var gaud_map_key = '3cc01a5a19f500daa0e9e680ef0f6db2';
+  var baidu_ak_key = 'undefined';
+  var flag = 0;
+  var clock_rectangle = '120.780172,40.624088';
+  var clock_default_rectangle_enable = 'false';
+
+  for (var i=0;i<elist.length;i++){
+    if (cpage.includes(elist[i])){
+      flag++;
+    }
+  }
+
+  if ((epage ==='all')&&(flag == 0)){
+    butterfly_clock_anzhiyu_injector_config();
+  }
+  else if (epage === cpage){
+    butterfly_clock_anzhiyu_injector_config();
+  }
+  </script><script src="https://widget.qweather.net/simple/static/js/he-simple-common.js?v=2.0"></script><script data-pjax src="https://cdn.cbd.int/hexo-butterfly-clock-anzhiyu/lib/clock.min.js"></script><script data-pjax>
+  function butterfly_swiper_injector_config(){
+    var parent_div_git = document.getElementById('recent-posts');
+    var item_html = '<div class="recent-post-item" style="height: auto;width: 100%"><div class="blog-slider swiper-container-fade swiper-container-horizontal" id="swiper_container"><div class="blog-slider__wrp swiper-wrapper" style="transition-duration: 0ms;"><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/g86c4e7a.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112650.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-08-29</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/g86c4e7a.html&quot;);" href="javascript:void(0);" alt="">第 7 章 计算机系统结构</a><div class="blog-slider__text">阐述计算机系统结构的基本概念，分析并行处理技术的实现方式，详解存储层次的优化策略，介绍系统性能的评价指标与方法。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/g86c4e7a.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/f75b3d6f.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112844.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-08-29</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/f75b3d6f.html&quot;);" href="javascript:void(0);" alt="">第 6 章 输入输出系统</a><div class="blog-slider__text">介绍I/O设备的分类与特性，详解程序查询、中断与DMA三种控制方式，分析中断系统的处理机制，理解设备与主机的信息交换过程。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/f75b3d6f.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/d64a2c5e.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2024_1123_155656.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-08-29</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/d64a2c5e.html&quot;);" href="javascript:void(0);" alt="">第 5 章 中央处理器</a><div class="blog-slider__text">详解CPU的功能组成与工作原理，分析时序系统的作用，对比微程序与硬布线控制方式，介绍流水线技术的性能优化机制。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/d64a2c5e.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/b93e5f6d.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112758.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-08-29</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/b93e5f6d.html&quot;);" href="javascript:void(0);" alt="">第 4 章 指令系统</a><div class="blog-slider__text">详解指令的基本格式与寻址方式，对比CISC与RISC体系结构特点，分析指令的执行流程，理解指令系统对硬件的适配关系。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/b93e5f6d.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/a81d4c7b.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112813.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-08-29</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/a81d4c7b.html&quot;);" href="javascript:void(0);" alt="">第 3 章 存储系统</a><div class="blog-slider__text">分析存储系统的层次结构设计，详解主存储器的组成与工作流程，阐述Cache的映射方式与替换策略，介绍存储器性能优化方法。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/a81d4c7b.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/e72f3b9c.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112855.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-08-29</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/e72f3b9c.html&quot;);" href="javascript:void(0);" alt="">第 2 章 数据的表示与计算</a><div class="blog-slider__text">详解数制转换规则，阐述定点数与浮点数的表示方法，分析补码运算机制，介绍ALU的功能与实现，掌握数据在计算机中的处理方式。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/e72f3b9c.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/bae4ff13.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112626.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-03-12</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/bae4ff13.html&quot;);" href="javascript:void(0);" alt="">Redis</a><div class="blog-slider__text">Redis 作为内存 NoSQL 数据库的定位，支持 String/Hash 等多数据结构，具备 RDB/AOF 持久化与主从高可用，核心用于缓存、分布式锁，性能高效。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/bae4ff13.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/833e46bb.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112844.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-08-29</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/833e46bb.html&quot;);" href="javascript:void(0);" alt="">第 2 章 进程与线程：并发管理核心</a><div class="blog-slider__text">讲解进程与线程的定义、状态转换及控制逻辑，分析进程调度策略，阐述进程同步互斥（PV 操作）与死锁的处理机制，是操作系统并发管理的核心。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/833e46bb.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/169339cb.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112844.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-08-29</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/169339cb.html&quot;);" href="javascript:void(0);" alt="">第 5 章 输入输出管理：设备协同与优化</a><div class="blog-slider__text">详解I/O设备分类与控制方式（程序直接控制/DMA/通道），分析磁盘结构与调度策略，介绍SPOOLing等I/O优化技术，保障设备与CPU、内存的高效协同。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/169339cb.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/ce20e5e9.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112813.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-08-29</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/ce20e5e9.html&quot;);" href="javascript:void(0);" alt="">第 3 章 内存管理：地址映射与虚拟内存</a><div class="blog-slider__text">覆盖内存分配方式（连续/分页/分段）与地址转换机制，详解虚拟内存技术、请求分页流程及页面置换策略，解决多道程序下内存利用率与地址映射问题。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/ce20e5e9.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/790dfc8c.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112650.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-08-29</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/790dfc8c.html&quot;);" href="javascript:void(0);" alt="">第 4 章 文件管理：存储与访问机制</a><div class="blog-slider__text">介绍文件的逻辑与物理结构，讲解目录管理（按名存取）、索引节点功能及外存空闲空间分配策略，实现文件的安全存储与高效共享。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/790dfc8c.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/b328aa63.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112844.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-08-29</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/b328aa63.html&quot;);" href="javascript:void(0);" alt="">第 1 章 操作系统概述：计算机系统基础</a><div class="blog-slider__text">阐述操作系统的定义与核心功能，详解四大特征（并发 / 共享 / 虚拟 / 异步）、处理器运行模式及系统结构分类，介绍 OS 引导流程，奠定操作系统认知基础。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/b328aa63.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/c45d1e8a.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112813.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-08-29</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/c45d1e8a.html&quot;);" href="javascript:void(0);" alt="">第 1 章 计算机系统概述</a><div class="blog-slider__text">介绍计算机系统的硬件与软件组成，详解五大功能部件及总线工作机制，阐述指令集体系结构的核心作用，建立计算机系统的整体认知。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/c45d1e8a.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/b8b0eacd.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112618.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-03-12</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/b8b0eacd.html&quot;);" href="javascript:void(0);" alt="">java基础</a><div class="blog-slider__text">Java基础</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/b8b0eacd.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/79666db.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112626.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-03-12</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/79666db.html&quot;);" href="javascript:void(0);" alt="">数据结构</a><div class="blog-slider__text">数据结构的核心是高效组织数据，区分逻辑结构（线性 / 非线性）与物理结构（顺序 / 链式），覆盖数组、树、图等核心类型，为优化算法效率、支撑工程应用奠定基础。</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/79666db.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms;"><a class="blog-slider__img" onclick="pjax.loadUrl(&quot;post/77666db.html&quot;);" href="javascript:void(0);" alt=""><img width="48" height="48" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://obsidian-1322827540.cos.ap-guangzhou.myqcloud.com/img/Screenshot_2025_0314_112855.png" alt="" onerror="this.src=https://unpkg.zhimg.com/akilar-candyassets/image/loading.gif; this.onerror = null;"/></a><div class="blog-slider__content"><span class="blog-slider__code">2025-04-07</span><a class="blog-slider__title" onclick="pjax.loadUrl(&quot;post/77666db.html&quot;);" href="javascript:void(0);" alt="">王道计组pdf</a><div class="blog-slider__text">计算机组成原理</div><a class="blog-slider__button" onclick="pjax.loadUrl(&quot;post/77666db.html&quot;);" href="javascript:void(0);" alt="">详情       </a></div></div></div><div class="blog-slider__pagination swiper-pagination-clickable swiper-pagination-bullets"></div></div></div>';
+    console.log('已挂载butterfly_swiper')
+    parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+    }
+  var elist = 'undefined'.split(',');
+  var cpage = location.pathname;
+  var epage = '/';
+  var flag = 0;
+
+  for (var i=0;i<elist.length;i++){
+    if (cpage.includes(elist[i])){
+      flag++;
+    }
+  }
+
+  if ((epage ==='all')&&(flag == 0)){
+    butterfly_swiper_injector_config();
+  }
+  else if (epage === cpage){
+    butterfly_swiper_injector_config();
+  }
+  </script><script defer src="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiper.min.js"></script><script defer data-pjax src="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiper_init.js"></script><div class="js-pjax"><script async="async">var arr = document.getElementsByClassName('recent-post-item');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '2s');
+    arr[i].setAttribute('data-wow-delay', '1s');
+    arr[i].setAttribute('data-wow-offset', '100');
+    arr[i].setAttribute('data-wow-iteration', '1');
+  }</script><script async="async">var arr = document.getElementsByClassName('card-widget');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '');
+    arr[i].setAttribute('data-wow-delay', '');
+    arr[i].setAttribute('data-wow-offset', '');
+    arr[i].setAttribute('data-wow-iteration', '');
+  }</script></div><script defer src="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/wow.min.js"></script><script defer src="https://npm.elemecdn.com/hexo-butterfly-wowjs/lib/wow_init.js"></script><!-- hexo injector body_end end --><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"log":false});</script></body></html>
