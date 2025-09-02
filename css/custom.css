@@ -1942,3 +1942,74 @@ figure.highlight pre .addition {
         opacity: 0;
     }
 }
+
+/* 随机标签颜色 */
+.card-tag-cloud a {
+    /* 取消默认颜色 */
+    background-color: transparent !important;
+}
+
+/* 生成随机颜色（使用 nth-child 循环应用颜色列表） */
+.card-tag-cloud a:nth-child(16n+1) {
+    color: #f44336 !important;
+}
+
+.card-tag-cloud a:nth-child(16n+2) {
+    color: #e91e63 !important;
+}
+
+.card-tag-cloud a:nth-child(16n+3) {
+    color: #9c27b0 !important;
+}
+
+.card-tag-cloud a:nth-child(16n+4) {
+    color: #673ab7 !important;
+}
+
+.card-tag-cloud a:nth-child(16n+5) {
+    color: #3f51b5 !important;
+}
+
+.card-tag-cloud a:nth-child(16n+6) {
+    color: #2196f3 !important;
+}
+
+.card-tag-cloud a:nth-child(16n+7) {
+    color: #03a9f4 !important;
+}
+
+.card-tag-cloud a:nth-child(16n+8) {
+    color: #00bcd4 !important;
+}
+
+.card-tag-cloud a:nth-child(16n+9) {
+    color: #009688 !important;
+}
+
+.card-tag-cloud a:nth-child(16n+10) {
+    color: #4CAF50 !important;
+}
+
+.card-tag-cloud a:nth-child(16n+11) {
+    color: #8BC34A !important;
+}
+
+.card-tag-cloud a:nth-child(16n+12) {
+    color: #CDDC39 !important;
+}
+
+.card-tag-cloud a:nth-child(16n+13) {
+    color: #FFEB3B !important;
+}
+
+.card-tag-cloud a:nth-child(16n+14) {
+    color: #FFC107 !important;
+}
+
+.card-tag-cloud a:nth-child(16n+15) {
+    color: #FF9800 !important;
+}
+
+.card-tag-cloud a:nth-child(16n+16) {
+    color: #FF5722 !important;
+}
